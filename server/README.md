@@ -10,10 +10,10 @@
     sudo su - postgres
     psql template1
     CREATE USER root WITH PASSWORD 'root';
-    CREATE DATABASE seemso;
-    CREATE DATABASE seemso_test;
-    GRANT ALL PRIVILEGES ON DATABASE seemso TO root;
-    GRANT ALL PRIVILEGES ON DATABASE seemso_test TO root;
+    CREATE DATABASE seemsso;
+    CREATE DATABASE seemsso_test;
+    GRANT ALL PRIVILEGES ON DATABASE seemsso TO root;
+    GRANT ALL PRIVILEGES ON DATABASE seemsso_test TO root;
     \q
     ```
 
