@@ -49,18 +49,13 @@ postRegenerateAccessTokenR userId = do
                 Nothing
             -- This shouldn't normally happen.
                  -> do
-                    _ <-
-                        runDB $
-                        insert $ AccessToken currentTime userId accessTokenText
+                    _ <- runDB $ insert $ AccessToken currentTime userId accessTokenText
                     defaultLayout
                         [whamlet|
                 <p>Token didn't exist, but a new one was created.
             |]
                 Just token -> do
-                    runDB $
-                        update
-                            (entityKey token)
-                            [AccessTokenToken =. accessTokenText]
+                    runDB $ update (entityKey token) [AccessTokenToken =. accessTokenText]
                     setMessage "New access token generated."
             -- Redirect to profile page.
             -- @todo: Redirect could be also to other user's page, if admin did this.

@@ -20,15 +20,7 @@ getRestfulItemR companyId itemId = do
             if (itemSale item == CompanyId)
                 then do
                     urlRender <- getUrlRender
-                    let itemWithMetaData =
-                            addEntityMetaData
-                                urlRender
-                                (RestfulItemR CompanyId)
-                                itemId
-                                item
+                    let itemWithMetaData = addEntityMetaData urlRender (RestfulItemR CompanyId) itemId item
                     return $ object ["data" .= toJSON itemWithMetaData]
-                else invalidArgs
-                         [ "Item's sale doesn't match the Sale ID you have passed."
-                         ]
-        else invalidArgs
-                 ["Cannot get items for a Sale that is not currently active."]
+                else invalidArgs ["Item's sale doesn't match the Sale ID you have passed."]
+        else invalidArgs ["Cannot get items for a Sale that is not currently active."]
