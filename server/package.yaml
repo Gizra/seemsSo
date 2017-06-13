@@ -1,5 +1,5 @@
 name:    seemsSo
-version: "0.0.0"
+version: "0.1.0"
 
 dependencies:
 
@@ -45,6 +45,10 @@ dependencies:
 - time
 - case-insensitive
 - wai
+
+# Project's packages
+- esqueleto
+- random-strings
 
 # The library contains all of our application code. The executable
 # defined below is just a thin wrapper.
