@@ -7,7 +7,7 @@ import Pusher.Model exposing (Cluster(..), PusherAppKey)
 
 local : Model
 local =
-    { backendUrl = "http://localhost/drupal-elm-starter/server/www"
+    { backendUrl = "http://localhost:3000"
     , name = "local"
     , pusherKey = PusherAppKey "" UsEast1
     }

@@ -11844,7 +11844,7 @@ var _Gizra$elm_spa_exmple$App_Router$delta2url = F2(
 	});
 
 var _Gizra$elm_spa_exmple$LocalConfig$local = {
-	backendUrl: 'http://localhost/drupal-elm-starter/server/www',
+	backendUrl: 'http://localhost:3000',
 	name: 'local',
 	pusherKey: A2(_Gizra$elm_spa_exmple$Pusher_Model$PusherAppKey, '', _Gizra$elm_spa_exmple$Pusher_Model$UsEast1)
 };
