@@ -82,8 +82,57 @@ makeFoundation appSettings
     pool <- flip runLoggingT logFunc $ createPostgresqlPool (pgConnStr $ appDatabaseConf appSettings) (pgPoolSize $ appDatabaseConf appSettings)
     -- Perform database migration using our application's logging settings.
     runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
+
+    -- Migrate dummy data.
+    _ <- migrateData pool
+
     -- Return the foundation
     return $ mkFoundation pool
+
+
+{-| Migrate dummy data.
+
+@todo: Run only if in development mode.
+-}
+migrateData pool = do
+    -- Migrate data only if "admin" is missing.
+    maybeUser <- runSqlPool (getBy $ UniqueUser "admin") pool
+    case maybeUser of
+        Just (Entity _ _) -> do
+            putStrLn "---- Skipped migration"
+            return ()
+
+        Nothing -> do
+            currentTime <- getCurrentTime
+
+            -- User
+            userId1 <- runSqlPool (insert $ createUser "admin") pool
+            userId2 <- runSqlPool (insert $ createUser "demo")  pool
+            userId3 <- runSqlPool (insert $ createUser "luli")  pool
+
+            -- AccessToken
+            _ <- runSqlPool (insert $ AccessToken currentTime userId1 "1234") pool
+            _ <- runSqlPool (insert $ AccessToken currentTime userId2 "5678") pool
+
+            -- Company
+            company1 <- runSqlPool (insert $ Company "company1" currentTime userId1) pool
+            company2 <- runSqlPool (insert $ Company "company2" currentTime userId1) pool
+            company3 <- runSqlPool (insert $ Company "company3" currentTime userId2) pool
+            company4 <- runSqlPool (insert $ Company "company4" currentTime userId3) pool
+
+            -- Item
+            item1 <- runSqlPool (insert $ Item company1 "Item1 - Company1" 10 currentTime userId1) pool
+            item2 <- runSqlPool (insert $ Item company1 "Item2 - Company1" 20 currentTime userId1) pool
+            item3 <- runSqlPool (insert $ Item company2 "Item2 - Company2" 50 currentTime userId2) pool
+
+
+
+            return ()
+            where
+                createUser name = User
+                        { userIdent = name
+                        , userPassword = Nothing
+                        }
 
 -- | Convert our foundation to a WAI Application by calling @toWaiAppPlain@ and
 -- applying some additional middlewares.
