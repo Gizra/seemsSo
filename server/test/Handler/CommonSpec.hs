@@ -15,6 +15,6 @@ spec =
                 get RobotsR
                 bodyContains "User-agent: *"
         describe "favicon.ico" $ do
-                it "gives a 200" $ do
-                    get FaviconR
-                    statusIs 200
+            it "gives a 200" $ do
+                get FaviconR
+                statusIs 200
