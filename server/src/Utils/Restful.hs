@@ -1,3 +1,11 @@
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE ViewPatterns #-}
+
 module Utils.Restful
     ( addEntityMetaData
     , getEntityList
@@ -12,20 +20,20 @@ import qualified Data.Text.Read as T (decimal)
 import Import
 import Yesod.Core.Types
 
-getEntityList ::
-       (PersistEntity t, ToJSON (Entity t), YesodPersist site, PersistQuery (YesodPersistBackend site), PersistQuery (PersistEntityBackend t), PersistEntityBackend t ~ YesodPersistBackend site)
-    => Route site
-    -> (Key t -> Route site)
-    -> [Filter t]
-    -> HandlerT site IO Value
+-- getEntityList ::
+--        (PersistEntity t, ToJSON (Entity t), YesodPersist site, PersistQuery (YesodPersistBackend site), PersistQuery (PersistEntityBackend t), PersistEntityBackend t ~ YesodPersistBackend site)
+--     => Route site
+--     -> (Key t -> Route site)
+--     -> [Filter t]
+--     -> HandlerT site IO Value
 getEntityList listRoute partialEntityRoute selectFilters = do
     (items, totalCount) <- getItemsForEntityList selectFilters
     renderEntityList listRoute partialEntityRoute items totalCount
 
-getItemsForEntityList ::
-       (PersistEntity val, YesodPersist site, PersistQuery (YesodPersistBackend site), PersistQuery (PersistEntityBackend val), PersistEntityBackend val ~ YesodPersistBackend site)
-    => [Filter val]
-    -> HandlerT site IO ([Entity val], Int)
+-- getItemsForEntityList ::
+--        (PersistEntity val, YesodPersist site, PersistQuery (YesodPersistBackend site), PersistQuery (PersistEntityBackend val), PersistEntityBackend val ~ YesodPersistBackend site)
+--     => [Filter val]
+--     -> HandlerT site IO ([Entity val], Int)
 getItemsForEntityList selectFilters = do
     mpage <- lookupGetParam "page"
     selectOpt <- returnValueOrThrowException . (addPager mpage 3) $ []
@@ -65,7 +73,7 @@ addListMetaData urlRender route totalCount keyValues = keyValues ++ metaData
   where
     metaData = ["self" .= urlRender route, "count" .= totalCount]
 
-getTotalCount :: (PersistEntity val, YesodPersist site, PersistQuery (YesodPersistBackend site), YesodPersistBackend site ~ PersistEntityBackend val) => [Filter val] -> HandlerT site IO Int
+-- getTotalCount :: (PersistEntity val, YesodPersist site, PersistQuery (YesodPersistBackend site), YesodPersistBackend site ~ PersistEntityBackend val) => [Filter val] -> HandlerT site IO Int
 getTotalCount filters = runDB $ count filters
 
 addEntityMetaData urlRender route entityId entity =

@@ -3,6 +3,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE QuasiQuotes #-}
 
 module Handler.RegenerateAccessToken where
 
