@@ -31,7 +31,7 @@ before_script:
 script:
   - cd server
   - stack init $ARGS
-  - travis_wait stack build --test --bench --install-ghc --haddock --no-haddock-deps --jobs 1
+  - stack build --test --bench --install-ghc --haddock --no-haddock-deps --jobs 1
 
 cache:
   directories:
