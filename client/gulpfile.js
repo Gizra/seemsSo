@@ -35,7 +35,7 @@ gulp.task('elm', ['elm-init'], function() {
     .on('error', function(err) {
       console.error(err.message);
     })
-    .pipe(gulp.dest('../server/src/static/js/Main.js'));
+    .pipe(gulp.dest('../server/static/js'));
 });
 
 // These tasks will look for files that change while serving and will auto-regenerate or
