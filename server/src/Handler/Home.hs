@@ -11,5 +11,6 @@ import Import
 getHomeR :: Handler Html
 getHomeR =
     defaultLayout $ do
-        setTitle "Welcome To Yesod!"
-        $(widgetFile "homepage")
+        setTitle "Welcome To SeemsSo!"
+        addScript $ StaticR js_Main_js
+        addScript $ StaticR js_app_js
