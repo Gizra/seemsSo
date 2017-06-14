@@ -10,16 +10,8 @@ addons:
 
 matrix:
   include:
-  - env: ARGS="--resolver nightly"
-    compiler: ": #newest nightly"
   - env: ARGS="--resolver lts-8"
     compiler: ": #newest lts 8"
-  - env: ARGS="--resolver lts-7"
-    compiler: ": #newest lts 7"
-  allow_failures:
-  # GHC 8 bug: https://twitter.com/snoyberg/status/772465852780273664
-  - env: ARGS="--resolver nightly"
-  - env: ARGS="--resolver lts-7"
 
 before_install:
   # Using compiler above sets CC to an invalid value, so unset it
@@ -39,7 +31,7 @@ before_script:
 script:
   - cd server
   - stack init $ARGS
-  - stack build --test --bench --install-ghc --haddock --no-haddock-deps --jobs 1
+  - travis_wait stack build --test --bench --install-ghc --haddock --no-haddock-deps --jobs 1
 
 cache:
   directories:
