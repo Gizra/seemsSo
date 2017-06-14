@@ -21,6 +21,7 @@ import Yesod.Auth.OpenId (IdentifierType(Claimed), authOpenId)
 import Yesod.Core.Types (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
 import Yesod.Default.Util (addStaticContentExternal)
+import Utils.AccessToken
 
 -- | The foundation datatype for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -176,12 +177,24 @@ instance YesodAuth App where
     logoutDest _ = HomeR
     -- Override the above two destinations when a Referer: header is present
     redirectToReferer _ = True
-    authenticate creds =
-        runDB $ do
-            x <- getBy $ UniqueUser $ credsIdent creds
-            case x of
-                Just (Entity uid _) -> return $ Authenticated uid
-                Nothing -> Authenticated <$> insert User {userIdent = credsIdent creds, userPassword = Nothing}
+
+    authenticate creds = runDB $ do
+        x <- getBy $ UniqueUser $ credsIdent creds
+        case x of
+            Just (Entity uid _) -> return $ Authenticated uid
+            Nothing -> do
+              uid <- insert User
+                { userIdent = credsIdent creds
+                , userPassword = Nothing
+                }
+
+              -- Create access token for the new user.
+              accessTokenText <- generateToken
+
+              currentTime <- liftIO getCurrentTime
+              _ <- insert $ AccessToken currentTime uid accessTokenText
+              return $ Authenticated uid
+
     -- You can add other plugins like Google Email, email or OAuth here
     authPlugins app = [authOpenId Claimed []] ++ extraAuthPlugins
         -- Enable authDummy login if enabled.
