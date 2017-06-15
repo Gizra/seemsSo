@@ -1,4 +1,4 @@
-module Contact.Model exposing (..)
+module Homepage.Model exposing (..)
 
 import Date exposing (Day)
 import DictList exposing (DictList)
@@ -18,46 +18,7 @@ emptyModel =
 
 
 type Msg
-    = HandleContacts (Result String DictListContact)
-    | SetFilter String
-
-
-type Color
-    = White
-    | Red
-    | Orange
-    | Yellow
-    | Olive
-    | Green
-    | Teal
-    | Blue
-    | Violet
-    | Purple
-    | Pink
-    | Brown
-    | Grey
-    | Black
-
-
-type alias Name =
-    String
-
-
-type alias ContactId =
-    String
-
-
-type alias Topic =
-    { id : String
-    , name : Name
-    , color : Color
-    }
-
-
-type alias ReceptionTimes =
-    { days : List Day
-    , hours : String
-    }
+    = HandleItems (Result String DictListItems)
 
 
 type alias Contact =

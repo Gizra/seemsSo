@@ -7,36 +7,27 @@ module App.Model
         )
 
 import App.Types exposing (Language(..), Page(..))
-import Contact.Model exposing (Model, Msg)
+import Homepage.Model exposing (Model, Msg)
 import Event.Model exposing (Model, Msg)
 
 
 type Msg
-    = MsgPagesContact Contact.Model.Msg
-    | MsgPagesEvent Event.Model.Msg
+    = MsgPagesHomepage Homepage.Model.Msg
 
 
 type alias Flags =
-    { page : String
-    , language : String
-    , showAsBlock : Bool
+    { widget : String
     }
 
 
 type alias Model =
-    { language : Language
-    , page : Page
-    , pageContact : Contact.Model.Model
-    , pageEvent : Event.Model.Model
-    , showAsBlock : Bool
+    { widget : Widget
+    , pageHomepage : Homepage.Model.Model
     }
 
 
 emptyModel : Model
 emptyModel =
-    { language = Hebrew
-    , page = NotFound
-    , pageContact = Contact.Model.emptyModel
-    , pageEvent = Event.Model.emptyModel
-    , showAsBlock = False
+    { widget = NotFound
+    , pageHomepage = Homepage.Model.emptyModel
     }

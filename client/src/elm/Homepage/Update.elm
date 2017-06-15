@@ -12,27 +12,24 @@ import Json.Decode exposing (Value, decodeValue)
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        HandleContacts (Ok values) ->
-            { model | contacts = values } ! []
+        HandleItems (Ok values) ->
+            { model | items = values } ! []
 
-        HandleContacts (Err err) ->
+        HandleItems (Err err) ->
             let
                 _ =
                     Debug.log "HandleContacts" err
             in
                 model ! []
 
-        SetFilter filterString ->
-            { model | filterString = filterString } ! []
-
 
 subscriptions : Sub Msg
 subscriptions =
-    contacts (decodeValue decodeContacts >> HandleContacts)
+    items (decodeValue decodeItems >> HandleItems)
 
 
 
 -- PORTS
 
 
-port contacts : (Value -> msg) -> Sub msg
+port items : (Value -> msg) -> Sub msg

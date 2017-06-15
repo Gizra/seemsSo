@@ -1,17 +1,9 @@
 module App.Types
     exposing
-        ( Language(..)
-        , Page(..)
+        ( Widget(..)
         )
 
 
-type Page
-    = Contact
-    | Event
+type Widget
+    = HomePage
     | NotFound
-
-
-type Language
-    = Arabic
-    | English
-    | Hebrew

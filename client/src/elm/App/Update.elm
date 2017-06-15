@@ -7,45 +7,23 @@ port module App.Update
 
 import App.Model exposing (..)
 import App.Types exposing (Language(..), Page(..))
-import Contact.Update
+import Homepage.Update
 import Event.Update
 
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     let
-        page =
-            case flags.page of
-                "contacts" ->
-                    Contact
-
-                "events" ->
-                    Event
+        widget =
+            case flags.widget of
+                "homepage" ->
+                    Homepage
 
                 -- Fallback to page not found.
                 _ ->
                     NotFound
-
-        language =
-            case flags.language of
-                "ar" ->
-                    Arabic
-
-                "en" ->
-                    English
-
-                "he" ->
-                    Hebrew
-
-                -- Fallback to English.
-                _ ->
-                    English
     in
-        ( { emptyModel
-            | page = page
-            , language = language
-            , showAsBlock = flags.showAsBlock
-          }
+        ( { emptyModel | widget = widget }
         , Cmd.none
         )
 
@@ -53,33 +31,21 @@ init flags =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        MsgPagesContact subMsg ->
+        MsgPagesHomepage subMsg ->
             let
                 ( val, cmds ) =
-                    Contact.Update.update subMsg model.pageContact
+                    Homepage.Update.update subMsg model.pageHomepage
             in
-                ( { model | pageContact = val }
-                , Cmd.map MsgPagesContact cmds
-                )
-
-        MsgPagesEvent subMsg ->
-            let
-                ( val, cmds ) =
-                    Event.Update.update subMsg model.pageEvent
-            in
-                ( { model | pageEvent = val }
-                , Cmd.map MsgPagesEvent cmds
+                ( { model | pageHomepage = val }
+                , Cmd.map MsgPagesHomepage cmds
                 )
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
     case model.page of
-        Contact ->
-            Sub.map MsgPagesContact <| Contact.Update.subscriptions
-
-        Event ->
-            Sub.map MsgPagesEvent <| Event.Update.subscriptions
+        Homepage ->
+            Sub.map MsgPagesHomepage <| Homepage.Update.subscriptions
 
         NotFound ->
             Sub.none
