@@ -11,15 +11,19 @@ import Import
 import Text.Julius (rawJS)
 
 data JsSettings = JsSettings
-    { foo :: Text
+    { user :: Maybe (UserId, User)
     }
 
 instance ToJSON JsSettings where
-    toJSON jsSettings = object ["foo" .= foo jsSettings]
+    toJSON jsSettings = object ["user" .= userJson]
+      where
+        userJson =
+            maybe Null (\user -> toJSON $ uncurry Entity user) (user jsSettings)
 
 getHomeR :: Handler Html
 getHomeR = do
-    let jsSettings = encodeToLazyText JsSettings {foo = "bar"}
+    muser <- maybeAuthPair
+    let jsSettings = encodeToLazyText JsSettings {user = muser}
     defaultLayout $ do
         setTitle "Welcome To SeemsSo!"
         $(widgetFile "js-settings")
