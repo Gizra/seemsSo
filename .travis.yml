@@ -30,7 +30,7 @@ before_script:
 
 script:
   - cd server
-  - stack init $ARGS
+  # - stack init $ARGS
   - stack setup --no-terminal
   - stack build --only-snapshot --no-terminal  
 
