@@ -1,22 +1,21 @@
-module Item.Model
-    exposing
-        ( Item
-        , ItemId
-        , ItemsDict
-        )
+module Item.Model exposing (..)
 
-import Dict exposing (Dict)
+import DictList exposing (DictList)
+
+
+-- @todo: Will be used with EveryDictList
+-- type ItemId
+--     = ItemId Int
 
 
 type alias ItemId =
-    String
+    Int
 
 
 type alias Item =
     { name : String
-    , image : String
     }
 
 
-type alias ItemsDict =
-    Dict ItemId Item
+type alias EveryDictListItems =
+    DictList ItemId Item

@@ -1,22 +1,35 @@
 module Item.Decoder
     exposing
-        ( decodeItem
-        , decodeItemsDict
+        ( decodeItems
         )
 
-import Json.Decode exposing (Decoder, andThen, dict, fail, field, int, list, map, map2, nullable, string, succeed)
-import Json.Decode.Pipeline exposing (custom, decode, optional, optionalAt, required)
-import Item.Model exposing (..)
-import Utils.Json exposing (decodeListAsDict)
+import Item.Model exposing (Item, ItemId, EveryDictListItems)
+import DictList exposing (DictList, decodeArray2, empty)
+import Json.Decode exposing (Decoder, andThen, at, dict, fail, field, float, index, int, keyValuePairs, list, map, map2, nullable, oneOf, string, succeed)
+import Json.Decode.Pipeline exposing (custom, decode, optional, optionalAt, required, requiredAt)
+import Utils.Json exposing (decodeEmptyArrayAs, decodeInt)
+
+
+decodeItems : Decoder EveryDictListItems
+decodeItems =
+    oneOf
+        [ decodeArray2 (field "id" decodeItemId) decodeItem
+        , decodeEmptyArrayAs DictList.empty
+        ]
+
+
+
+-- decodeItemId : Decoder ItemId
+-- decodeItemId =
+--     decodeInt |> Decode.map ItemId
+
+
+decodeItemId : Decoder ItemId
+decodeItemId =
+    decodeInt
 
 
 decodeItem : Decoder Item
 decodeItem =
     decode Item
         |> required "label" string
-        |> optionalAt [ "image", "styles", "large" ] string "http://placehold.it/350x150"
-
-
-decodeItemsDict : Decoder ItemsDict
-decodeItemsDict =
-    decodeListAsDict decodeItem
