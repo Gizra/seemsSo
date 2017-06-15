@@ -124,7 +124,7 @@ instance Yesod App
     isAuthorized RobotsR _ = return Authorized
     isAuthorized (StaticR _) _ = return Authorized
 
-    isAuthorized HomeR _ = isAuthenticated
+    isAuthorized HomeR _ = return Authorized
     isAuthorized ProfileR _ = isAuthenticated
     isAuthorized LoginTokenR _ = isAuthenticated
     isAuthorized (RegenerateAccessTokenR uid) _ = isOwnerOrAdmin uid

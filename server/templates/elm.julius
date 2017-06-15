@@ -3,3 +3,5 @@ const node = document.getElementById('elm-app');
 let elmApp = Elm.Main.embed(node, {
   widget : "#{rawJS elmWidget}"
 });
+
+elmApp.ports.user.send(#{rawJS userJson});
