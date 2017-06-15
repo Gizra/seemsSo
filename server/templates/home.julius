@@ -1,2 +1,6 @@
 // Send the values via Elm's ports.
+<<<<<<< HEAD
 elmApp.ports.items.send(#{rawJS itemsJson});
+=======
+elmApp.ports.items.send(#{rawJS elmValues});
+>>>>>>> master
