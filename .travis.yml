@@ -1,0 +1,40 @@
+sudo: false
+
+language: c
+
+addons:
+  postgresql: "9.3"
+  apt:
+   packages:
+   - libgmp-dev
+
+matrix:
+  include:
+  - env: ARGS="--resolver lts-8"
+    compiler: ": #newest lts 8"
+
+before_install:
+  # Using compiler above sets CC to an invalid value, so unset it
+  - unset CC
+
+  # stack
+  - mkdir -p ~/.local/bin
+  - export PATH=$HOME/.local/bin:$PATH
+  - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+
+before_script:
+  - psql -c 'create database seemsso_test;' -U postgres
+  # Set postgres user credentials.
+  - export PGUSER="postgres"
+  - export PGPASS=""
+    
+  - cd server
+  - stack setup --no-terminal
+  - stack build --only-snapshot --no-terminal      
+  
+script:
+  - stack --no-terminal --skip-ghc-check test
+
+cache:
+  directories:
+    - $HOME/.stack
