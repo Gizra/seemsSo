@@ -11381,12 +11381,8 @@ var _Gizra$elm_spa_exmple$Homepage_View$view = function (model) {
 		{ctor: '[]'},
 		{
 			ctor: '::',
-			_0: _elm_lang$html$Html$text('Homepage'),
-			_1: {
-				ctor: '::',
-				_0: _Gizra$elm_spa_exmple$Item_View$viewItemsTeaser(model.items),
-				_1: {ctor: '[]'}
-			}
+			_0: _Gizra$elm_spa_exmple$Item_View$viewItemsTeaser(model.items),
+			_1: {ctor: '[]'}
 		});
 };
 

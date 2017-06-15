@@ -12,6 +12,5 @@ import Utils.Html exposing (divider, sectionDivider, showIf, showMaybe)
 view : Model -> Html Msg
 view model =
     div []
-        [ text "Homepage"
-        , viewItemsTeaser model.items
+        [ viewItemsTeaser model.items
         ]
