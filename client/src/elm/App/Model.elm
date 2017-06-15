@@ -8,7 +8,6 @@ module App.Model
 
 import App.Types exposing (Language(..), Page(..))
 import Homepage.Model exposing (Model, Msg)
-import Event.Model exposing (Model, Msg)
 
 
 type Msg

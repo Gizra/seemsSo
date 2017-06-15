@@ -1,14 +1,12 @@
-module Contact.View exposing (..)
+module Homepage.View exposing (..)
 
 import App.Types exposing (Language(..))
-import Contact.Model exposing (Contact, ContactId, DictListContact, Model, Msg(..))
-import DictList
+import Homepage.Model exposing (Model, Msg(..))
 import Html exposing (..)
 import Html.Attributes exposing (alt, class, classList, href, placeholder, src, style, target, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Json.Encode exposing (string)
-import Translate exposing (TranslationId(..), translate)
-import Utils.Html exposing (colorToString, divider, sectionDivider, showIf, showMaybe)
+import Utils.Html exposing (divider, sectionDivider, showIf, showMaybe)
 
 
 view : Model -> Html Msg

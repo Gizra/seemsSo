@@ -8,7 +8,6 @@ port module App.Update
 import App.Model exposing (..)
 import App.Types exposing (Language(..), Page(..))
 import Homepage.Update
-import Event.Update
 
 
 init : Flags -> ( Model, Cmd Msg )

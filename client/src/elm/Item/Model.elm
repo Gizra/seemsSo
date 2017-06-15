@@ -1,5 +1,7 @@
 module Item.Model exposing (..)
 
+import DictList exposing (EveryDictList)
+
 
 type ItemId
     = ItemId Int
@@ -10,5 +12,5 @@ type alias Item =
     }
 
 
-type alias DictListContact =
+type alias EveryDictListItems =
     EveryDictList ItemId Item

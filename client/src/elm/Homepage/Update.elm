@@ -1,11 +1,11 @@
-port module Contact.Update
+port module Homepage.Update
     exposing
         ( subscriptions
         , update
         )
 
-import Contact.Decoder exposing (decodeContacts)
-import Contact.Model exposing (Model, Msg(..))
+import Item.Decoder exposing (decodeItems)
+import Homepage.Model exposing (Model, Msg(..))
 import Json.Decode exposing (Value, decodeValue)
 
 
@@ -18,7 +18,7 @@ update msg model =
         HandleItems (Err err) ->
             let
                 _ =
-                    Debug.log "HandleContacts" err
+                    Debug.log "HandleItems" err
             in
                 model ! []
 
