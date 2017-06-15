@@ -1,17 +1,34 @@
+AccessToken json
+    created UTCTime
+    userId UserId
+    token Text
+    UniqueUserId userId
+    UniqueToken token
+    deriving Eq
+    deriving Show
 User
     ident Text
     password Text Maybe
     UniqueUser ident
     deriving Typeable
-Email
-    email Text
-    userId UserId Maybe
-    verkey Text Maybe
-    UniqueEmail email
-Comment json -- Adding "json" causes ToJSON and FromJSON instances to be derived.
-    message Text
-    userId UserId Maybe
-    deriving Eq
-    deriving Show
-
- -- By default this file is used in Model.hs (which is imported by Foundation.hs)
+Role
+    name            Text
+    UniqueName      name
+    deriving        Show Generic
+UserRole
+    role            RoleId
+    user            UserId
+    UniqueRoleUser  role user
+    deriving        Show Generic
+Company
+    name            Text
+    created         UTCTime
+    user            UserId
+    deriving        Show Generic
+Item json
+    company         CompanyId
+    label           Text
+    price           Int
+    created         UTCTime
+    user            UserId
+    deriving        Show Generic
