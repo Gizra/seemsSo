@@ -1,6 +1,5 @@
 module Homepage.View exposing (..)
 
-import App.Types exposing (Language(..))
 import Homepage.Model exposing (Model, Msg(..))
 import Html exposing (..)
 import Html.Attributes exposing (alt, class, classList, href, placeholder, src, style, target, type_, value)

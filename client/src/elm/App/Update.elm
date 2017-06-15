@@ -6,7 +6,7 @@ port module App.Update
         )
 
 import App.Model exposing (..)
-import App.Types exposing (Language(..), Page(..))
+import App.Types exposing (Widget(..))
 import Homepage.Update
 
 
@@ -16,7 +16,7 @@ init flags =
         widget =
             case flags.widget of
                 "homepage" ->
-                    Homepage
+                    HomePage
 
                 -- Fallback to page not found.
                 _ ->
@@ -42,8 +42,8 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    case model.page of
-        Homepage ->
+    case model.widget of
+        HomePage ->
             Sub.map MsgPagesHomepage <| Homepage.Update.subscriptions
 
         NotFound ->

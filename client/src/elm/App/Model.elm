@@ -6,7 +6,7 @@ module App.Model
         , Model
         )
 
-import App.Types exposing (Language(..), Page(..))
+import App.Types exposing (Widget(..))
 import Homepage.Model exposing (Model, Msg)
 
 

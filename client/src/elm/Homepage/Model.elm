@@ -1,7 +1,6 @@
 module Homepage.Model exposing (..)
 
-import Date exposing (Day)
-import DictList exposing (EveryDictList)
+import DictList exposing (DictList)
 import Item.Model exposing (EveryDictListItems)
 
 
@@ -12,9 +11,9 @@ type alias Model =
 
 emptyModel : Model
 emptyModel =
-    { items = EveryDictList.empty
+    { items = DictList.empty
     }
 
 
 type Msg
-    = HandleItems (Result String DictListItems)
+    = HandleItems (Result String EveryDictListItems)

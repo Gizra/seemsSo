@@ -1,7 +1,4 @@
-module App.Types
-    exposing
-        ( Widget(..)
-        )
+module App.Types exposing (..)
 
 
 type Widget
