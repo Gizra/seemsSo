@@ -27,12 +27,14 @@ before_script:
     psql <<EOF
     CREATE USER "root" password 'root';
     CREATE DATABASE "seemsso_test" OWNER "seemsso_test";
-
-script:
+    
   - cd server
   # - stack init $ARGS
   - stack setup --no-terminal
-  - stack build --only-snapshot --no-terminal  
+  - stack build --only-snapshot --no-terminal      
+  
+script:
+  - stack --no-terminal --skip-ghc-check test
 
 cache:
   directories:
