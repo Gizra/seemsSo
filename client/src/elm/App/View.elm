@@ -4,13 +4,14 @@ import App.Model exposing (..)
 import App.Types exposing (Widget(..))
 import Homepage.View exposing (view)
 import Html exposing (..)
+import Html.Attributes exposing (class)
 
 
 view : Model -> Html Msg
 view model =
     case model.widget of
         HomePage ->
-            div []
+            div [ class "container" ]
                 [ Html.map MsgPagesHomepage <| Homepage.View.view model.pageHomepage
                 ]
 

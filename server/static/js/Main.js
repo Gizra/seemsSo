@@ -8745,7 +8745,7 @@ var _Gizra$elm_spa_exmple$Utils_Json$decodeDate = _elm_lang$core$Json_Decode$one
 
 var _Gizra$elm_spa_exmple$Item_Decoder$decodeItem = A3(
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-	'name',
+	'label',
 	_elm_lang$core$Json_Decode$string,
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$Item_Model$Item));
 var _Gizra$elm_spa_exmple$Item_Decoder$decodeItemId = _Gizra$elm_spa_exmple$Utils_Json$decodeInt;
@@ -11354,6 +11354,27 @@ var _Gizra$elm_spa_exmple$Utils_Html$showIf = F2(
 	});
 var _Gizra$elm_spa_exmple$Utils_Html$showMaybe = _elm_lang$core$Maybe$withDefault(_Gizra$elm_spa_exmple$Utils_Html$emptyNode);
 
+var _Gizra$elm_spa_exmple$Item_View$viewItemsTeaser = function (items) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		_Gizra$elm_dictlist$DictList$values(
+			A2(
+				_Gizra$elm_dictlist$DictList$map,
+				F2(
+					function (_p0, item) {
+						return A2(
+							_elm_lang$html$Html$div,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text(item.name),
+								_1: {ctor: '[]'}
+							});
+					}),
+				items)));
+};
+
 var _Gizra$elm_spa_exmple$Homepage_View$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -11361,7 +11382,11 @@ var _Gizra$elm_spa_exmple$Homepage_View$view = function (model) {
 		{
 			ctor: '::',
 			_0: _elm_lang$html$Html$text('Homepage'),
-			_1: {ctor: '[]'}
+			_1: {
+				ctor: '::',
+				_0: _Gizra$elm_spa_exmple$Item_View$viewItemsTeaser(model.items),
+				_1: {ctor: '[]'}
+			}
 		});
 };
 
@@ -11370,7 +11395,11 @@ var _Gizra$elm_spa_exmple$App_View$view = function (model) {
 	if (_p0.ctor === 'HomePage') {
 		return A2(
 			_elm_lang$html$Html$div,
-			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('container'),
+				_1: {ctor: '[]'}
+			},
 			{
 				ctor: '::',
 				_0: A2(

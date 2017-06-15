@@ -31,4 +31,10 @@ getHomeR = do
         setTitle "Welcome To SeemsSo!"
         $(widgetFile "js-settings")
         addScript $ StaticR js_Main_js
-        addScript $ StaticR js_app_js
+        -- @todo: Make widget type safe
+        -- Inject the general page.
+        let elmWidget = "homepage" :: Text
+        $(widgetFile "elm")
+        -- Inject page specific date.
+        let elmValues = encodeToLazyText items
+        $(widgetFile "home")
