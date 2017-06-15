@@ -23,13 +23,12 @@ before_install:
   - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
 
 before_script:
-  - |
-    psql <<EOF
-    CREATE USER "root" password 'root';
-    CREATE DATABASE "seemsso_test" OWNER "seemsso_test";
+  - psql -c 'create database seemsso_test;' -U postgres
+  # Set postgres user credentials.
+  - export PGUSER="postgres"
+  - export PGPASS=""
     
   - cd server
-  # - stack init $ARGS
   - stack setup --no-terminal
   - stack build --only-snapshot --no-terminal      
   
