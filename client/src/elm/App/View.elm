@@ -12,7 +12,7 @@ view model =
     case model.widget of
         HomePage ->
             div [ class "container" ]
-                [ Html.map MsgPagesHomepage <| Homepage.View.view model.pageHomepage
+                [ Html.map MsgPagesHomepage <| Homepage.View.view model.user model.pageHomepage
                 ]
 
         NotFound ->

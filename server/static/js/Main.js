@@ -11424,16 +11424,44 @@ var _Gizra$elm_spa_exmple$Item_View$viewItemsTeaser = function (items) {
 				items)));
 };
 
-var _Gizra$elm_spa_exmple$Homepage_View$view = function (model) {
-	return A2(
-		_elm_lang$html$Html$div,
-		{ctor: '[]'},
-		{
-			ctor: '::',
-			_0: _Gizra$elm_spa_exmple$Item_View$viewItemsTeaser(model.items),
-			_1: {ctor: '[]'}
-		});
+var _Gizra$elm_spa_exmple$User_View$view = function (muser) {
+	var _p0 = muser;
+	if (_p0.ctor === 'Just') {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html$text(_p0._0.name),
+				_1: {ctor: '[]'}
+			});
+	} else {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html$text('Anonymous'),
+				_1: {ctor: '[]'}
+			});
+	}
 };
+
+var _Gizra$elm_spa_exmple$Homepage_View$view = F2(
+	function (muser, model) {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: _Gizra$elm_spa_exmple$User_View$view(muser),
+				_1: {
+					ctor: '::',
+					_0: _Gizra$elm_spa_exmple$Item_View$viewItemsTeaser(model.items),
+					_1: {ctor: '[]'}
+				}
+			});
+	});
 
 var _Gizra$elm_spa_exmple$App_View$view = function (model) {
 	var _p0 = model.widget;
@@ -11450,7 +11478,7 @@ var _Gizra$elm_spa_exmple$App_View$view = function (model) {
 				_0: A2(
 					_elm_lang$html$Html$map,
 					_Gizra$elm_spa_exmple$App_Model$MsgPagesHomepage,
-					_Gizra$elm_spa_exmple$Homepage_View$view(model.pageHomepage)),
+					A2(_Gizra$elm_spa_exmple$Homepage_View$view, model.user, model.pageHomepage)),
 				_1: {ctor: '[]'}
 			});
 	} else {

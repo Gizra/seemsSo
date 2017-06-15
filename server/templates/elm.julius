@@ -4,3 +4,5 @@ let elmApp = Elm.Main.embed(node, {
   widget : "#{rawJS elmWidget}",
   user : #{rawJS userJson}
 });
+
+elmApp.ports.user.send(#{rawJS userJson});

@@ -7,6 +7,11 @@ import User.Model exposing (User)
 import Utils.Html exposing (divider, sectionDivider, showIf, showMaybe)
 
 
-view : User -> Html msg
-view user =
-    div [] [ text user.name ]
+view : Maybe User -> Html msg
+view muser =
+    case muser of
+        Just user ->
+            div [] [ text user.name ]
+
+        Nothing ->
+            div [] [ text "Anonymous" ]
