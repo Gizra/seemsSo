@@ -8,6 +8,8 @@ port module App.Update
 import App.Model exposing (..)
 import App.Types exposing (Widget(..))
 import Homepage.Update
+import Json.Decode exposing (Value, decodeValue)
+import User.Decoder exposing (decodeUser)
 
 
 init : Flags -> ( Model, Cmd Msg )
@@ -30,6 +32,16 @@ init flags =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        HandleUser (Ok user) ->
+            { model | user = Just user } ! []
+
+        HandleUser (Err err) ->
+            let
+                _ =
+                    Debug.log "HandleUser" err
+            in
+                model ! []
+
         MsgPagesHomepage subMsg ->
             let
                 ( val, cmds ) =
@@ -42,9 +54,23 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    case model.widget of
-        HomePage ->
-            Sub.map MsgPagesHomepage <| Homepage.Update.subscriptions
+    let
+        subs =
+            case model.widget of
+                HomePage ->
+                    Sub.map MsgPagesHomepage <| Homepage.Update.subscriptions
 
-        NotFound ->
-            Sub.none
+                NotFound ->
+                    Sub.none
+    in
+        Sub.batch
+            [ user (decodeValue decodeUser >> HandleUser)
+            , subs
+            ]
+
+
+
+-- PORTS
+
+
+port user : (Value -> msg) -> Sub msg

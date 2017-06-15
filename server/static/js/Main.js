@@ -7995,16 +7995,23 @@ var _Gizra$elm_spa_exmple$Homepage_Model$HandleItems = function (a) {
 	return {ctor: 'HandleItems', _0: a};
 };
 
-var _Gizra$elm_spa_exmple$App_Model$emptyModel = {widget: _Gizra$elm_spa_exmple$App_Types$NotFound, pageHomepage: _Gizra$elm_spa_exmple$Homepage_Model$emptyModel};
+var _Gizra$elm_spa_exmple$User_Model$User = function (a) {
+	return {name: a};
+};
+
+var _Gizra$elm_spa_exmple$App_Model$emptyModel = {widget: _Gizra$elm_spa_exmple$App_Types$NotFound, pageHomepage: _Gizra$elm_spa_exmple$Homepage_Model$emptyModel, user: _elm_lang$core$Maybe$Nothing};
 var _Gizra$elm_spa_exmple$App_Model$Flags = function (a) {
 	return {widget: a};
 };
-var _Gizra$elm_spa_exmple$App_Model$Model = F2(
-	function (a, b) {
-		return {widget: a, pageHomepage: b};
+var _Gizra$elm_spa_exmple$App_Model$Model = F3(
+	function (a, b, c) {
+		return {widget: a, pageHomepage: b, user: c};
 	});
 var _Gizra$elm_spa_exmple$App_Model$MsgPagesHomepage = function (a) {
 	return {ctor: 'MsgPagesHomepage', _0: a};
+};
+var _Gizra$elm_spa_exmple$App_Model$HandleUser = function (a) {
+	return {ctor: 'HandleUser', _0: a};
 };
 
 var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode = _elm_lang$core$Json_Decode$succeed;
@@ -8788,27 +8795,44 @@ var _Gizra$elm_spa_exmple$Homepage_Update$subscriptions = _Gizra$elm_spa_exmple$
 			A2(_elm_lang$core$Json_Decode$decodeValue, _Gizra$elm_spa_exmple$Item_Decoder$decodeItems, _p2));
 	});
 
-var _Gizra$elm_spa_exmple$App_Update$subscriptions = function (model) {
-	var _p0 = model.widget;
-	if (_p0.ctor === 'HomePage') {
-		return A2(_elm_lang$core$Platform_Sub$map, _Gizra$elm_spa_exmple$App_Model$MsgPagesHomepage, _Gizra$elm_spa_exmple$Homepage_Update$subscriptions);
-	} else {
-		return _elm_lang$core$Platform_Sub$none;
-	}
-};
+var _Gizra$elm_spa_exmple$User_Decoder$decodeUser = A3(
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+	'name',
+	_elm_lang$core$Json_Decode$string,
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$User_Model$User));
+
 var _Gizra$elm_spa_exmple$App_Update$update = F2(
 	function (msg, model) {
-		var _p1 = msg;
-		var _p2 = A2(_Gizra$elm_spa_exmple$Homepage_Update$update, _p1._0, model.pageHomepage);
-		var val = _p2._0;
-		var cmds = _p2._1;
-		return {
-			ctor: '_Tuple2',
-			_0: _elm_lang$core$Native_Utils.update(
-				model,
-				{pageHomepage: val}),
-			_1: A2(_elm_lang$core$Platform_Cmd$map, _Gizra$elm_spa_exmple$App_Model$MsgPagesHomepage, cmds)
-		};
+		var _p0 = msg;
+		if (_p0.ctor === 'HandleUser') {
+			if (_p0._0.ctor === 'Ok') {
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{
+							user: _elm_lang$core$Maybe$Just(_p0._0._0)
+						}),
+					{ctor: '[]'});
+			} else {
+				var _p1 = A2(_elm_lang$core$Debug$log, 'HandleUser', _p0._0._0);
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					{ctor: '[]'});
+			}
+		} else {
+			var _p2 = A2(_Gizra$elm_spa_exmple$Homepage_Update$update, _p0._0, model.pageHomepage);
+			var val = _p2._0;
+			var cmds = _p2._1;
+			return {
+				ctor: '_Tuple2',
+				_0: _elm_lang$core$Native_Utils.update(
+					model,
+					{pageHomepage: val}),
+				_1: A2(_elm_lang$core$Platform_Cmd$map, _Gizra$elm_spa_exmple$App_Model$MsgPagesHomepage, cmds)
+			};
+		}
 	});
 var _Gizra$elm_spa_exmple$App_Update$init = function (flags) {
 	var widget = function () {
@@ -8826,6 +8850,31 @@ var _Gizra$elm_spa_exmple$App_Update$init = function (flags) {
 			{widget: widget}),
 		_1: _elm_lang$core$Platform_Cmd$none
 	};
+};
+var _Gizra$elm_spa_exmple$App_Update$user = _elm_lang$core$Native_Platform.incomingPort('user', _elm_lang$core$Json_Decode$value);
+var _Gizra$elm_spa_exmple$App_Update$subscriptions = function (model) {
+	var subs = function () {
+		var _p4 = model.widget;
+		if (_p4.ctor === 'HomePage') {
+			return A2(_elm_lang$core$Platform_Sub$map, _Gizra$elm_spa_exmple$App_Model$MsgPagesHomepage, _Gizra$elm_spa_exmple$Homepage_Update$subscriptions);
+		} else {
+			return _elm_lang$core$Platform_Sub$none;
+		}
+	}();
+	return _elm_lang$core$Platform_Sub$batch(
+		{
+			ctor: '::',
+			_0: _Gizra$elm_spa_exmple$App_Update$user(
+				function (_p5) {
+					return _Gizra$elm_spa_exmple$App_Model$HandleUser(
+						A2(_elm_lang$core$Json_Decode$decodeValue, _Gizra$elm_spa_exmple$User_Decoder$decodeUser, _p5));
+				}),
+			_1: {
+				ctor: '::',
+				_0: subs,
+				_1: {ctor: '[]'}
+			}
+		});
 };
 
 var _elm_lang$virtual_dom$VirtualDom_Debug$wrap;
