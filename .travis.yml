@@ -10,16 +10,8 @@ addons:
 
 matrix:
   include:
-  - env: ARGS="--resolver nightly"
-    compiler: ": #newest nightly"
   - env: ARGS="--resolver lts-8"
     compiler: ": #newest lts 8"
-  - env: ARGS="--resolver lts-7"
-    compiler: ": #newest lts 7"
-  allow_failures:
-  # GHC 8 bug: https://twitter.com/snoyberg/status/772465852780273664
-  - env: ARGS="--resolver nightly"
-  - env: ARGS="--resolver lts-7"
 
 before_install:
   # Using compiler above sets CC to an invalid value, so unset it
@@ -31,15 +23,17 @@ before_install:
   - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
 
 before_script:
-  - |
-    psql <<EOF
-    CREATE USER "root" password 'root';
-    CREATE DATABASE "seemsso_test" OWNER "seemsso_test";
-
-script:
+  - psql -c 'create database seemsso_test;' -U postgres
+  # Set postgres user credentials.
+  - export PGUSER="postgres"
+  - export PGPASS=""
+    
   - cd server
-  - stack init $ARGS
-  - stack build --test --bench --install-ghc --haddock --no-haddock-deps --jobs 1
+  - stack setup --no-terminal
+  - stack build --only-snapshot --no-terminal      
+  
+script:
+  - stack --no-terminal --skip-ghc-check test
 
 cache:
   directories:
