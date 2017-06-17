@@ -14,6 +14,7 @@ import Utils.Form (renderSematnicUiDivs)
 getItemR :: ItemId -> Handler Html
 getItemR itemId = do
     item <- runDB $ get404 itemId
+    company <- runDB $ get404 $ itemCompany item
     defaultLayout $ do
         setTitle . toHtml $ "Item #" ++ (show $ fromSqlKey itemId)
         $(widgetFile "item")

@@ -11,4 +11,7 @@
             <strong>Name:</strong> <span class="name">#{itemName item}</span>
 
         <div>
+            <strong>Company:</strong> <span class="company">#{companyName company}</span>
+
+        <div>
             <strong>Price:</strong> <span class="price">#{itemPrice item}</span>
