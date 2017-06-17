@@ -15,7 +15,7 @@ getItemR :: ItemId -> Handler Html
 getItemR itemId = do
     item <- runDB $ get404 itemId
     defaultLayout $ do
-        setTitle . toHtml $ "Item #" ++ show $ fromSqlKey itemId
+        setTitle . toHtml $ "Item #" ++ (show $ fromSqlKey itemId)
         $(widgetFile "item")
 
 getCreateItemR :: Handler Html

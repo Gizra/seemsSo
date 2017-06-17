@@ -109,6 +109,11 @@ instance Yesod App
                   , menuItemRoute = ProfileR
                   , menuItemAccessCallback = isJust muser
                   }
+                  , NavbarLeft $ MenuItem
+                                      { menuItemLabel = "Create Item"
+                                      , menuItemRoute = CreateItemR
+                                      , menuItemAccessCallback = isJust muser
+                                      }
                 , NavbarRight $
                   MenuItem
                   { menuItemLabel = "Login"
