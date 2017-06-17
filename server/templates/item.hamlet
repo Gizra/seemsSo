@@ -1,1 +1,14 @@
-Item will be here!
+<div class="ui container">
+    <div class="ui tabular menu">
+        <a class="item active" href="@{ItemR itemId}">
+            View
+        <a class="item" href="@{EditItemR itemId}">
+            Edit
+
+
+    <div class="ui segment">
+        <div>
+            <strong>Name:</strong> <span class="name">#{itemName item}</span>
+
+        <div>
+            <strong>Price:</strong> <span class="price">#{itemPrice item}</span>
