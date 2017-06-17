@@ -26,8 +26,8 @@ Company
     user            UserId
     deriving        Show Generic
 Item json
+    name            Text
     company         CompanyId
-    label           Text
     price           Int
     created         UTCTime
     user            UserId
