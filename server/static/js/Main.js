@@ -8752,7 +8752,7 @@ var _Gizra$elm_spa_exmple$Utils_Json$decodeDate = _elm_lang$core$Json_Decode$one
 
 var _Gizra$elm_spa_exmple$Item_Decoder$decodeItem = A3(
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-	'label',
+	'name',
 	_elm_lang$core$Json_Decode$string,
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$Item_Model$Item));
 var _Gizra$elm_spa_exmple$Item_Decoder$decodeItemId = _Gizra$elm_spa_exmple$Utils_Json$decodeInt;

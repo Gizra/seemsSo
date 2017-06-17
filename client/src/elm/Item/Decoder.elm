@@ -32,4 +32,4 @@ decodeItemId =
 decodeItem : Decoder Item
 decodeItem =
     decode Item
-        |> required "label" string
+        |> required "name" string
