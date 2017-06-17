@@ -17,11 +17,11 @@ import Yesod.Auth.Dummy
 
 import qualified Data.CaseInsensitive as CI
 import qualified Data.Text.Encoding as TE
+import Utils.AccessToken
 import Yesod.Auth.OpenId (IdentifierType(Claimed), authOpenId)
 import Yesod.Core.Types (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
 import Yesod.Default.Util (addStaticContentExternal)
-import Utils.AccessToken
 
 -- | The foundation datatype for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -97,15 +97,42 @@ instance Yesod App
         (title, parents) <- breadcrumbs
         -- Define the menu items of the header.
         let menuItems =
-                [ NavbarLeft $ MenuItem {menuItemLabel = "Home", menuItemRoute = HomeR, menuItemAccessCallback = True}
-                , NavbarLeft $ MenuItem {menuItemLabel = "Profile", menuItemRoute = ProfileR, menuItemAccessCallback = isJust muser}
-                , NavbarRight $ MenuItem {menuItemLabel = "Login", menuItemRoute = AuthR LoginR, menuItemAccessCallback = isNothing muser}
-                , NavbarRight $ MenuItem {menuItemLabel = "Logout", menuItemRoute = AuthR LogoutR, menuItemAccessCallback = isJust muser}
+                [ NavbarLeft $
+                  MenuItem
+                  { menuItemLabel = "Home"
+                  , menuItemRoute = HomeR
+                  , menuItemAccessCallback = True
+                  }
+                , NavbarLeft $
+                  MenuItem
+                  { menuItemLabel = "Profile"
+                  , menuItemRoute = ProfileR
+                  , menuItemAccessCallback = isJust muser
+                  }
+                  , NavbarLeft $ MenuItem
+                                      { menuItemLabel = "Create Item"
+                                      , menuItemRoute = CreateItemR
+                                      , menuItemAccessCallback = isJust muser
+                                      }
+                , NavbarRight $
+                  MenuItem
+                  { menuItemLabel = "Login"
+                  , menuItemRoute = AuthR LoginR
+                  , menuItemAccessCallback = isNothing muser
+                  }
+                , NavbarRight $
+                  MenuItem
+                  { menuItemLabel = "Logout"
+                  , menuItemRoute = AuthR LogoutR
+                  , menuItemAccessCallback = isJust muser
+                  }
                 ]
         let navbarLeftMenuItems = [x | NavbarLeft x <- menuItems]
         let navbarRightMenuItems = [x | NavbarRight x <- menuItems]
-        let navbarLeftFilteredMenuItems = [x | x <- navbarLeftMenuItems, menuItemAccessCallback x]
-        let navbarRightFilteredMenuItems = [x | x <- navbarRightMenuItems, menuItemAccessCallback x]
+        let navbarLeftFilteredMenuItems =
+                [x | x <- navbarLeftMenuItems, menuItemAccessCallback x]
+        let navbarRightFilteredMenuItems =
+                [x | x <- navbarRightMenuItems, menuItemAccessCallback x]
         -- We break up the default layout into two components:
         -- default-layout is the contents of the body tag, and
         -- default-layout-wrapper is the entire page. Since the final
@@ -123,16 +150,16 @@ instance Yesod App
     isAuthorized FaviconR _ = return Authorized
     isAuthorized RobotsR _ = return Authorized
     isAuthorized (StaticR _) _ = return Authorized
-
     isAuthorized HomeR _ = return Authorized
     isAuthorized ProfileR _ = isAuthenticated
     isAuthorized LoginTokenR _ = isAuthenticated
     isAuthorized (RegenerateAccessTokenR uid) _ = isOwnerOrAdmin uid
-
+    -- @todo: Fix access
+    isAuthorized (ItemR _) _ = isAuthenticated
+    isAuthorized CreateItemR _ = isAuthenticated
+    isAuthorized (EditItemR _) _ = isAuthenticated
     isAuthorized (RestfulItemR _ _) _ = isAuthenticated
     isAuthorized (RestfulItemsR _) _ = isAuthenticated
-
-
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
     -- expiration dates to be set far in the future without worry of
@@ -140,13 +167,22 @@ instance Yesod App
     addStaticContent ext mime content = do
         master <- getYesod
         let staticDir = appStaticDir $ appSettings master
-        addStaticContentExternal minifym genFileName staticDir (StaticR . flip StaticRoute []) ext mime content
+        addStaticContentExternal
+            minifym
+            genFileName
+            staticDir
+            (StaticR . flip StaticRoute [])
+            ext
+            mime
+            content
         -- Generate a unique filename based on the content itself
       where
         genFileName lbs = "autogen-" ++ base64md5 lbs
     -- What messages should be logged. The following includes all messages when
     -- in development, and warnings and errors in production.
-    shouldLog app _source level = appShouldLogAll (appSettings app) || level == LevelWarn || level == LevelError
+    shouldLog app _source level =
+        appShouldLogAll (appSettings app) ||
+        level == LevelWarn || level == LevelError
     makeLogger = return . appLogger
     -- Provide proper Bootstrap styling for default displays, like
     -- error pages
@@ -177,24 +213,23 @@ instance YesodAuth App where
     logoutDest _ = HomeR
     -- Override the above two destinations when a Referer: header is present
     redirectToReferer _ = True
-
-    authenticate creds = runDB $ do
-        x <- getBy $ UniqueUser $ credsIdent creds
-        case x of
-            Just (Entity uid _) -> return $ Authenticated uid
-            Nothing -> do
-              uid <- insert User
-                { userIdent = credsIdent creds
-                , userPassword = Nothing
-                }
-
+    authenticate creds =
+        runDB $ do
+            x <- getBy $ UniqueUser $ credsIdent creds
+            case x of
+                Just (Entity uid _) -> return $ Authenticated uid
+                Nothing -> do
+                    uid <-
+                        insert
+                            User
+                            { userIdent = credsIdent creds
+                            , userPassword = Nothing
+                            }
               -- Create access token for the new user.
-              accessTokenText <- generateToken
-
-              currentTime <- liftIO getCurrentTime
-              _ <- insert $ AccessToken currentTime uid accessTokenText
-              return $ Authenticated uid
-
+                    accessTokenText <- generateToken
+                    currentTime <- liftIO getCurrentTime
+                    _ <- insert $ AccessToken currentTime uid accessTokenText
+                    return $ Authenticated uid
     -- You can add other plugins like Google Email, email or OAuth here
     authPlugins app = [authOpenId Claimed []] ++ extraAuthPlugins
         -- Enable authDummy login if enabled.
@@ -217,29 +252,39 @@ isAdmin = do
     muid <- maybeAuthId
     case muid of
         Nothing -> return $ Unauthorized "You must login to access this page"
-        Just uid -> do
+        Just uid
           -- Check if user has the "admin" role.
-          mRole <- runDB $ selectFirst [RoleName ==. "admin"] []
-          case mRole of
-            Nothing -> return $ Unauthorized "admin role does not defined in the site"
-            Just role -> do
-                mUserRole <- runDB $ selectFirst [UserRoleUser ==. uid, UserRoleRole ==. (entityKey role)] []
-                return $ case mUserRole of
-                  Nothing -> Unauthorized "You must be an admin to access this page"
-                  Just _ -> Authorized
+         -> do
+            mRole <- runDB $ selectFirst [RoleName ==. "admin"] []
+            case mRole of
+                Nothing ->
+                    return $
+                    Unauthorized "admin role does not defined in the site"
+                Just role -> do
+                    mUserRole <-
+                        runDB $
+                        selectFirst
+                            [ UserRoleUser ==. uid
+                            , UserRoleRole ==. (entityKey role)
+                            ]
+                            []
+                    return $
+                        case mUserRole of
+                            Nothing ->
+                                Unauthorized
+                                    "You must be an admin to access this page"
+                            Just _ -> Authorized
 
 -- | Access function to determine if a current user is the owner or has admin role.
 isOwnerOrAdmin :: Key User -> Handler AuthResult
 isOwnerOrAdmin uid = do
-  mCurrentUid <- maybeAuthId
-  case mCurrentUid of
-      Nothing -> return $ Unauthorized "You must login to access this page"
-      Just currentUid ->
-          if (currentUid == uid)
-              then
-                  return Authorized
-              else
-                  isAdmin
+    mCurrentUid <- maybeAuthId
+    case mCurrentUid of
+        Nothing -> return $ Unauthorized "You must login to access this page"
+        Just currentUid ->
+            if (currentUid == uid)
+                then return Authorized
+                else isAdmin
 
 instance YesodAuthPersist App
 

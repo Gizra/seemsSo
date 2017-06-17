@@ -14,3 +14,8 @@
 /api/items/#CompanyId/#ItemId RestfulItemR GET
 
 /api/login-token LoginTokenR GET
+
+/add/item CreateItemR GET POST
+
+/item/#ItemId ItemR GET
+/item/#ItemId/edit EditItemR GET POST
