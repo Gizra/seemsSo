@@ -11,7 +11,7 @@ view : Model -> Html Msg
 view model =
     case model.widget of
         HomePage ->
-            div [ class "container" ]
+            div [ class "ui container" ]
                 [ Html.map MsgPagesHomepage <| Homepage.View.view model.user model.pageHomepage
                 ]
 

@@ -11470,7 +11470,7 @@ var _Gizra$elm_spa_exmple$App_View$view = function (model) {
 			_elm_lang$html$Html$div,
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class('container'),
+				_0: _elm_lang$html$Html_Attributes$class('ui container'),
 				_1: {ctor: '[]'}
 			},
 			{
