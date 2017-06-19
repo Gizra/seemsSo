@@ -164,6 +164,7 @@ instance Yesod App
     isAuthorized (EditItemR _) _ = isAuthenticated
     isAuthorized (RestfulItemR _ _) _ = isAuthenticated
     isAuthorized (RestfulItemsR _) _ = isAuthenticated
+    isAuthorized PdfFileR _ = isAuthenticated
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
     -- expiration dates to be set far in the future without worry of
