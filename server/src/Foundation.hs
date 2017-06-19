@@ -153,6 +153,8 @@ instance Yesod App
     isAuthorized (AuthR _) _ = return Authorized
     isAuthorized FaviconR _ = return Authorized
     isAuthorized RobotsR _ = return Authorized
+    isAuthorized (StaticR (StaticRoute ["files", _] [])) _ =
+        return $ Unauthorized "@todo: Add access"
     isAuthorized (StaticR _) _ = return Authorized
     isAuthorized HomeR _ = return Authorized
     isAuthorized ProfileR _ = isAuthenticated
