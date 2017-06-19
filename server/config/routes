@@ -19,3 +19,5 @@
 
 /item/#ItemId ItemR GET
 /item/#ItemId/edit EditItemR GET POST
+
+/pdf-download PdfFileR GET POST

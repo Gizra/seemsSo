@@ -32,3 +32,7 @@ Item json
     created         UTCTime
     user            UserId
     deriving        Show Generic
+PdfFile
+    filename        String
+    date            UTCTime
+    deriving        Show Generic

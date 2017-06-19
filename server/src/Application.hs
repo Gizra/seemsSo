@@ -42,6 +42,7 @@ import Handler.Common
 import Handler.Home
 import Handler.Item
 import Handler.LoginToken
+import Handler.PdfFile
 import Handler.Profile
 import Handler.RegenerateAccessToken
 import Handler.RestfulItem
