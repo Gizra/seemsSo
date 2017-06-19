@@ -12,7 +12,7 @@ import Utils.Form (renderSematnicUiDivs)
 uploadDirectory :: FilePath
 uploadDirectory = "static/item-pdf"
 
--- uploadForm :: Form (FileInfo, UTCTime)
+uploadForm :: Form (FileInfo, UTCTime)
 uploadForm =
     renderSematnicUiDivs $
     (,) <$> fileAFormReq "PDF file" <*> lift (liftIO getCurrentTime)
