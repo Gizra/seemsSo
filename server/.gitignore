@@ -20,4 +20,4 @@ cabal.sandbox.config
 \#*
 seemsSo.cabal
 # User generated files
-static/files
+static/item-pdf
