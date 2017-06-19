@@ -15,3 +15,8 @@
 
         <div>
             <strong>Price:</strong> <span class="price">#{itemPrice item}</span>
+
+        <div>
+            $forall Entity pdfId pdf <- pdfFiles
+                <a href="/#{pdfFilePath $ pdfFileFilename pdf}">
+                    Download

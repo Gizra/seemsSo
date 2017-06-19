@@ -8,6 +8,7 @@
 module Handler.Item where
 
 import Database.Persist.Sql (fromSqlKey)
+import Handler.PdfFile (pdfFilePath, writeToServer)
 import Import
 import Utils.Form (renderSematnicUiDivs)
 
@@ -15,6 +16,9 @@ getItemR :: ItemId -> Handler Html
 getItemR itemId = do
     item <- runDB $ get404 itemId
     company <- runDB $ get404 $ itemCompany item
+    -- @todo: Make an image
+    pdfFiles <-
+        runDB $ selectList [PdfFileItem ==. itemId] [Asc PdfFileFilename]
     defaultLayout $ do
         setTitle . toHtml $ "Item #" ++ (show $ fromSqlKey itemId)
         $(widgetFile "item")
@@ -22,16 +26,20 @@ getItemR itemId = do
 getCreateItemR :: Handler Html
 getCreateItemR = do
     (userId, _) <- requireAuthPair
-    (widget, enctype) <- generateFormPost $ itemForm userId Nothing
+    (widget, enctype) <- generateFormPost $ formWrapper userId Nothing
     defaultLayout $(widgetFile "item-create")
 
 postCreateItemR :: Handler Html
 postCreateItemR = do
     (userId, _) <- requireAuthPair
-    ((result, widget), enctype) <- runFormPost $ itemForm userId Nothing
+    ((result, widget), enctype) <- runFormPost $ formWrapper userId Nothing
     case result of
-        FormSuccess item -> do
+        FormSuccess (item, (file, date)) -> do
             itemId <- runDB $ insert item
+            -- Save the PDF image
+            -- @todo: Make helper function
+            filename <- writeToServer file
+            _ <- runDB $ insert $ PdfFile filename itemId date
             setMessage "Item saved"
             redirect $ ItemR itemId
         _ ->
@@ -78,6 +86,37 @@ validateItemPrice price =
     if price <= 0
         then Left "Price should be above 0"
         else Right price
+
+formWrapper :: UserId -> Maybe Item -> Form (Item, (FileInfo, UTCTime))
+formWrapper userId mitem =
+    renderSematnicUiDivs $
+    (,) <$>
+    (Item <$> areq textField "Name" (itemName <$> mitem) <*>
+     areq
+         (selectField companies)
+         (selectSettings "Company")
+         (itemCompany <$> mitem) <*>
+     areq priceField "Price" (itemPrice <$> mitem) <*>
+     lift (liftIO getCurrentTime) <*>
+     pure userId) <*>
+    ((,) <$> fileAFormReq "PDF file" <*> lift (liftIO getCurrentTime))
+  where
+    selectSettings label =
+        FieldSettings
+        { fsLabel = label
+        , fsTooltip = Nothing
+        , fsId = Nothing
+        , fsName = Nothing
+        , fsAttrs = [("class", "ui fluid dropdown")]
+        }
+    -- @todo: Generalize.
+    companies = do
+        entities <- runDB $ selectList [] [Asc CompanyName]
+        optionsPairs $
+            map
+                (\entity -> (companyName $ entityVal entity, entityKey entity))
+                entities
+    priceField = check validateItemPrice intField
 
 itemForm :: UserId -> Maybe Item -> Form Item
 itemForm userId mitem =

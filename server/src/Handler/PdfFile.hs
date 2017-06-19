@@ -79,7 +79,7 @@ postPdfFileR = do
            -- save to pdf directory
          -> do
             filename <- writeToServer file
-            _ <- runDB $ insert $ PdfFile filename date
+            -- _ <- runDB $ insert $ PdfFile filename date
             setMessage "PDF saved"
             redirect PdfFileR
         _ -> do

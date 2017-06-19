@@ -34,5 +34,6 @@ Item json
     deriving        Show Generic
 PdfFile
     filename        String
+    item            ItemId
     date            UTCTime
     deriving        Show Generic
