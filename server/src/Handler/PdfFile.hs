@@ -10,7 +10,7 @@ import Import
 import Utils.Form (renderSematnicUiDivs)
 
 uploadDirectory :: FilePath
-uploadDirectory = "static"
+uploadDirectory = "static/files"
 
 -- uploadForm :: Form (FileInfo, UTCTime)
 uploadForm =
