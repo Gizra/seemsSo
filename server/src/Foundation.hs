@@ -161,7 +161,7 @@ instance Yesod App
     isAuthorized LoginTokenR _ = isAuthenticated
     isAuthorized (RegenerateAccessTokenR uid) _ = isOwnerOrAdmin uid
     -- @todo: Fix access
-    isAuthorized (ItemR _) _ = isAuthenticated
+    isAuthorized (ItemR _) _ = return Authorized
     isAuthorized CreateItemR _ = isAuthenticated
     isAuthorized (EditItemR _) _ = isAuthenticated
     isAuthorized (RestfulItemR _ _) _ = isAuthenticated
