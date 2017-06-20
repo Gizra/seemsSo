@@ -33,6 +33,7 @@ import Network.Wai.Handler.Warp
 import Network.Wai.Middleware.RequestLogger
        (Destination(Logger), IPAddrSource(..), OutputFormat(..),
         destination, mkRequestLogger, outputFormat)
+import System.Directory (createDirectoryIfMissing)
 import System.Log.FastLogger
        (defaultBufSize, newStdoutLoggerSet, toLogStr)
 
@@ -91,6 +92,8 @@ makeFoundation appSettings
     runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
     -- Migrate dummy data.
     _ <- migrateData pool
+    -- Create files directory.
+    createDirectoryIfMissing True uploadDirectory
     -- Return the foundation
     return $ mkFoundation pool
 
