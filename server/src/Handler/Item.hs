@@ -95,8 +95,7 @@ itemForm userId mitem =
          (selectSettings "Company")
          (itemCompany <$> mitem) <*>
      areq priceField "Price" (itemPrice <$> mitem) <*>
-     -- @todo: Why doesn't `map itemPdfFile mitem` work here?
-     pure (maybe Nothing itemPdfFile mitem) <*>
+     pure (mitem >>= itemPdfFile) <*>
      lift (liftIO getCurrentTime) <*>
      pure userId) <*>
     ((,) <$> fileAFormReq "PDF file" <*> lift (liftIO getCurrentTime))
