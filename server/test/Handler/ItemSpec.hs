@@ -48,7 +48,6 @@ spec = do
                 get $ ItemR itemId
                 htmlCount ".ui.segment > .download" 1
 
-
 prepareScenario :: YesodExample App (Entity User, CompanyId, PdfFileId, ItemId)
 prepareScenario = do
     currentTime <- liftIO getCurrentTime
