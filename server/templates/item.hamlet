@@ -6,14 +6,14 @@
             Edit
 
 
-    <div class="ui segment">
-        <div>
+    <div.ui.segment>
+        <div.name>
             <strong>Name:</strong> <span class="name">#{itemName item}</span>
 
-        <div>
+        <div.company>
             <strong>Company:</strong> <span class="company">#{companyName company}</span>
 
-        <div>
+        <div.price>
             <strong>Price:</strong> <span class="price">#{itemPrice item}</span>
 
         $maybe (Entity _ pdf) <- mpdf

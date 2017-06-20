@@ -26,6 +26,17 @@ spec = do
                 authenticateAs userId
                 get $ ItemR itemId
                 statusIs 200
+            it "shows the item's name" $ do
+                (_, _, _, itemId) <- prepareScenario
+                get $ ItemR itemId
+            it "should show the item's name" $ do
+                (_, _, _, itemId) <- prepareScenario
+                get $ ItemR itemId
+                htmlAnyContain ".ui.segment > .name" "Item1"
+            it "should show the item's company" $ do
+                (_, _, _, itemId) <- prepareScenario
+                get $ ItemR itemId
+                htmlAnyContain ".ui.segment > .company" "company1"
 
 prepareScenario :: YesodExample App (Entity User, CompanyId, PdfFileId, ItemId)
 prepareScenario = do
