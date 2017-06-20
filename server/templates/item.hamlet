@@ -16,6 +16,7 @@
         <div>
             <strong>Price:</strong> <span class="price">#{itemPrice item}</span>
 
-        $maybe pdfId <- itemPdfFile item
+        $maybe (Entity _ pdf) <- mpdf
             <div>
-                <a href="@{PdfFileR pdfId}">Download
+                <a href=/#{pdfFilePath $ pdfFileFilename pdf}>
+                    Download PDF

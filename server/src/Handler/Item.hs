@@ -16,6 +16,11 @@ getItemR :: ItemId -> Handler Html
 getItemR itemId = do
     item <- runDB $ get404 itemId
     company <- runDB $ get404 $ itemCompany item
+    mpdf <-
+        maybe
+            (return Nothing)
+            (\pdfId -> runDB $ selectFirst [PdfFileId ==. pdfId] [])
+            (itemPdfFile item)
     defaultLayout $ do
         setTitle . toHtml $ "Item #" ++ (show $ fromSqlKey itemId)
         $(widgetFile "item")
