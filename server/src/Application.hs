@@ -145,17 +145,17 @@ migrateData pool
             item1 <-
                 runSqlPool
                     (insert $
-                     Item "Item1 - Company1" company1 10 currentTime userId1)
+                     Item "Item1 - Company1" company1 10 Nothing currentTime userId1)
                     pool
             item2 <-
                 runSqlPool
                     (insert $
-                     Item "Item2 - Company1" company1 20 currentTime userId1)
+                     Item "Item2 - Company1" company1 20 Nothing currentTime userId1)
                     pool
             item3 <-
                 runSqlPool
                     (insert $
-                     Item "Item2 - Company2" company2 50 currentTime userId2)
+                     Item "Item2 - Company2" company2 50 Nothing currentTime userId2)
                     pool
             return ()
             where createUser name =

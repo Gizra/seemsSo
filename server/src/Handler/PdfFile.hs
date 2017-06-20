@@ -74,12 +74,12 @@ postPdfFileR :: Handler Html
 postPdfFileR = do
     ((result, widget), enctype) <- runFormPost uploadForm
     case result of
-        FormSuccess (file, date)
+        FormSuccess (file, created)
            -- TODO: check if pdf already exists
            -- save to pdf directory
          -> do
             filename <- writeToServer file
-            -- _ <- runDB $ insert $ PdfFile filename date
+            _ <- runDB $ insert $ PdfFile filename created
             setMessage "PDF saved"
             redirect PdfFileR
         _ -> do
