@@ -7,6 +7,7 @@
 module Handler.PdfFile where
 
 import Import
+import System.Directory (createDirectoryIfMissing)
 import Utils.Form (renderSematnicUiDivs)
 
 uploadDirectory :: FilePath
@@ -21,6 +22,7 @@ writeToServer :: FileInfo -> Handler FilePath
 writeToServer file = do
     let filename = unpack $ fileName file
     let path = pdfFilePath filename
+    liftIO $ createDirectoryIfMissing True uploadDirectory
     liftIO $ fileMove file path
     return filename
 
