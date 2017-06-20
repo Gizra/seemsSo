@@ -15,3 +15,7 @@
 
         <div>
             <strong>Price:</strong> <span class="price">#{itemPrice item}</span>
+
+        $maybe pdfId <- itemPdfFile item
+            <div>
+                <a href="@{PdfFileR pdfId}">Download
