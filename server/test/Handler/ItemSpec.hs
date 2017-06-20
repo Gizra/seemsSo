@@ -37,6 +37,17 @@ spec = do
                 (_, _, _, itemId) <- prepareScenario
                 get $ ItemR itemId
                 htmlAnyContain ".ui.segment > .company" "company1"
+            -- @todo: Currenly for any auth user.
+            it "should not show the download link for privileged users" $ do
+                (_, _, _, itemId) <- prepareScenario
+                get $ ItemR itemId
+                htmlCount ".ui.segment > .download" 0
+            it "should show the download link for privileged users" $ do
+                (userId, _, _, itemId) <- prepareScenario
+                authenticateAs userId
+                get $ ItemR itemId
+                htmlCount ".ui.segment > .download" 1
+
 
 prepareScenario :: YesodExample App (Entity User, CompanyId, PdfFileId, ItemId)
 prepareScenario = do

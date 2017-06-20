@@ -19,7 +19,11 @@ getItemR itemId = do
     mpdf <-
         maybe
             (return Nothing)
-            (\pdfId -> runDB $ selectFirst [PdfFileId ==. pdfId] [])
+            (\pdfId -> do
+                 routeAccess <- isAuthorized (PdfFileR pdfId) False
+                 case routeAccess of
+                     Authorized -> runDB $ selectFirst [PdfFileId ==. pdfId] []
+                     Unauthorized _ -> return Nothing)
             (itemPdfFile item)
     defaultLayout $ do
         setTitle . toHtml $ "Item #" ++ (show $ fromSqlKey itemId)
