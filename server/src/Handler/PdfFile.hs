@@ -1,5 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE QuasiQuotes #-}
@@ -27,51 +28,13 @@ writeToServer file = do
 pdfFilePath :: String -> FilePath
 pdfFilePath f = uploadDirectory </> f
 
-getPdfFileR :: Handler Html
-getPdfFileR = do
-    ((_, widget), enctype) <- runFormPost uploadForm
-    pdfs <- runDB $ selectList [PdfFileFilename !=. ""] [Desc PdfFileDate]
-    mmsg <- getMessage
-    defaultLayout $ do
-        [whamlet|$newline never
-$maybe msg <- mmsg
-   <div .message>
-       <div .container>
-           #{msg}
-<div .container>
-   <div .row>
-       <h2>
-           Upload new pdf
-       <div .form-actions>
-           <form method=post enctype=#{enctype}>
-               ^{widget}
-               <input .btn type=submit value="Upload">
-       $if not $ null pdfs
-           <table .table>
-               <tr>
-                   <th>
-                       PDF
-                   <th>
-                       Decription
-                   <th>
-                       Uploaded
-                   <th>
-                       Action
-               $forall Entity pdfId pdf <- pdfs
-                   <tr>
-                       <td>
-                           <a href=#{pdfFilePath $ pdfFileFilename pdf}>
-                               #{pdfFileFilename pdf}
-                       <td>
-                           #{show $ pdfFileDate pdf}
-                       <td>
-                           <a href=# .delete data-img-url=@{PdfFileR}>
-                               delete
+getPdfFileR :: PdfFileId -> Handler Html
+getPdfFileR pdfId = do
+    pdf <- runDB $ get404 pdfId
+    defaultLayout $(widgetFile "pdf-download")
 
-|]
-
-postPdfFileR :: Handler Html
-postPdfFileR = do
+postPdfFileCreateR :: Handler Html
+postPdfFileCreateR = do
     ((result, widget), enctype) <- runFormPost uploadForm
     case result of
         FormSuccess (file, created)
@@ -79,9 +42,9 @@ postPdfFileR = do
            -- save to pdf directory
          -> do
             filename <- writeToServer file
-            _ <- runDB $ insert $ PdfFile filename created
+            pdfId <- runDB $ insert $ PdfFile filename created
             setMessage "PDF saved"
-            redirect PdfFileR
+            redirect $ PdfFileR pdfId
         _ -> do
             setMessage "Something went wrong"
-            redirect PdfFileR
+            redirect PdfFileCreateR
