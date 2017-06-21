@@ -37,8 +37,7 @@ hasAccessToPdfFileDownload userId filename = do
                 maybeTselectFirst [OrderId ==. orderItemOrder orderItem]
             -- Validate it has a "paid" status.
             if orderStatus order == OrderStatusPaid
-                then
-                  return Authorized
+                then return Authorized
                 else return unauthorized
     return $ maybe unauthorized id result
 
