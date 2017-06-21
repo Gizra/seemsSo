@@ -21,7 +21,7 @@ hasAccessToPdfFileDownload ::
     -> HandlerT site IO AuthResult
 hasAccessToPdfFileDownload userId filename = do
     let unauthorized = Unauthorized "You didn't buy this item"
-    (Entity pdfId _) <- runDB $ selectFirst [PdfFileFilename ==. filename] []
+    (Entity pdfId _) <- runDB $ selectFirst [PdfFileFilename ==. unpack filename] []
     -- Find the item that references the PDF.
     (Entity itemId _) <- runDB $ selectFirst [ItemPdfFile ==. pdfId] []
     -- Find the OrderItem that references the Item, that belongs to the user
