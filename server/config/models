@@ -37,3 +37,13 @@ PdfFile
     filename        String
     date            UTCTime
     deriving        Show Generic
+Order
+    status          OrderStatus
+    userId          UserId
+    date            UTCTime
+    deriving        Show Generic
+OrderItem
+    order           OrderId
+    item            ItemId
+    user            UserId
+    deriving        Show Generic
