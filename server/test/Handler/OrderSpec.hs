@@ -6,7 +6,6 @@ module Handler.OrderSpec
     ) where
 
 import Model.Types (OrderStatus(..))
-import System.Directory (copyFile)
 import TestImport
 import Yesod.Static
 
@@ -15,12 +14,12 @@ spec = do
     withApp $
         describe "PDF file download" $ do
             it "should not allow access to anonymous user" $ do
-                (_, _, _, itemId) <- prepareScenario
+                _ <- prepareScenario
                 get pdfFileStaticRoute
                 statusIs 403
             it
                 "should not allow access to authenticated user that didn't buy the item" $ do
-                (_, _, _, itemId) <- prepareScenario
+                _ <- prepareScenario
                 alice <- createUser "alice"
                 authenticateAs alice
                 get pdfFileStaticRoute
@@ -59,7 +58,6 @@ prepareOrder user itemId orderStatus = do
 prepareScenario :: YesodExample App (Entity User, CompanyId, PdfFileId, ItemId)
 prepareScenario = do
     let filename = "item1.pdf"
-    -- _ <- copyFile ("migrate-files/" ++ filename) (pdfFilePath filename)
     currentTime <- liftIO getCurrentTime
     john <- createUser "john"
     let (Entity userId user) = john
