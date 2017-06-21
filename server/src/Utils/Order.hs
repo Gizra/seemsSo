@@ -21,18 +21,36 @@ hasAccessToPdfFileDownload ::
     -> HandlerT site IO AuthResult
 hasAccessToPdfFileDownload userId filename = do
     let unauthorized = Unauthorized "You didn't buy this item"
-    (Entity pdfId _) <- runDB $ selectFirst [PdfFileFilename ==. unpack filename] []
-    -- Find the item that references the PDF.
-    (Entity itemId _) <- runDB $ selectFirst [ItemPdfFile ==. pdfId] []
-    -- Find the OrderItem that references the Item, that belongs to the user
-    (Entity _ orderItem) <-
-        runDB $
-        selectFirst [OrderItemItem ==. itemId, OrderItemUser ==. userId] []
-    -- Find the Order that the order item belongs to.
-    (Entity _ order) <-
-        runDB $ selectFirst [OrderId ==. orderItemOrder orderItem] []
-    -- Validate it has a "paid" status.
-    return $
-        if orderStatus order == OrderStatusPaid
-            then Authorized
-            else unauthorized
+    mpdf <- runDB $ selectFirst [PdfFileFilename ==. unpack filename] []
+    case mpdf of
+        Nothing -> return unauthorized
+        Just (Entity pdfId _) -> do
+            mitem <- runDB $ selectFirst [ItemPdfFile ==. Just pdfId] []
+            -- Find the item that references the PDF.
+            case mitem of
+                Nothing -> return unauthorized
+                Just (Entity itemId _) -> do
+                    morderItem <-
+                        runDB $
+                        selectFirst
+                            [OrderItemItem ==. itemId, OrderItemUser ==. userId]
+                            []
+                    -- Find the OrderItem that references the Item, that belongs to the user.
+                    case morderItem of
+                        Nothing -> return unauthorized
+                        Just (Entity _ orderItem) -> do
+                            morder <-
+                                runDB $
+                                selectFirst
+                                    [OrderId ==. orderItemOrder orderItem]
+                                    []
+                            -- Find the Order that the order item belongs to.
+                            case morder of
+                                Nothing -> return unauthorized
+                                Just (Entity _ order)
+                                -- Validate it has a "paid" status.
+                                 ->
+                                    return $
+                                    if orderStatus order == OrderStatusPaid
+                                        then Authorized
+                                        else unauthorized
