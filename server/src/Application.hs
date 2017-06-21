@@ -33,7 +33,7 @@ import Network.Wai.Handler.Warp
 import Network.Wai.Middleware.RequestLogger
        (Destination(Logger), IPAddrSource(..), OutputFormat(..),
         destination, mkRequestLogger, outputFormat)
-import System.Directory (createDirectoryIfMissing)
+import System.Directory (copyFile, createDirectoryIfMissing)
 import System.Log.FastLogger
        (defaultBufSize, newStdoutLoggerSet, toLogStr)
 
@@ -101,15 +101,15 @@ makeFoundation appSettings
 
 @todo: Run only if in development mode.
 -}
-migrateData pool
-    -- Migrate data only if "admin" is missing.
- = do
+migrateData pool = do
     maybeUser <- runSqlPool (getBy $ UniqueUser "admin") pool
+    -- Migrate data only if "admin" is missing.
     case maybeUser of
         Just (Entity _ _) -> do
             putStrLn "---- Skipped migration"
             return ()
         Nothing -> do
+            _ <- copyFile "migrate-files/item1.pdf" (pdfFilePath "item1.pdf")
             currentTime <- getCurrentTime
             -- User
             userId1 <- runSqlPool (insert $ createUser "admin") pool
@@ -141,6 +141,8 @@ migrateData pool
                 runSqlPool
                     (insert $ Company "company4" currentTime userId3)
                     pool
+            -- PdfFile
+            pdf1 <- runSqlPool (insert $ PdfFile "item1.pdf" currentTime) pool
             -- Item
             item1 <-
                 runSqlPool
@@ -149,7 +151,7 @@ migrateData pool
                          "Item1 - Company1"
                          company1
                          10
-                         Nothing
+                         (Just pdf1)
                          currentTime
                          userId1)
                     pool
