@@ -8,6 +8,7 @@
 module Handler.Item where
 
 import Database.Persist.Sql (fromSqlKey)
+import Handler.PdfFile (pdfFilePath, writeToServer)
 import Import
 import Utils.Form (renderSematnicUiDivs)
 
@@ -15,6 +16,15 @@ getItemR :: ItemId -> Handler Html
 getItemR itemId = do
     item <- runDB $ get404 itemId
     company <- runDB $ get404 $ itemCompany item
+    mpdf <-
+        maybe
+            (return Nothing)
+            (\pdfId -> do
+                 routeAccess <- isAuthorized (PdfFileR pdfId) False
+                 case routeAccess of
+                     Authorized -> runDB $ selectFirst [PdfFileId ==. pdfId] []
+                     _ -> return Nothing)
+            (itemPdfFile item)
     defaultLayout $ do
         setTitle . toHtml $ "Item #" ++ (show $ fromSqlKey itemId)
         $(widgetFile "item")
@@ -30,8 +40,13 @@ postCreateItemR = do
     (userId, _) <- requireAuthPair
     ((result, widget), enctype) <- runFormPost $ itemForm userId Nothing
     case result of
-        FormSuccess item -> do
-            itemId <- runDB $ insert item
+        FormSuccess (item, (file, date))
+            -- Save the PDF file
+            -- @todo: Make helper function
+         -> do
+            filename <- writeToServer file
+            pdfId <- runDB $ insert $ PdfFile filename date
+            itemId <- runDB $ insert (item {itemPdfFile = Just pdfId})
             setMessage "Item saved"
             redirect $ ItemR itemId
         _ ->
@@ -55,7 +70,7 @@ postEditItemR itemId = do
     (userId, _) <- requireAuthPair
     ((result, widget), enctype) <- runFormPost $ itemForm userId Nothing
     case result of
-        FormSuccess item -> do
+        FormSuccess (item, (file, date)) -> do
             _ <- updateItem itemId item
             setMessage "Item updated"
             redirect $ ItemR itemId
@@ -79,17 +94,20 @@ validateItemPrice price =
         then Left "Price should be above 0"
         else Right price
 
-itemForm :: UserId -> Maybe Item -> Form Item
+itemForm :: UserId -> Maybe Item -> Form (Item, (FileInfo, UTCTime))
 itemForm userId mitem =
     renderSematnicUiDivs $
-    Item <$> areq textField "Name" (itemName <$> mitem) <*>
-    areq
-        (selectField companies)
-        (selectSettings "Company")
-        (itemCompany <$> mitem) <*>
-    areq priceField "Price" (itemPrice <$> mitem) <*>
-    lift (liftIO getCurrentTime) <*>
-    pure userId
+    (,) <$>
+    (Item <$> areq textField "Name" (itemName <$> mitem) <*>
+     areq
+         (selectField companies)
+         (selectSettings "Company")
+         (itemCompany <$> mitem) <*>
+     areq priceField "Price" (itemPrice <$> mitem) <*>
+     pure (mitem >>= itemPdfFile) <*>
+     lift (liftIO getCurrentTime) <*>
+     pure userId) <*>
+    ((,) <$> fileAFormReq "PDF file" <*> lift (liftIO getCurrentTime))
   where
     selectSettings label =
         FieldSettings

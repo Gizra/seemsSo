@@ -153,17 +153,21 @@ instance Yesod App
     isAuthorized (AuthR _) _ = return Authorized
     isAuthorized FaviconR _ = return Authorized
     isAuthorized RobotsR _ = return Authorized
+    isAuthorized (StaticR (StaticRoute ["item-pdf", _] [])) _ =
+        return $ Unauthorized "@todo: Add access"
     isAuthorized (StaticR _) _ = return Authorized
     isAuthorized HomeR _ = return Authorized
     isAuthorized ProfileR _ = isAuthenticated
     isAuthorized LoginTokenR _ = isAuthenticated
     isAuthorized (RegenerateAccessTokenR uid) _ = isOwnerOrAdmin uid
     -- @todo: Fix access
-    isAuthorized (ItemR _) _ = isAuthenticated
+    isAuthorized (ItemR _) _ = return Authorized
     isAuthorized CreateItemR _ = isAuthenticated
     isAuthorized (EditItemR _) _ = isAuthenticated
     isAuthorized (RestfulItemR _ _) _ = isAuthenticated
     isAuthorized (RestfulItemsR _) _ = isAuthenticated
+    isAuthorized (PdfFileR _) _ = isAuthenticated
+    isAuthorized PdfFileCreateR _ = isAuthenticated
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
     -- expiration dates to be set far in the future without worry of

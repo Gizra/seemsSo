@@ -29,6 +29,11 @@ Item json
     name            Text
     company         CompanyId
     price           Int
+    pdfFile         PdfFileId Maybe
     created         UTCTime
     user            UserId
+    deriving        Show Generic
+PdfFile
+    filename        String
+    date            UTCTime
     deriving        Show Generic
