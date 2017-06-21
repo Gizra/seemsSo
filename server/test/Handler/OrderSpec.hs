@@ -6,8 +6,10 @@ module Handler.OrderSpec
     ) where
 
 import Model.Types (OrderStatus(..))
+import System.Directory (copyFile)
 import TestImport
 import Yesod.Static
+import Handler.PdfFile
 
 spec :: Spec
 spec = do
@@ -58,6 +60,7 @@ prepareOrder user itemId orderStatus = do
 prepareScenario :: YesodExample App (Entity User, CompanyId, PdfFileId, ItemId)
 prepareScenario = do
     let filename = "item1.pdf"
+    _ <- liftIO $ copyFile ("migrate-files/" ++ filename) (pdfFilePath filename)
     currentTime <- liftIO getCurrentTime
     john <- createUser "john"
     let (Entity userId user) = john
