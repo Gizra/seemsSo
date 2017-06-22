@@ -162,9 +162,10 @@ instance Yesod App
             Just (userId, _) -> do
                 hasAccess <- hasAccessToPdfFileDownload userId filename
                 ownerOrAdmin <- isOwnerOrAdmin userId
-                return $ if hasAccess == Authorized || ownerOrAdmin == Authorized
-                    then Authorized
-                    else hasAccess
+                return $
+                    if hasAccess == Authorized || ownerOrAdmin == Authorized
+                        then Authorized
+                        else hasAccess
     isAuthorized (StaticR _) _ = return Authorized
     isAuthorized HomeR _ = return Authorized
     isAuthorized ProfileR _ = isAuthenticated

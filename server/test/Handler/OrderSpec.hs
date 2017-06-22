@@ -29,6 +29,7 @@ spec = do
             it "should allow access to admin user that didn't buy the item" $ do
                 _ <- prepareScenario
                 adminUser <- createUser "adminUser"
+                let (Entity adminUid _) = adminUser
                 -- Create "admin" role, and assign it to the user.
                 roleId <- runDB . insert $ Role "admin"
                 _ <- runDB . insert $ UserRole roleId adminUid
