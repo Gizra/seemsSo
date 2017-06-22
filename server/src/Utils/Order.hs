@@ -34,7 +34,6 @@ hasAccessToPdfFileDownload userId filename = do
                 maybeTselectFirst [CompanyId ==. itemCompany item]
             -- Try to return early, if the user is the owner of the item or
             -- company.
-            -- @todo: Check if "member" of company.
             if itemUser item == userId || companyUser company == userId
                 then return Authorized
               -- Find the OrderItem that references the Item, that belongs to the user.
