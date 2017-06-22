@@ -158,7 +158,7 @@ instance Yesod App
     isAuthorized (StaticR (StaticRoute ["item-pdf", filename] [])) _ = do
         mauth <- maybeAuthPair
         case mauth of
-            Nothing -> return $ Unauthorized "not logged in"
+            Nothing -> return AuthenticationRequired
             Just (userId, _) -> do
                 hasAccessToPdfFileDownload userId filename
     isAuthorized (StaticR _) _ = return Authorized
