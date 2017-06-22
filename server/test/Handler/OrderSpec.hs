@@ -5,20 +5,20 @@ module Handler.OrderSpec
     ( spec
     ) where
 
+import Handler.PdfFile
 import Model.Types (OrderStatus(..))
 import System.Directory (copyFile)
 import TestImport
 import Yesod.Static
-import Handler.PdfFile
 
 spec :: Spec
 spec = do
     withApp $
         describe "PDF file download" $ do
-            it "should not allow access to anonymous user" $ do
+            it "should redirect to login page anonymous user" $ do
                 _ <- prepareScenario
                 get pdfFileStaticRoute
-                statusIs 403
+                statusIs 303
             it
                 "should not allow access to authenticated user that didn't buy the item" $ do
                 _ <- prepareScenario
