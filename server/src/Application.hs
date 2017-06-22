@@ -109,7 +109,8 @@ migrateData pool = do
             putStrLn "---- Skipped migration"
             return ()
         Nothing -> do
-            _ <- copyFile "migrate-files/item1.pdf" (pdfFilePath "item1.pdf")
+            -- @todo: Copy file, which now breaks Travis.
+            -- _ <- copyFile "migrate-files/item1.pdf" (pdfFilePath "item1.pdf")
             currentTime <- getCurrentTime
             -- User
             userId1 <- runSqlPool (insert $ createUser "admin") pool
