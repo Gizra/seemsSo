@@ -48,6 +48,7 @@ dependencies:
 
 # Project's packages
 - esqueleto
+- transformers
 - random-strings
 
 # The library contains all of our application code. The executable
