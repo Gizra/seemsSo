@@ -36,19 +36,19 @@ hasAccessToPdfFileDownload userId filename = do
             -- company.
             if itemUser item == userId || companyUser company == userId
                 then return Authorized
-              -- Find the OrderItem that references the Item, that belongs to the user.
+                  -- Find the OrderItem that references the Item, that belongs to the user.
                 else do
                     (Entity _ orderItem) <-
                         maybeTselectFirst
                             [OrderItemItem ==. itemId, OrderItemUser ==. userId]
-              -- Find the Order that the order item belongs to.
+                    -- Find the Order that the order item belongs to.
                     (Entity _ order) <-
                         maybeTselectFirst [OrderId ==. orderItemOrder orderItem]
-              -- Validate it has a "paid" status.
+                    -- Validate it has a "paid" status.
                     if orderStatus order == OrderStatusPaid
                         then return Authorized
                         else return unauthorized
-    return $ maybe unauthorized id result
+    return $ fromMaybe unauthorized result
 
 maybeTselectFirst ::
        ( PersistEntityBackend record ~ BaseBackend (YesodPersistBackend site)
