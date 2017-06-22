@@ -160,7 +160,12 @@ instance Yesod App
         case mauth of
             Nothing -> return AuthenticationRequired
             Just (userId, _) -> do
-                hasAccessToPdfFileDownload userId filename
+                hasAccess <- hasAccessToPdfFileDownload userId filename
+                admin <- isAdmin
+                return $
+                    if hasAccess == Authorized || admin == Authorized
+                        then Authorized
+                        else hasAccess
     isAuthorized (StaticR _) _ = return Authorized
     isAuthorized HomeR _ = return Authorized
     isAuthorized ProfileR _ = isAuthenticated
