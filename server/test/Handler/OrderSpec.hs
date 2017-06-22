@@ -59,7 +59,7 @@ testWithOrderStatus orderStatus httpStatus = do
     alice <- createUser "alice"
     authenticateAs alice
     -- Create a paid order.
-    prepareOrder alice itemId orderStatus
+    _ <- prepareOrder alice itemId orderStatus
     get pdfFileStaticRoute
     statusIs httpStatus
 

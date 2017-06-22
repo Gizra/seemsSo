@@ -27,18 +27,28 @@ hasAccessToPdfFileDownload userId filename = do
             (Entity pdfId _) <-
                 maybeTselectFirst [PdfFileFilename ==. unpack filename]
             -- Find the item that references the PDF.
-            (Entity itemId _) <- maybeTselectFirst [ItemPdfFile ==. Just pdfId]
-            -- Find the OrderItem that references the Item, that belongs to the user.
-            (Entity _ orderItem) <-
-                maybeTselectFirst
-                    [OrderItemItem ==. itemId, OrderItemUser ==. userId]
-            -- Find the Order that the order item belongs to.
-            (Entity _ order) <-
-                maybeTselectFirst [OrderId ==. orderItemOrder orderItem]
-            -- Validate it has a "paid" status.
-            if orderStatus order == OrderStatusPaid
+            (Entity itemId item) <-
+                maybeTselectFirst [ItemPdfFile ==. Just pdfId]
+            -- Find the company the item belongs to.
+            (Entity _ company) <-
+                maybeTselectFirst [CompanyId ==. itemCompany item]
+            -- Try to return early, if the user is the owner of the item or
+            -- company.
+            -- @todo: Check if "member" of company.
+            if itemUser item == userId || companyUser company == userId
                 then return Authorized
-                else return unauthorized
+              -- Find the OrderItem that references the Item, that belongs to the user.
+                else do
+                    (Entity _ orderItem) <-
+                        maybeTselectFirst
+                            [OrderItemItem ==. itemId, OrderItemUser ==. userId]
+              -- Find the Order that the order item belongs to.
+                    (Entity _ order) <-
+                        maybeTselectFirst [OrderId ==. orderItemOrder orderItem]
+              -- Validate it has a "paid" status.
+                    if orderStatus order == OrderStatusPaid
+                        then return Authorized
+                        else return unauthorized
     return $ maybe unauthorized id result
 
 maybeTselectFirst ::
