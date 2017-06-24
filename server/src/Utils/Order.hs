@@ -50,6 +50,8 @@ hasAccessToPdfFileDownload userId filename = do
                         else return unauthorized
     return $ fromMaybe unauthorized result
 
+{-| Wrap a `SelectFirst` with a MaybeT.
+-}
 maybeTselectFirst ::
        ( PersistEntityBackend record ~ BaseBackend (YesodPersistBackend site)
        , PersistEntity record
