@@ -13,6 +13,7 @@ module Model where
 
 import ClassyPrelude.Yesod
 import Data.Aeson.Types
+import Data.Char as Char (toLower)
 import Database.Persist.Quasi
 import Database.Persist.Sql (fromSqlKey)
 import Model.Types
@@ -34,4 +35,13 @@ instance ToJSON (Entity Order) where
         object ["id" .= fromSqlKey orderId, "status" .= orderStatus order]
 
 instance ToJSON OrderStatus where
-    toJSON = genericToJSON defaultOptions
+    toJSON =
+        genericToJSON
+            -- Drop "OrderStatus"
+            defaultOptions {fieldLabelModifier = map Char.toLower . drop 11}
+
+instance FromJSON OrderStatus where
+    parseJSON =
+        genericParseJSON
+            -- Drop "OrderStatus"
+            defaultOptions {fieldLabelModifier = map Char.toLower . drop 11}
