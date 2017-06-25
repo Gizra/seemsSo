@@ -43,7 +43,6 @@ postRestfulOrderItemR itemId = do
         runDB $
         selectFirst [OrderItemOrder ==. orderId, OrderItemItem ==. itemId] []
     case existingOrderItem of
-
         Just _ -> invalidArgs ["Order item with Item ID already exists"]
         Nothing -> do
             _ <- runDB $ insert $ OrderItem orderId itemId userId
