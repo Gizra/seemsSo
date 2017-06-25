@@ -32,7 +32,7 @@ postRestfulOrderItemR itemId = do
     morder <-
         runDB $
         selectFirst [OrderUser ==. userId, OrderStatus ==. OrderStatusActive] []
-  -- Determine if an active order exists.
+    -- Determine if an active order exists.
     orderId <-
         case morder of
             Nothing -> do
@@ -40,4 +40,5 @@ postRestfulOrderItemR itemId = do
                 runDB $ insert $ Order OrderStatusActive userId currentTime
             Just (Entity orderId _) -> return orderId
     _ <- runDB $ insert $ OrderItem orderId itemId userId
+    -- Return the whole Order JSON.
     getRestfulOrderR
