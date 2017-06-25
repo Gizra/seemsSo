@@ -39,6 +39,11 @@ postRestfulOrderItemR itemId = do
                 currentTime <- liftIO getCurrentTime
                 runDB $ insert $ Order OrderStatusActive userId currentTime
             Just (Entity orderId _) -> return orderId
-    _ <- runDB $ insert $ OrderItem orderId itemId userId
-    -- Return the whole Order JSON.
-    getRestfulOrderR
+    existingOrderItem <-
+        runDB $ selectFirst [OrderItemOrder ==. orderId, OrderItemItem ==. itemId] []
+    case existingOrderItem of
+        Nothing -> do
+            _ <- runDB $ insert $ OrderItem orderId itemId userId
+            -- Return the whole Order JSON.
+            getRestfulOrderR
+        _ -> invalidArgs ["Order item with Item ID already exists"]
