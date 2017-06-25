@@ -12,6 +12,7 @@
 module Model where
 
 import ClassyPrelude.Yesod
+import Data.Aeson.Types
 import Database.Persist.Quasi
 import Database.Persist.Sql (fromSqlKey)
 import Model.Types
@@ -26,4 +27,11 @@ share
 
 instance ToJSON (Entity User) where
     toJSON (Entity userId user) =
-        object ["id" .= (fromSqlKey userId), "name" .= userIdent user]
+        object ["id" .= fromSqlKey userId, "name" .= userIdent user]
+
+instance ToJSON (Entity Order) where
+    toJSON (Entity orderId order) =
+        object ["id" .= fromSqlKey orderId, "status" .= orderStatus order]
+
+instance ToJSON OrderStatus where
+    toJSON = genericToJSON defaultOptions

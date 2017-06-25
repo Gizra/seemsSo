@@ -22,7 +22,7 @@ getRestfulOrderR = do
                     []
             case morder of
                 Nothing -> return $ object []
-                Just (Entity orderId order) ->
+                Just order ->
                     return $ object ["data" .= toJSON order]
 
 postRestfulOrderItemR :: Handler Value
