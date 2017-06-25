@@ -22,3 +22,6 @@
 
 /pdf-download PdfFileCreateR POST
 /pdf-download/#PdfFileId PdfFileR GET
+
+/api/orders RestfulOrderR GET
+/api/order-items RestfulOrderItemR POST
