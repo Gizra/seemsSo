@@ -12,6 +12,7 @@ import Utils.Restful
 getRestfulOrderR :: Handler Value
 getRestfulOrderR = do
     muser <- maybeAuth
+    -- We don't want to return a 403, so we just return an empty object.
     case muser of
         Nothing -> return $ object []
         Just (Entity userId user) -> do
@@ -20,10 +21,23 @@ getRestfulOrderR = do
                 selectFirst
                     [OrderUser ==. userId, OrderStatus ==. OrderStatusActive]
                     []
+            -- We don't want to return a 403, so we just return an empty object.
             case morder of
                 Nothing -> return $ object []
-                Just order ->
-                    return $ object ["data" .= toJSON order]
+                Just order -> return $ object ["data" .= toJSON order]
 
-postRestfulOrderItemR :: Handler Value
-postRestfulOrderItemR = error "Handler.RestfulOrder"
+postRestfulOrderItemR :: ItemId -> Handler Value
+postRestfulOrderItemR itemId = do
+    (Entity userId user) <- requireAuth
+    morder <-
+        runDB $
+        selectFirst [OrderUser ==. userId, OrderStatus ==. OrderStatusActive] []
+  -- Determine if an active order exists.
+    orderId <-
+        case morder of
+            Nothing -> do
+                currentTime <- liftIO getCurrentTime
+                runDB $ insert $ Order OrderStatusActive userId currentTime
+            Just (Entity orderId _) -> return orderId
+    _ <- runDB $ insert $ OrderItem orderId itemId userId
+    getRestfulOrderR

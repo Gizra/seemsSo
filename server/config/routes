@@ -24,4 +24,4 @@
 /pdf-download/#PdfFileId PdfFileR GET
 
 /api/orders RestfulOrderR GET
-/api/order-items RestfulOrderItemR POST
+/api/order-items/#ItemId RestfulOrderItemR POST
