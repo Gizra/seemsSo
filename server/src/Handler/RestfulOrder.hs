@@ -66,8 +66,7 @@ getOrderR orderId = do
 getOrderStatusLabel :: OrderStatus -> Text
 getOrderStatusLabel orderStatus = pack $ drop 11 $ show orderStatus
 
-orderForm ::
-       UserId -> Maybe Order -> Maybe [ItemId] -> Form (Order, [ItemId])
+orderForm :: UserId -> Maybe Order -> Maybe [ItemId] -> Form (Order, [ItemId])
 orderForm userId morder morderItemIds =
     renderSematnicUiDivs $
     (,) <$>
