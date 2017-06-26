@@ -35,13 +35,15 @@ instance ToJSON (Entity Order) where
         object ["id" .= fromSqlKey orderId, "status" .= orderStatus order]
 
 instance ToJSON OrderStatus where
-    toJSON =
-        genericToJSON
-            -- Drop "OrderStatus"
-            defaultOptions {fieldLabelModifier = map Char.toLower . drop 11}
+    toJSON a = String $ pack $ (map Char.toLower (drop 11 $ show a))
 
 instance FromJSON OrderStatus where
-    parseJSON =
-        genericParseJSON
-            -- Drop "OrderStatus"
-            defaultOptions {fieldLabelModifier = map Char.toLower . drop 11}
+    parseJSON (Object o) = do
+        status <- o .: "status"
+        case (status :: Text) of
+            "active" -> return OrderStatusActive
+            "cancelled" -> return OrderStatusCancelled
+            "paymentError" -> return OrderStatusPaymentError
+            "paid" -> return OrderStatusPaid
+            _ -> mzero
+    parseJSON invalid = typeMismatch "status" invalid
