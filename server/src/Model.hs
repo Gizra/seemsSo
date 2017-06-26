@@ -34,6 +34,7 @@ instance ToJSON (Entity Order) where
     toJSON (Entity orderId order) =
         object ["id" .= fromSqlKey orderId, "status" .= orderStatus order]
 
+-- @todo: Use orderStatusLabel
 instance ToJSON OrderStatus where
     toJSON a = String $ pack (map Char.toLower (drop 11 $ show a))
 

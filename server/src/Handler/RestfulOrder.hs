@@ -1,12 +1,17 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE QuasiQuotes #-}
 
 module Handler.RestfulOrder where
 
+import Data.Char as Char (toLower)
+import Database.Persist.Sql (fromSqlKey)
 import Import
 import Model.Types (OrderStatus(..))
+import Utils.Form
 import Utils.Restful
 
 getRestfulOrderR :: Handler Value
@@ -48,3 +53,50 @@ postRestfulOrderItemR itemId = do
             _ <- runDB $ insert $ OrderItem orderId itemId userId
             -- Return the whole Order JSON.
             getRestfulOrderR
+
+getOrderR :: OrderId -> Handler Html
+getOrderR orderId = do
+    order <- runDB $ get404 orderId
+    let orderStatusLabel = getOrderStatusLabel $ orderStatus order
+    defaultLayout $ do
+        setTitle . toHtml $ "Order #" ++ (show $ fromSqlKey orderId)
+        $(widgetFile "order")
+
+getOrderStatusLabel :: OrderStatus -> Text
+getOrderStatusLabel orderStatus =
+    pack $ map Char.toLower (drop 11 $ show orderStatus)
+
+orderForm :: UserId -> Maybe Order -> Form Order
+orderForm userId morder =
+    renderSematnicUiDivs $
+    Order <$>
+    areq
+        (selectField optionsEnum)
+        (selectSettings "Status")
+        (orderStatus <$> morder) <*>
+    pure userId <*>
+    lift (liftIO getCurrentTime)
+
+getCreateOrderR :: Handler Html
+getCreateOrderR = do
+    (userId, _) <- requireAuthPair
+    (widget, enctype) <- generateFormPost $ orderForm userId Nothing
+    defaultLayout $(widgetFile "order-create")
+
+postCreateOrderR :: Handler Html
+postCreateOrderR = do
+    (userId, _) <- requireAuthPair
+    ((result, widget), enctype) <- runFormPost $ orderForm userId Nothing
+    case result of
+        FormSuccess order -> do
+            orderId <- runDB $ insert order
+            setMessage "Order saved"
+            redirect $ OrderR orderId
+        _ ->
+            defaultLayout
+                [whamlet|
+                <p>Invalid input, let's try again.
+                <form method=post action=@{CreateOrderR} enctype=#{enctype}>
+                    ^{widget}
+                    <button>Submit
+            |]

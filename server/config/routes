@@ -16,9 +16,12 @@
 /api/login-token LoginTokenR GET
 
 /add/item CreateItemR GET POST
+/add/order CreateOrderR GET POST
 
 /item/#ItemId ItemR GET
 /item/#ItemId/edit EditItemR GET POST
+
+/order/#OrderId OrderR GET
 
 /pdf-download PdfFileCreateR POST
 /pdf-download/#PdfFileId PdfFileR GET
