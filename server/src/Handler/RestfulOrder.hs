@@ -79,6 +79,24 @@ orderForm userId morder =
         optionsPairs $
         map (\x -> (getOrderStatusLabel x, x)) [minBound .. maxBound]
 
+orderItemForm :: UserId -> OrderId -> Maybe OrderItem -> Form OrderItem
+orderItemForm userId orderId morderItem =
+    renderSematnicUiDivs $
+    OrderItem <$> pure orderId <*>
+    areq
+        (selectField items)
+        (selectSettings "Item")
+        (orderItemItem <$> morderItem) <*>
+    pure userId
+  where
+    items = do
+        entities <- runDB $ selectList [] [Asc ItemName]
+          -- @todo: Generalize.
+        optionsPairs $
+            map
+                (\entity -> (itemName $ entityVal entity, entityKey entity))
+                entities
+
 getCreateOrderR :: Handler Html
 getCreateOrderR = do
     (userId, _) <- requireAuthPair
