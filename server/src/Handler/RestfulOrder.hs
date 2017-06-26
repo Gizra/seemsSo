@@ -102,3 +102,33 @@ postCreateOrderR = do
                     ^{widget}
                     <button>Submit
             |]
+
+getEditOrderR :: OrderId -> Handler Html
+getEditOrderR orderId = do
+    order <- runDB $ get404 orderId
+    (userId, _) <- requireAuthPair
+    (widget, enctype) <- generateFormPost $ orderForm userId (Just order)
+    defaultLayout $(widgetFile "order-update")
+
+postEditOrderR :: OrderId -> Handler Html
+postEditOrderR orderId = do
+    (userId, _) <- requireAuthPair
+    ((result, widget), enctype) <- runFormPost $ orderForm userId Nothing
+    case result of
+        FormSuccess order -> do
+            _ <- updateOrder orderId order
+            setMessage "Order updated"
+            redirect $ OrderR orderId
+        _ -> do
+            setMessage "Saving failed."
+            defaultLayout $(widgetFile "order-update")
+
+updateOrder :: Key Order -> Order -> Handler Bool
+updateOrder orderId order = do
+    let validations = []
+    let lefts' = lefts validations
+    if not $ null lefts'
+        then return False
+        else do
+            _ <- runDB $ replace orderId order
+            return True

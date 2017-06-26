@@ -22,6 +22,7 @@
 /item/#ItemId/edit EditItemR GET POST
 
 /order/#OrderId OrderR GET
+/order/#OrderId/edit EditOrderR GET POST
 
 /pdf-download PdfFileCreateR POST
 /pdf-download/#PdfFileId PdfFileR GET
