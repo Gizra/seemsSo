@@ -1,5 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -12,7 +13,7 @@ import Import
 import Model.Types (OrderStatus(..))
 import Utils.Form
 import Utils.Restful
-import Yesod.Form.MassInput (massDivs)
+import Yesod.Form.MassInput (inputList, massDivs)
 
 getRestfulOrderR :: Handler Value
 getRestfulOrderR = do
@@ -65,7 +66,7 @@ getOrderR orderId = do
 getOrderStatusLabel :: OrderStatus -> Text
 getOrderStatusLabel orderStatus = pack $ drop 11 $ show orderStatus
 
--- orderForm :: UserId -> Maybe Order -> Form (Order,
+orderForm :: UserId -> Maybe Order -> Form (Order, [ItemId])
 orderForm userId morder =
     renderSematnicUiDivs $
     (,) <$>
@@ -76,21 +77,19 @@ orderForm userId morder =
          (orderStatus <$> morder) <*>
      pure userId <*>
      lift (liftIO getCurrentTime)) <*>
-    ((,) <$> massDivs "Order Items" orderItemForm Nothing)
+    (inputList
+         "Order Items"
+         massDivs
+         (\itemId -> orderItemForm userId itemId)
+         Nothing)
   where
     statusOptions =
         optionsPairs $
         map (\x -> (getOrderStatusLabel x, x)) [minBound .. maxBound]
 
-orderItemForm :: UserId -> OrderId -> Maybe OrderItem -> Form OrderItem
-orderItemForm userId orderId morderItem =
-    renderSematnicUiDivs $
-    OrderItem <$> pure orderId <*>
-    areq
-        (selectField items)
-        (selectSettings "Item")
-        (orderItemItem <$> morderItem) <*>
-    pure userId
+-- orderItemForm :: UserId -> Maybe ItemId -> Form (ItemId, UserId)
+orderItemForm userId mitemId =
+    areq (selectField items) (selectSettings "Item") mitemId
   where
     items = do
         entities <- runDB $ selectList [] [Asc ItemName]
