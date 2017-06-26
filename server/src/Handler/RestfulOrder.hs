@@ -66,8 +66,9 @@ getOrderR orderId = do
 getOrderStatusLabel :: OrderStatus -> Text
 getOrderStatusLabel orderStatus = pack $ drop 11 $ show orderStatus
 
-orderForm :: UserId -> Maybe Order -> Form (Order, [ItemId])
-orderForm userId morder =
+orderForm ::
+       UserId -> Maybe Order -> Maybe [ItemId] -> Form (Order, [ItemId])
+orderForm userId morder morderItemIds =
     renderSematnicUiDivs $
     (,) <$>
     (Order <$>
@@ -77,19 +78,21 @@ orderForm userId morder =
          (orderStatus <$> morder) <*>
      pure userId <*>
      lift (liftIO getCurrentTime)) <*>
-    (inputList
-         "Order Items"
-         massDivs
-         (\itemId -> orderItemForm userId itemId)
-         Nothing)
+    (inputList "Order Items" massDivs orderItemForm morderItemIds)
   where
     statusOptions =
         optionsPairs $
         map (\x -> (getOrderStatusLabel x, x)) [minBound .. maxBound]
 
--- orderItemForm :: UserId -> Maybe ItemId -> Form (ItemId, UserId)
-orderItemForm userId mitemId =
-    areq (selectField items) (selectSettings "Item") mitemId
+orderItemForm ::
+       ( BaseBackend (YesodPersistBackend site) ~ SqlBackend
+       , YesodPersist site
+       , PersistQueryRead (YesodPersistBackend site)
+       , RenderMessage site FormMessage
+       )
+    => Maybe ItemId
+    -> AForm (HandlerT site IO) ItemId
+orderItemForm mitemId = areq (selectField items) (selectSettings "Item") mitemId
   where
     items = do
         entities <- runDB $ selectList [] [Asc ItemName]
@@ -102,13 +105,14 @@ orderItemForm userId mitemId =
 getCreateOrderR :: Handler Html
 getCreateOrderR = do
     (userId, _) <- requireAuthPair
-    (widget, enctype) <- generateFormPost $ orderForm userId Nothing
+    (widget, enctype) <- generateFormPost $ orderForm userId Nothing Nothing
     defaultLayout $(widgetFile "order-create")
 
 postCreateOrderR :: Handler Html
 postCreateOrderR = do
     (userId, _) <- requireAuthPair
-    ((result, widget), enctype) <- runFormPost $ orderForm userId Nothing
+    ((result, widget), enctype) <-
+        runFormPost $ orderForm userId Nothing Nothing
     case result of
         FormSuccess (order, _) -> do
             orderId <- runDB $ insert order
@@ -126,14 +130,18 @@ postCreateOrderR = do
 getEditOrderR :: OrderId -> Handler Html
 getEditOrderR orderId = do
     order <- runDB $ get404 orderId
+    orderItems <- runDB $ selectList [OrderItemOrder ==. orderId] []
+    let itemIds = [orderItemItem orderItem | (Entity _ orderItem) <- orderItems]
     (userId, _) <- requireAuthPair
-    (widget, enctype) <- generateFormPost $ orderForm userId (Just order)
+    (widget, enctype) <-
+        generateFormPost $ orderForm userId (Just order) (Just itemIds)
     defaultLayout $(widgetFile "order-update")
 
 postEditOrderR :: OrderId -> Handler Html
 postEditOrderR orderId = do
     (userId, _) <- requireAuthPair
-    ((result, widget), enctype) <- runFormPost $ orderForm userId Nothing
+    ((result, widget), enctype) <-
+        runFormPost $ orderForm userId Nothing Nothing
     case result of
         FormSuccess (order, _) -> do
             _ <- updateOrder orderId order
