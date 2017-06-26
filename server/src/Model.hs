@@ -35,7 +35,7 @@ instance ToJSON (Entity Order) where
         object ["id" .= fromSqlKey orderId, "status" .= orderStatus order]
 
 instance ToJSON OrderStatus where
-    toJSON a = String $ pack $ (map Char.toLower (drop 11 $ show a))
+    toJSON a = String $ pack  (map Char.toLower (drop 11 $ show a))
 
 instance FromJSON OrderStatus where
     parseJSON (Object o) = do
@@ -43,7 +43,7 @@ instance FromJSON OrderStatus where
         case (status :: Text) of
             "active" -> return OrderStatusActive
             "cancelled" -> return OrderStatusCancelled
-            "paymentError" -> return OrderStatusPaymentError
-            "paid" -> return OrderStatusPaid
+            -- "Payment Error" and "Paid" should never change from the client
+            -- so we simply don't decode them,
             _ -> mzero
     parseJSON invalid = typeMismatch "status" invalid
