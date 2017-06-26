@@ -12,6 +12,7 @@ import Import
 import Model.Types (OrderStatus(..))
 import Utils.Form
 import Utils.Restful
+import Yesod.Form.MassInput (massDivs)
 
 getRestfulOrderR :: Handler Value
 getRestfulOrderR = do
@@ -64,16 +65,18 @@ getOrderR orderId = do
 getOrderStatusLabel :: OrderStatus -> Text
 getOrderStatusLabel orderStatus = pack $ drop 11 $ show orderStatus
 
-orderForm :: UserId -> Maybe Order -> Form Order
+-- orderForm :: UserId -> Maybe Order -> Form (Order,
 orderForm userId morder =
     renderSematnicUiDivs $
-    Order <$>
-    areq
-        (selectField statusOptions)
-        (selectSettings "Status")
-        (orderStatus <$> morder) <*>
-    pure userId <*>
-    lift (liftIO getCurrentTime)
+    (,) <$>
+    (Order <$>
+     areq
+         (selectField statusOptions)
+         (selectSettings "Status")
+         (orderStatus <$> morder) <*>
+     pure userId <*>
+     lift (liftIO getCurrentTime)) <*>
+    ((,) <$> massDivs "Order Items" orderItemForm Nothing)
   where
     statusOptions =
         optionsPairs $
@@ -108,7 +111,7 @@ postCreateOrderR = do
     (userId, _) <- requireAuthPair
     ((result, widget), enctype) <- runFormPost $ orderForm userId Nothing
     case result of
-        FormSuccess order -> do
+        FormSuccess (order, _) -> do
             orderId <- runDB $ insert order
             setMessage "Order saved"
             redirect $ OrderR orderId
@@ -133,7 +136,7 @@ postEditOrderR orderId = do
     (userId, _) <- requireAuthPair
     ((result, widget), enctype) <- runFormPost $ orderForm userId Nothing
     case result of
-        FormSuccess order -> do
+        FormSuccess (order, _) -> do
             _ <- updateOrder orderId order
             setMessage "Order updated"
             redirect $ OrderR orderId
