@@ -7,7 +7,6 @@
 
 module Handler.RestfulOrder where
 
-import Data.Char as Char (toLower)
 import Database.Persist.Sql (fromSqlKey)
 import Import
 import Model.Types (OrderStatus(..))
@@ -63,19 +62,22 @@ getOrderR orderId = do
         $(widgetFile "order")
 
 getOrderStatusLabel :: OrderStatus -> Text
-getOrderStatusLabel orderStatus =
-    pack $ map Char.toLower (drop 11 $ show orderStatus)
+getOrderStatusLabel orderStatus = pack $ drop 11 $ show orderStatus
 
 orderForm :: UserId -> Maybe Order -> Form Order
 orderForm userId morder =
     renderSematnicUiDivs $
     Order <$>
     areq
-        (selectField optionsEnum)
+        (selectField statusOptions)
         (selectSettings "Status")
         (orderStatus <$> morder) <*>
     pure userId <*>
     lift (liftIO getCurrentTime)
+  where
+    statusOptions =
+        optionsPairs $
+        map (\x -> (getOrderStatusLabel x, x)) [minBound .. maxBound]
 
 getCreateOrderR :: Handler Html
 getCreateOrderR = do
