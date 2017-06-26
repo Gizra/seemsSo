@@ -120,7 +120,7 @@ postEditOrderR orderId = do
             setMessage "Order updated"
             redirect $ OrderR orderId
         _ -> do
-            setMessage "Saving failed."
+            setMessage "Saving failed"
             defaultLayout $(widgetFile "order-update")
 
 updateOrder :: Key Order -> Order -> Handler Bool
