@@ -35,7 +35,7 @@ instance ToJSON (Entity Order) where
         object ["id" .= fromSqlKey orderId, "status" .= orderStatus order]
 
 instance ToJSON OrderStatus where
-    toJSON a = String $ pack  (map Char.toLower (drop 11 $ show a))
+    toJSON a = String $ pack (map Char.toLower (drop 11 $ show a))
 
 instance FromJSON OrderStatus where
     parseJSON (Object o) = do
