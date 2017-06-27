@@ -62,17 +62,36 @@ spec = do
                 -- Assert empty object
                 assertEmptyJsonResponse
                 statusIs 200
+            it "should show the active order to own user" $ do
+                _ <- prepareScenario
+                alice <- createUser "alice"
+                let (Entity userId _) = alice
+                authenticateAs alice
+                -- Create Order
+                currentTime <- liftIO getCurrentTime
+                orderId <-
+                    runDB $ insert $ Order OrderStatusActive userId currentTime
+                get RestfulOrderR
+                response <- getResponse
+                liftIO $ print response
+                -- Assert empty object
+                assertEmptyJsonResponse
+                statusIs 200
 
 assertEmptyJsonResponse :: YesodExample App ()
-assertEmptyJsonResponse = assertJsonResponse (Nothing :: Maybe Int)
+assertEmptyJsonResponse =
+    assertJsonResponse (decode "{}" :: Maybe Object)
 
-assertJsonResponse :: Maybe Int -> YesodExample App ()
+assertJsonResponse :: Maybe Object -> YesodExample App ()
 assertJsonResponse val = do
     mresponse <- getResponse
     maybe
         failWithNoResponse
         (\response ->
-             assertEq "same" (decode (simpleBody response) :: Maybe Int) val)
+             assertEq
+                 "Json response is correct"
+                 (decode (simpleBody response) :: Maybe Object)
+                 val)
         mresponse
 
 failWithNoResponse :: YesodExample App ()
