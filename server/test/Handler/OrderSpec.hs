@@ -5,8 +5,10 @@ module Handler.OrderSpec
     ( spec
     ) where
 
+import Data.Aeson
 import Handler.PdfFile
 import Model.Types (OrderStatus(..))
+import Network.Wai.Test (SResponse(..))
 import System.Directory (copyFile)
 import TestImport
 import Yesod.Static
@@ -51,13 +53,30 @@ spec = do
                 testWithOrderStatus OrderStatusPaid 200
         describe "Order RESTful" $ do
             it "should allow access to anonymous user" $ do
-                get $ RestfulOrderR
+                get RestfulOrderR
                 -- Assert empty object
+                assertEmptyJsonResponse
                 statusIs 200
             it "should allow access to authenticated user" $ do
-                get $ RestfulOrderR
+                get RestfulOrderR
                 -- Assert empty object
+                assertEmptyJsonResponse
                 statusIs 200
+
+assertEmptyJsonResponse :: YesodExample App ()
+assertEmptyJsonResponse = assertJsonResponse (Nothing :: Maybe Int)
+
+assertJsonResponse :: Maybe Int -> YesodExample App ()
+assertJsonResponse val = do
+    mresponse <- getResponse
+    maybe
+        failWithNoResponse
+        (\response ->
+             assertEq "same" (decode (simpleBody response) :: Maybe Int) val)
+        mresponse
+
+failWithNoResponse :: YesodExample App ()
+failWithNoResponse = assertEq "Response is missing" (0 :: Int) (1 :: Int)
 
 pdfFileStaticRoute :: Route App
 pdfFileStaticRoute = StaticR $ StaticRoute ["item-pdf", "item1.pdf"] []
