@@ -6,6 +6,7 @@
 
 module Utils.Form
     ( renderSematnicUiDivs
+    , selectSettings
     ) where
 
 import Import
@@ -34,3 +35,12 @@ renderSematnicUiDivsMaybeLabels withLabels aform fragment = do
                               <div .errors>#{err}
                     |]
     return (res, widget)
+
+selectSettings label =
+    FieldSettings
+    { fsLabel = label
+    , fsTooltip = Nothing
+    , fsId = Nothing
+    , fsName = Nothing
+    , fsAttrs = [("class", "ui fluid dropdown")]
+    }

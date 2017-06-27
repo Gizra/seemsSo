@@ -48,6 +48,8 @@ dependencies:
 
 # Project's packages
 - esqueleto
+- lens
+- lens-aeson
 - transformers
 - random-strings
 

@@ -1,0 +1,11 @@
+<div class="ui container">
+    <div class="ui tabular menu">
+        <a class="item active" href="@{OrderR orderId}">
+            View
+        <a class="item" href="@{EditOrderR orderId}">
+            Edit
+
+
+    <div.ui.segment>
+        <div.name>
+            <strong>Status:</strong> <span class="name">#{orderStatusLabel}</span>

@@ -5,15 +5,19 @@ module Handler.OrderSpec
     ( spec
     ) where
 
+import Control.Lens.Fold
+import Data.Aeson
+import Data.Aeson.Lens
 import Handler.PdfFile
 import Model.Types (OrderStatus(..))
+import Network.Wai.Test (SResponse(..))
 import System.Directory (copyFile)
 import TestImport
 import Yesod.Static
 
 spec :: Spec
 spec = do
-    withApp $
+    withApp $ do
         describe "PDF file download" $ do
             it "should redirect to login page anonymous user" $ do
                 _ <- prepareScenario
@@ -49,6 +53,71 @@ spec = do
                 testWithOrderStatus OrderStatusPaymentError 403
             it "should allow access to authenticated user that bought the item" $
                 testWithOrderStatus OrderStatusPaid 200
+        describe "Order RESTful" $ do
+            it "should allow access to anonymous user" $ do
+                get RestfulOrderR
+                -- Assert empty object
+                assertEmptyJsonResponse
+                statusIs 200
+            it "should allow access to authenticated user" $ do
+                (_, _, _, _, alice, _) <-
+                    prepareScenarioWithOrder OrderStatusActive
+                bob <- createUser "bob"
+                authenticateAs bob
+                get RestfulOrderR
+                -- Assert empty object, as the order doesn't belong to logged in
+                -- user.
+                assertEmptyJsonResponse
+                statusIs 200
+            it "should show the active order to own user" $ do
+                (_, _, _, _, alice, _) <-
+                    prepareScenarioWithOrder OrderStatusActive
+                authenticateAs alice
+                get RestfulOrderR
+                -- We get a response like: {"data":{"status":"active","id":1}}
+                mresponse <- getResponse
+                maybe
+                    failWithNoResponse
+                    (\response ->
+                         let statusResult =
+                                 simpleBody response ^? key "data" .
+                                 key "status" .
+                                 _String
+                         in assertEq
+                                "Order status  is correct"
+                                statusResult
+                                (Just "active"))
+                    mresponse
+                statusIs 200
+            it "should not show a cancelled order to own user" $ do
+                (_, _, _, _, alice, _) <-
+                    prepareScenarioWithOrder OrderStatusCancelled
+                authenticateAs alice
+                get RestfulOrderR
+              -- Assert empty object, as the order doesn't belong to logged in
+              -- user.
+                assertEmptyJsonResponse
+                statusIs 200
+
+assertEmptyJsonResponse :: YesodExample App ()
+assertEmptyJsonResponse = assertJsonResponse (decode "{}" :: Maybe Object)
+
+assertJsonResponse :: Maybe Object -> YesodExample App ()
+assertJsonResponse val = do
+    mresponse <- getResponse
+    maybe
+        failWithNoResponse
+        (\response ->
+             assertEq
+                 "Json response is correct"
+                 (decode (simpleBody response) :: Maybe Object)
+                 val)
+        mresponse
+
+{-| Fail an assertion.
+-}
+failWithNoResponse :: YesodExample App ()
+failWithNoResponse = assertEq "Response is missing" (0 :: Int) (1 :: Int)
 
 pdfFileStaticRoute :: Route App
 pdfFileStaticRoute = StaticR $ StaticRoute ["item-pdf", "item1.pdf"] []
@@ -82,6 +151,24 @@ prepareScenario = do
     companyId <- runDB $ insert $ Company "company1" currentTime userId
     pdfId <- runDB $ insert $ PdfFile filename currentTime
     itemId <-
-        runDB $
-        insert $ Item "Item1" companyId 10 (Just pdfId) currentTime userId
+        runDB $ insert $
+        Item "Item1" companyId 10 (Just pdfId) currentTime userId
     return (john, companyId, pdfId, itemId)
+
+prepareScenarioWithOrder ::
+       OrderStatus
+    -> YesodExample App ( Entity User
+                        , CompanyId
+                        , PdfFileId
+                        , ItemId
+                        , Entity User
+                        , OrderId)
+prepareScenarioWithOrder status = do
+    (john, companyId, pdfId, itemId) <- prepareScenario
+    alice <- createUser "alice"
+    let (Entity userId _) = alice
+    authenticateAs alice
+    -- Create Order
+    currentTime <- liftIO getCurrentTime
+    orderId <- runDB $ insert $ Order status userId currentTime
+    return (john, companyId, pdfId, itemId, alice, orderId)

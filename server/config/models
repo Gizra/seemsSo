@@ -39,7 +39,7 @@ PdfFile
     deriving        Show Generic
 Order
     status          OrderStatus
-    userId          UserId
+    user            UserId
     date            UTCTime
     deriving        Show Generic
 OrderItem

@@ -12,6 +12,8 @@
 module Model where
 
 import ClassyPrelude.Yesod
+import Data.Aeson.Types
+import Data.Char as Char (toLower)
 import Database.Persist.Quasi
 import Database.Persist.Sql (fromSqlKey)
 import Model.Types
@@ -26,4 +28,23 @@ share
 
 instance ToJSON (Entity User) where
     toJSON (Entity userId user) =
-        object ["id" .= (fromSqlKey userId), "name" .= userIdent user]
+        object ["id" .= fromSqlKey userId, "name" .= userIdent user]
+
+instance ToJSON (Entity Order) where
+    toJSON (Entity orderId order) =
+        object ["id" .= fromSqlKey orderId, "status" .= orderStatus order]
+
+-- @todo: Use orderStatusLabel
+instance ToJSON OrderStatus where
+    toJSON a = String $ pack (map Char.toLower (drop 11 $ show a))
+
+instance FromJSON OrderStatus where
+    parseJSON (Object o) = do
+        status <- o .: "status"
+        case (status :: Text) of
+            "active" -> return OrderStatusActive
+            "cancelled" -> return OrderStatusCancelled
+            -- "Payment Error" and "Paid" should never change from the client
+            -- so we simply don't decode them,
+            _ -> mzero
+    parseJSON invalid = typeMismatch "status" invalid
