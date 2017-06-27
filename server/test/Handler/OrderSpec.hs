@@ -60,8 +60,18 @@ spec = do
                 assertEmptyJsonResponse
                 statusIs 200
             it "should allow access to authenticated user" $ do
+                _ <- prepareScenario
+                alice <- createUser "alice"
+                let (Entity userId _) = alice
+                bob <- createUser "bob"
+                authenticateAs bob
+                -- Create Order
+                currentTime <- liftIO getCurrentTime
+                orderId <-
+                    runDB $ insert $ Order OrderStatusActive userId currentTime
                 get RestfulOrderR
-                -- Assert empty object
+                -- Assert empty object, as the order doesn't belong to logged in
+                -- user.
                 assertEmptyJsonResponse
                 statusIs 200
             it "should show the active order to own user" $ do
