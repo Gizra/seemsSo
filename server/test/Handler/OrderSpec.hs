@@ -175,7 +175,7 @@ testNoAccessWithOrderStatus status = do
     (_, _, _, _, alice, _) <- prepareScenarioWithOrder status
     authenticateAs alice
     get RestfulOrderR
-  -- Assert empty object, as the order doesn't belong to logged in
-  -- user.
+    -- Assert empty object, as the order doesn't belong to logged in
+    -- user.
     assertEmptyJsonResponse
     statusIs 200
