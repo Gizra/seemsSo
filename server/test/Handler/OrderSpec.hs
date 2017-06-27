@@ -13,7 +13,7 @@ import Yesod.Static
 
 spec :: Spec
 spec = do
-    withApp $
+    withApp $ do
         describe "PDF file download" $ do
             it "should redirect to login page anonymous user" $ do
                 _ <- prepareScenario
@@ -49,6 +49,15 @@ spec = do
                 testWithOrderStatus OrderStatusPaymentError 403
             it "should allow access to authenticated user that bought the item" $
                 testWithOrderStatus OrderStatusPaid 200
+        describe "Order RESTful" $ do
+            it "should allow access to anonymous user" $ do
+                get $ RestfulOrderR
+                -- Assert empty object
+                statusIs 200
+            it "should allow access to authenticated user" $ do
+                get $ RestfulOrderR
+                -- Assert empty object
+                statusIs 200
 
 pdfFileStaticRoute :: Route App
 pdfFileStaticRoute = StaticR $ StaticRoute ["item-pdf", "item1.pdf"] []
