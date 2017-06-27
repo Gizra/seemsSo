@@ -60,29 +60,19 @@ spec = do
                 assertEmptyJsonResponse
                 statusIs 200
             it "should allow access to authenticated user" $ do
-                _ <- prepareScenario
-                alice <- createUser "alice"
-                let (Entity userId _) = alice
+                (_, _, _, _, alice, _) <-
+                    prepareScenarioWithOrder OrderStatusActive
                 bob <- createUser "bob"
                 authenticateAs bob
-                -- Create Order
-                currentTime <- liftIO getCurrentTime
-                orderId <-
-                    runDB $ insert $ Order OrderStatusActive userId currentTime
                 get RestfulOrderR
                 -- Assert empty object, as the order doesn't belong to logged in
                 -- user.
                 assertEmptyJsonResponse
                 statusIs 200
             it "should show the active order to own user" $ do
-                _ <- prepareScenario
-                alice <- createUser "alice"
-                let (Entity userId _) = alice
+                (_, _, _, _, alice, _) <-
+                    prepareScenarioWithOrder OrderStatusActive
                 authenticateAs alice
-                -- Create Order
-                currentTime <- liftIO getCurrentTime
-                orderId <-
-                    runDB $ insert $ Order OrderStatusActive userId currentTime
                 get RestfulOrderR
                 -- We get a response like: {"data":{"status":"active","id":1}}
                 mresponse <- getResponse
@@ -98,6 +88,14 @@ spec = do
                                 statusResult
                                 (Just "active"))
                     mresponse
+                statusIs 200
+            it "should not show a cancelled order to own user" $ do
+                (_, _, _, _, alice, _) <- prepareScenarioWithOrder OrderStatusCancelled
+                authenticateAs alice
+                get RestfulOrderR
+              -- Assert empty object, as the order doesn't belong to logged in
+              -- user.
+                assertEmptyJsonResponse
                 statusIs 200
 
 assertEmptyJsonResponse :: YesodExample App ()
@@ -153,3 +151,21 @@ prepareScenario = do
         runDB $ insert $
         Item "Item1" companyId 10 (Just pdfId) currentTime userId
     return (john, companyId, pdfId, itemId)
+
+prepareScenarioWithOrder ::
+       OrderStatus
+    -> YesodExample App ( Entity User
+                        , CompanyId
+                        , PdfFileId
+                        , ItemId
+                        , Entity User
+                        , OrderId)
+prepareScenarioWithOrder status = do
+    (john, companyId, pdfId, itemId) <- prepareScenario
+    alice <- createUser "alice"
+    let (Entity userId _) = alice
+    authenticateAs alice
+    -- Create Order
+    currentTime <- liftIO getCurrentTime
+    orderId <- runDB $ insert $ Order status userId currentTime
+    return (john, companyId, pdfId, itemId, alice, orderId)
