@@ -90,14 +90,11 @@ spec = do
                     mresponse
                 statusIs 200
             it "should not show a cancelled order to own user" $ do
-                (_, _, _, _, alice, _) <-
-                    prepareScenarioWithOrder OrderStatusCancelled
-                authenticateAs alice
-                get RestfulOrderR
-              -- Assert empty object, as the order doesn't belong to logged in
-              -- user.
-                assertEmptyJsonResponse
-                statusIs 200
+                testNoAccessWithOrderStatus OrderStatusCancelled
+            it "should not show a payment error order to own user" $ do
+                testNoAccessWithOrderStatus OrderStatusPaymentError
+            it "should not show a paid order to own user" $ do
+                testNoAccessWithOrderStatus OrderStatusPaid
 
 assertEmptyJsonResponse :: YesodExample App ()
 assertEmptyJsonResponse = assertJsonResponse (decode "{}" :: Maybe Object)
@@ -172,3 +169,13 @@ prepareScenarioWithOrder status = do
     currentTime <- liftIO getCurrentTime
     orderId <- runDB $ insert $ Order status userId currentTime
     return (john, companyId, pdfId, itemId, alice, orderId)
+
+testNoAccessWithOrderStatus :: OrderStatus -> YesodExample App ()
+testNoAccessWithOrderStatus status = do
+    (_, _, _, _, alice, _) <- prepareScenarioWithOrder status
+    authenticateAs alice
+    get RestfulOrderR
+    -- Assert empty object, as the order doesn't belong to logged in
+    -- user.
+    assertEmptyJsonResponse
+    statusIs 200
