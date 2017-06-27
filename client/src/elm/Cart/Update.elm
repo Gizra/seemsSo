@@ -5,15 +5,25 @@ port module Cart.Update
         )
 
 import Cart.Model exposing (Model, Msg(..), emptyModel)
-import Item.Decoder exposing (decodeItemId, decodeItems)
+import Dict
+import DictList
+import Item.Decoder exposing (decodeItemId, decodeItemTuple, decodeItems)
 import Json.Decode exposing (Value, decodeValue)
+import RemoteData exposing (RemoteData(..))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        AddItem (Ok itemId) ->
-            { model | items = itemId :: model.items } ! []
+        AddItem (Ok ( itemId, item )) ->
+            let
+                items =
+                    DictList.insert itemId item model.items
+
+                orderItems =
+                    Dict.insert itemId NotAsked model.orderItems
+            in
+                { model | items = items, orderItems = orderItems } ! []
 
         AddItem (Err err) ->
             let
@@ -26,11 +36,7 @@ update msg model =
             emptyModel ! []
 
         RemoveItem (Ok itemId) ->
-            let
-                itemsUpdated =
-                    List.filter (\val -> val /= itemId) model.items
-            in
-                { model | items = itemsUpdated } ! []
+            { model | orderItems = Dict.remove itemId model.orderItems } ! []
 
         RemoveItem (Err err) ->
             let
@@ -43,7 +49,7 @@ update msg model =
 subscriptions : Sub Msg
 subscriptions =
     Sub.batch
-        [ addItem (decodeValue decodeItemId >> AddItem)
+        [ addItem (decodeValue decodeItemTuple >> AddItem)
         , removeItem (decodeValue decodeItemId >> RemoveItem)
         ]
 

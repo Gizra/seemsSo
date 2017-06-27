@@ -1,6 +1,7 @@
 module Item.Decoder
     exposing
         ( decodeItemId
+        , decodeItemTuple
         , decodeItems
         )
 
@@ -34,3 +35,10 @@ decodeItem : Decoder Item
 decodeItem =
     decode Item
         |> required "name" string
+
+
+decodeItemTuple : Decoder ( ItemId, Item )
+decodeItemTuple =
+    decode (,)
+        |> custom decodeItemId
+        |> custom decodeItem
