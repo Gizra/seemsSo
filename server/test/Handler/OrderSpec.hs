@@ -90,7 +90,8 @@ spec = do
                     mresponse
                 statusIs 200
             it "should not show a cancelled order to own user" $ do
-                (_, _, _, _, alice, _) <- prepareScenarioWithOrder OrderStatusCancelled
+                (_, _, _, _, alice, _) <-
+                    prepareScenarioWithOrder OrderStatusCancelled
                 authenticateAs alice
                 get RestfulOrderR
               -- Assert empty object, as the order doesn't belong to logged in
@@ -113,6 +114,8 @@ assertJsonResponse val = do
                  val)
         mresponse
 
+{-| Fail an assertion.
+-}
 failWithNoResponse :: YesodExample App ()
 failWithNoResponse = assertEq "Response is missing" (0 :: Int) (1 :: Int)
 
