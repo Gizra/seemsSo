@@ -5,7 +5,9 @@ module Handler.OrderSpec
     ( spec
     ) where
 
+import Control.Lens.Fold
 import Data.Aeson
+import Data.Aeson.Lens
 import Handler.PdfFile
 import Model.Types (OrderStatus(..))
 import Network.Wai.Test (SResponse(..))
@@ -72,15 +74,24 @@ spec = do
                 orderId <-
                     runDB $ insert $ Order OrderStatusActive userId currentTime
                 get RestfulOrderR
-                response <- getResponse
-                liftIO $ print response
-                -- Assert empty object
-                assertEmptyJsonResponse
+                -- We get a response like: {"data":{"status":"active","id":1}}
+                mresponse <- getResponse
+                maybe
+                    failWithNoResponse
+                    (\response ->
+                         let statusResult =
+                                 simpleBody response ^? key "data" .
+                                 key "status" .
+                                 _String
+                         in assertEq
+                                "Order status  is correct"
+                                statusResult
+                                (Just "active"))
+                    mresponse
                 statusIs 200
 
 assertEmptyJsonResponse :: YesodExample App ()
-assertEmptyJsonResponse =
-    assertJsonResponse (decode "{}" :: Maybe Object)
+assertEmptyJsonResponse = assertJsonResponse (decode "{}" :: Maybe Object)
 
 assertJsonResponse :: Maybe Object -> YesodExample App ()
 assertJsonResponse val = do
@@ -129,6 +140,6 @@ prepareScenario = do
     companyId <- runDB $ insert $ Company "company1" currentTime userId
     pdfId <- runDB $ insert $ PdfFile filename currentTime
     itemId <-
-        runDB $
-        insert $ Item "Item1" companyId 10 (Just pdfId) currentTime userId
+        runDB $ insert $
+        Item "Item1" companyId 10 (Just pdfId) currentTime userId
     return (john, companyId, pdfId, itemId)
