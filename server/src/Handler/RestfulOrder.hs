@@ -1,5 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -12,6 +13,7 @@ import Import
 import Model.Types (OrderStatus(..))
 import Utils.Form
 import Utils.Restful
+import Yesod.Form.MassInput (inputList, massDivs)
 
 getRestfulOrderR :: Handler Value
 getRestfulOrderR = do
@@ -64,33 +66,54 @@ getOrderR orderId = do
 getOrderStatusLabel :: OrderStatus -> Text
 getOrderStatusLabel orderStatus = pack $ drop 11 $ show orderStatus
 
-orderForm :: UserId -> Maybe Order -> Form Order
-orderForm userId morder =
+orderForm :: UserId -> Maybe Order -> Maybe [ItemId] -> Form (Order, [ItemId])
+orderForm userId morder morderItemIds =
     renderSematnicUiDivs $
-    Order <$>
-    areq
-        (selectField statusOptions)
-        (selectSettings "Status")
-        (orderStatus <$> morder) <*>
-    pure userId <*>
-    lift (liftIO getCurrentTime)
+    (,) <$>
+    (Order <$>
+     areq
+         (selectField statusOptions)
+         (selectSettings "Status")
+         (orderStatus <$> morder) <*>
+     pure userId <*>
+     lift (liftIO getCurrentTime)) <*>
+    (inputList "Order Items" massDivs orderItemForm morderItemIds)
   where
     statusOptions =
         optionsPairs $
         map (\x -> (getOrderStatusLabel x, x)) [minBound .. maxBound]
 
+orderItemForm ::
+       ( BaseBackend (YesodPersistBackend site) ~ SqlBackend
+       , YesodPersist site
+       , PersistQueryRead (YesodPersistBackend site)
+       , RenderMessage site FormMessage
+       )
+    => Maybe ItemId
+    -> AForm (HandlerT site IO) ItemId
+orderItemForm mitemId = areq (selectField items) (selectSettings "Item") mitemId
+  where
+    items = do
+        entities <- runDB $ selectList [] [Asc ItemName]
+          -- @todo: Generalize.
+        optionsPairs $
+            map
+                (\entity -> (itemName $ entityVal entity, entityKey entity))
+                entities
+
 getCreateOrderR :: Handler Html
 getCreateOrderR = do
     (userId, _) <- requireAuthPair
-    (widget, enctype) <- generateFormPost $ orderForm userId Nothing
+    (widget, enctype) <- generateFormPost $ orderForm userId Nothing Nothing
     defaultLayout $(widgetFile "order-create")
 
 postCreateOrderR :: Handler Html
 postCreateOrderR = do
     (userId, _) <- requireAuthPair
-    ((result, widget), enctype) <- runFormPost $ orderForm userId Nothing
+    ((result, widget), enctype) <-
+        runFormPost $ orderForm userId Nothing Nothing
     case result of
-        FormSuccess order -> do
+        FormSuccess (order, _) -> do
             orderId <- runDB $ insert order
             setMessage "Order saved"
             redirect $ OrderR orderId
@@ -106,16 +129,20 @@ postCreateOrderR = do
 getEditOrderR :: OrderId -> Handler Html
 getEditOrderR orderId = do
     order <- runDB $ get404 orderId
+    orderItems <- runDB $ selectList [OrderItemOrder ==. orderId] []
+    let itemIds = [orderItemItem orderItem | (Entity _ orderItem) <- orderItems]
     (userId, _) <- requireAuthPair
-    (widget, enctype) <- generateFormPost $ orderForm userId (Just order)
+    (widget, enctype) <-
+        generateFormPost $ orderForm userId (Just order) (Just itemIds)
     defaultLayout $(widgetFile "order-update")
 
 postEditOrderR :: OrderId -> Handler Html
 postEditOrderR orderId = do
     (userId, _) <- requireAuthPair
-    ((result, widget), enctype) <- runFormPost $ orderForm userId Nothing
+    ((result, widget), enctype) <-
+        runFormPost $ orderForm userId Nothing Nothing
     case result of
-        FormSuccess order -> do
+        FormSuccess (order, _) -> do
             _ <- updateOrder orderId order
             setMessage "Order updated"
             redirect $ OrderR orderId
