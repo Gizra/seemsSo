@@ -7,6 +7,8 @@
 
 module Handler.Item where
 
+import qualified Database.Esqueleto as E
+import Database.Esqueleto ((^.))
 import Database.Persist.Sql (fromSqlKey)
 import Handler.PdfFile (pdfFilePath, writeToServer)
 import Import
@@ -16,8 +18,16 @@ getItemR :: ItemId -> Handler Html
 getItemR itemId = do
     item <- runDB $ get404 itemId
     company <- runDB $ get404 $ itemCompany item
-    comments <-
-        runDB $ selectList [ItemCommentItem ==. itemId] [Desc ItemCommentId]
+    comments
+        -- runDB $ selectList [ItemCommentItem ==. itemId] [Desc ItemCommentId]
+         <-
+        runDB . E.select . E.from $ \(item `E.InnerJoin` itemComment) -> do
+            E.on $ item ^. ItemId E.==. itemComment ^. ItemCommentItem
+            E.where_ $ itemComment ^. ItemCommentItem E.==. E.val itemId
+            E.limit 200
+            return
+                ( itemComment ^. ItemCommentId
+                , itemComment ^. ItemCommentComment)
     mpdf <-
         maybe
             (return Nothing)

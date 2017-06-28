@@ -23,6 +23,6 @@
 
         <h2>Comments
 
-        $forall (Entity commentId comment) <- comments
-           <div id="comment-#{show commentId}">
-              #{itemCommentComment comment}
+        $forall (E.Value commentId, E.Value comment) <- comments
+           <div id="comment-#{show $ fromSqlKey commentId}">
+              #{comment}
