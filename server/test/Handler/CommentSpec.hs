@@ -30,13 +30,14 @@ spec =
                 runDB $
                 insert $ ItemComment commentText itemId userId currentTime
             get $ ItemR itemId
+            -- Assert avatar.
+            htmlCount ".ui.comments > .comment > .avatar > img" 1
+            -- Assert comment author name.
             htmlAnyContain ".ui.comments > .comment > div > div.author" "john"
+            -- Assert comment text.
             htmlAnyContain
                 ".ui.comments > .comment > div > div.text"
                 (unpack commentText)
-
-
-
 
 prepareScenario :: YesodExample App (Entity User, CompanyId, PdfFileId, ItemId)
 prepareScenario = do
