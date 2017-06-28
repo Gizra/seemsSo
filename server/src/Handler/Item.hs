@@ -19,15 +19,17 @@ getItemR itemId = do
     item <- runDB $ get404 itemId
     company <- runDB $ get404 $ itemCompany item
     comments
-        -- runDB $ selectList [ItemCommentItem ==. itemId] [Desc ItemCommentId]
          <-
-        runDB . E.select . E.from $ \(item `E.InnerJoin` itemComment) -> do
+        runDB . E.select . E.from $ \(itemComment `E.InnerJoin` item `E.InnerJoin` user) -> do
+            E.on $ user ^. UserId E.==. itemComment ^. ItemCommentUser
             E.on $ item ^. ItemId E.==. itemComment ^. ItemCommentItem
             E.where_ $ itemComment ^. ItemCommentItem E.==. E.val itemId
             E.limit 200
             return
                 ( itemComment ^. ItemCommentId
-                , itemComment ^. ItemCommentComment)
+                , itemComment ^. ItemCommentComment
+                , user ^. UserId
+                , user ^. UserIdent)
     mpdf <-
         maybe
             (return Nothing)
