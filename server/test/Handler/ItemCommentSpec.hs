@@ -12,11 +12,11 @@ spec =
     withApp $
     describe "Item's comments" $ do
         it "should show 'No comments' to anonymous user" $ do
-            (_, _, _, itemId, _, _) <- prepareScenario
+            (_, _, _, itemId) <- prepareScenarioWithoutComment
             get $ ItemR itemId
             htmlAnyContain "section.comments > div" "No comments"
         it "should show 'No comments' to authenticated user" $ do
-            (_, _, _, itemId, _, _) <- prepareScenario
+            (_, _, _, itemId) <- prepareScenarioWithoutComment
             bob <- createUser "bob"
             authenticateAs bob
             get $ ItemR itemId
@@ -57,13 +57,7 @@ prepareScenario ::
                         , ItemCommentId)
 prepareScenario = do
     currentTime <- liftIO getCurrentTime
-    john <- createUser "john"
-    let (Entity userId user) = john
-    companyId <- runDB $ insert $ Company "company1" currentTime userId
-    pdfId <- runDB $ insert $ PdfFile "someFileName" currentTime
-    itemId <-
-        runDB $
-        insert $ Item "Item1" companyId 10 (Just pdfId) currentTime userId
+    (john, companyId, pdfId, itemId) <- prepareScenarioWithoutComment
     alice <- createUser "alice"
     let (Entity commenterUserId _) = alice
     let commentText = "Comment for Item1"
@@ -71,3 +65,16 @@ prepareScenario = do
         runDB $
         insert $ ItemComment commentText itemId commenterUserId currentTime
     return (john, companyId, pdfId, itemId, alice, commentId)
+
+prepareScenarioWithoutComment ::
+       YesodExample App (Entity User, CompanyId, PdfFileId, ItemId)
+prepareScenarioWithoutComment = do
+    currentTime <- liftIO getCurrentTime
+    john <- createUser "john"
+    let (Entity userId user) = john
+    companyId <- runDB $ insert $ Company "company1" currentTime userId
+    pdfId <- runDB $ insert $ PdfFile "someFileName" currentTime
+    itemId <-
+        runDB $
+        insert $ Item "Item1" companyId 10 (Just pdfId) currentTime userId
+    return (john, companyId, pdfId, itemId)
