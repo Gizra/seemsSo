@@ -20,3 +20,9 @@
             <div.download>
                 <a href=/#{pdfFilePath $ pdfFileFilename pdf}>
                     Download PDF
+
+        <h2>Comments
+
+        $forall (Entity commentId comment) <- comments
+           <div id="comment-#{show commentId}">
+              #{itemCommentComment comment}

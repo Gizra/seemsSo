@@ -16,6 +16,8 @@ getItemR :: ItemId -> Handler Html
 getItemR itemId = do
     item <- runDB $ get404 itemId
     company <- runDB $ get404 $ itemCompany item
+    comments <-
+        runDB $ selectList [ItemCommentItem ==. itemId] [Desc ItemCommentId]
     mpdf <-
         maybe
             (return Nothing)
