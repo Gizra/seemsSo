@@ -39,3 +39,6 @@
                           <div class="text">#{comment}
                           <div class="actions">
                               <a class="reply">Reply
+
+          $# Comment form
+          ^{elmApp}
