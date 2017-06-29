@@ -33,6 +33,12 @@ Item json
     created         UTCTime
     user            UserId
     deriving        Show Generic
+ItemComment
+    comment         Text
+    item            ItemId
+    user            UserId
+    created         UTCTime
+    deriving        Show Generic
 PdfFile
     filename        String
     date            UTCTime
@@ -40,7 +46,7 @@ PdfFile
 Order
     status          OrderStatus
     user            UserId
-    date            UTCTime
+    created         UTCTime
     deriving        Show Generic
 OrderItem
     order           OrderId
