@@ -10,6 +10,10 @@ import Html.Attributes exposing (class)
 view : Model -> Html Msg
 view model =
     case model.widget of
+        ItemComment ->
+            div [ class "ui container" ]
+                []
+
         HomePage ->
             div [ class "ui container" ]
                 [ Html.map MsgPagesHomepage <| Homepage.View.view model.user model.pageHomepage

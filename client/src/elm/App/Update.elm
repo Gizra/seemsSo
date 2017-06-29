@@ -17,6 +17,9 @@ init flags =
     let
         widget =
             case flags.widget of
+                "itemComment" ->
+                    ItemComment
+
                 "homepage" ->
                     HomePage
 
@@ -57,6 +60,9 @@ subscriptions model =
     let
         subs =
             case model.widget of
+                ItemComment ->
+                    Sub.none
+
                 HomePage ->
                     Sub.map MsgPagesHomepage <| Homepage.Update.subscriptions
 

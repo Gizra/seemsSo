@@ -2,5 +2,6 @@ module App.Types exposing (..)
 
 
 type Widget
-    = HomePage
+    = ItemComment
+    | HomePage
     | NotFound

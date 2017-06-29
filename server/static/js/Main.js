@@ -7982,6 +7982,7 @@ var _Gizra$elm_dictlist$DictList$relativePosition = F2(
 
 var _Gizra$elm_spa_exmple$App_Types$NotFound = {ctor: 'NotFound'};
 var _Gizra$elm_spa_exmple$App_Types$HomePage = {ctor: 'HomePage'};
+var _Gizra$elm_spa_exmple$App_Types$ItemComment = {ctor: 'ItemComment'};
 
 var _Gizra$elm_spa_exmple$Item_Model$Item = function (a) {
 	return {name: a};
@@ -8625,6 +8626,21 @@ var _elm_community$json_extra$Json_Decode_Extra$sequence = function (decoders) {
 		_elm_community$json_extra$Json_Decode_Extra$sequenceHelp(decoders),
 		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$value));
 };
+var _elm_community$json_extra$Json_Decode_Extra$indexedList = function (indexedDecoder) {
+	return A2(
+		_elm_lang$core$Json_Decode$andThen,
+		function (values) {
+			return _elm_community$json_extra$Json_Decode_Extra$sequence(
+				A2(
+					_elm_lang$core$List$map,
+					indexedDecoder,
+					A2(
+						_elm_lang$core$List$range,
+						0,
+						_elm_lang$core$List$length(values) - 1)));
+		},
+		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$value));
+};
 var _elm_community$json_extra$Json_Decode_Extra$optionalField = F2(
 	function (fieldName, decoder) {
 		var finishDecoding = function (json) {
@@ -8837,10 +8853,13 @@ var _Gizra$elm_spa_exmple$App_Update$update = F2(
 var _Gizra$elm_spa_exmple$App_Update$init = function (flags) {
 	var widget = function () {
 		var _p3 = flags.widget;
-		if (_p3 === 'homepage') {
-			return _Gizra$elm_spa_exmple$App_Types$HomePage;
-		} else {
-			return _Gizra$elm_spa_exmple$App_Types$NotFound;
+		switch (_p3) {
+			case 'itemComment':
+				return _Gizra$elm_spa_exmple$App_Types$ItemComment;
+			case 'homepage':
+				return _Gizra$elm_spa_exmple$App_Types$HomePage;
+			default:
+				return _Gizra$elm_spa_exmple$App_Types$NotFound;
 		}
 	}();
 	return {
@@ -8855,10 +8874,13 @@ var _Gizra$elm_spa_exmple$App_Update$user = _elm_lang$core$Native_Platform.incom
 var _Gizra$elm_spa_exmple$App_Update$subscriptions = function (model) {
 	var subs = function () {
 		var _p4 = model.widget;
-		if (_p4.ctor === 'HomePage') {
-			return A2(_elm_lang$core$Platform_Sub$map, _Gizra$elm_spa_exmple$App_Model$MsgPagesHomepage, _Gizra$elm_spa_exmple$Homepage_Update$subscriptions);
-		} else {
-			return _elm_lang$core$Platform_Sub$none;
+		switch (_p4.ctor) {
+			case 'ItemComment':
+				return _elm_lang$core$Platform_Sub$none;
+			case 'HomePage':
+				return A2(_elm_lang$core$Platform_Sub$map, _Gizra$elm_spa_exmple$App_Model$MsgPagesHomepage, _Gizra$elm_spa_exmple$Homepage_Update$subscriptions);
+			default:
+				return _elm_lang$core$Platform_Sub$none;
 		}
 	}();
 	return _elm_lang$core$Platform_Sub$batch(
@@ -11465,31 +11487,41 @@ var _Gizra$elm_spa_exmple$Homepage_View$view = F2(
 
 var _Gizra$elm_spa_exmple$App_View$view = function (model) {
 	var _p0 = model.widget;
-	if (_p0.ctor === 'HomePage') {
-		return A2(
-			_elm_lang$html$Html$div,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class('ui container'),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$map,
-					_Gizra$elm_spa_exmple$App_Model$MsgPagesHomepage,
-					A2(_Gizra$elm_spa_exmple$Homepage_View$view, model.user, model.pageHomepage)),
-				_1: {ctor: '[]'}
-			});
-	} else {
-		return A2(
-			_elm_lang$html$Html$div,
-			{ctor: '[]'},
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html$text('Wrong page defined'),
-				_1: {ctor: '[]'}
-			});
+	switch (_p0.ctor) {
+		case 'ItemComment':
+			return A2(
+				_elm_lang$html$Html$div,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('ui container'),
+					_1: {ctor: '[]'}
+				},
+				{ctor: '[]'});
+		case 'HomePage':
+			return A2(
+				_elm_lang$html$Html$div,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('ui container'),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$map,
+						_Gizra$elm_spa_exmple$App_Model$MsgPagesHomepage,
+						A2(_Gizra$elm_spa_exmple$Homepage_View$view, model.user, model.pageHomepage)),
+					_1: {ctor: '[]'}
+				});
+		default:
+			return A2(
+				_elm_lang$html$Html$div,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Wrong page defined'),
+					_1: {ctor: '[]'}
+				});
 	}
 };
 

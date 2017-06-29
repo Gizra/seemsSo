@@ -43,7 +43,7 @@ getItemR itemId = do
     -- @todo: Add helper function. See Home.hs
     muser <- maybeAuthPair
     let userJson = encodeToLazyText $ maybe Null (toJSON . uncurry Entity) muser
-    let elmWidget = "item" :: Text
+    let elmWidget = "itemComment" :: Text
     let elmAppWidget = $(widgetFile "elm") :: Widget
     defaultLayout $ do
         setTitle . toHtml $ "Item #" ++ (show $ fromSqlKey itemId)
