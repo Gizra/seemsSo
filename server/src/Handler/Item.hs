@@ -44,7 +44,7 @@ getItemR itemId = do
     muser <- maybeAuthPair
     let userJson = encodeToLazyText $ maybe Null (toJSON . uncurry Entity) muser
     let elmWidget = "item" :: Text
-    let elmApp = $(widgetFile "elm") :: Widget
+    let elmAppWidget = $(widgetFile "elm") :: Widget
     defaultLayout $ do
         setTitle . toHtml $ "Item #" ++ (show $ fromSqlKey itemId)
         addScript $ StaticR js_Main_js
