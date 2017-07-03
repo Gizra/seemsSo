@@ -69,5 +69,7 @@ viewPreview comment =
 viewActions : Model -> Html Msg
 viewActions model =
     button
-        [ class "ui button primary" ]
+        [ class "ui button primary"
+        , onClick <| SaveComment
+        ]
         [ text "Comment" ]

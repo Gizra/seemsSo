@@ -1,5 +1,6 @@
 module ItemComment.Model exposing (..)
 
+import Http
 import Item.Model exposing (ItemId)
 import RemoteData exposing (..)
 
@@ -31,5 +32,7 @@ type Tab
 
 
 type Msg
-    = SetComment String
+    = HandleSaveComment (Result Http.Error ())
+    | SaveComment
+    | SetComment String
     | SetTab Tab
