@@ -20,10 +20,18 @@ update msg model =
             )
 
         HandleSaveComment (Ok ()) ->
-            model ! []
+            let
+                _ =
+                    Debug.log "HandleSaveComment (OK)" True
+            in
+                { model | comment = "" } ! []
 
         HandleSaveComment (Err err) ->
-            model ! []
+            let
+                _ =
+                    Debug.log "HandleSaveComment (Err)" False
+            in
+                model ! []
 
         SetComment comment ->
             { model | comment = comment } ! []
