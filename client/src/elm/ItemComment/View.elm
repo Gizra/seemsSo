@@ -5,6 +5,7 @@ import Html.Attributes exposing (alt, class, classList, cols, disabled, href, pl
 import Html.Events exposing (onClick, onInput)
 import ItemComment.Model exposing (Model, Msg(..), Tab(..))
 import Markdown
+import RemoteData exposing (..)
 import User.Model exposing (User)
 import Utils.Html exposing (divider, sectionDivider, showIf, showMaybe)
 
@@ -68,8 +69,23 @@ viewPreview comment =
 
 viewActions : Model -> Html Msg
 viewActions model =
-    div
-        [ class "ui button primary"
-        , onClick <| SaveComment
-        ]
-        [ text "Comment" ]
+    let
+        isLoading =
+            model.status == Loading
+
+        attrs =
+            if isLoading then
+                [ disabled True ]
+            else
+                [ onClick <| SaveComment
+                ]
+    in
+        div
+            (attrs
+                ++ [ classList
+                        [ ( "ui button primary", True )
+                        , ( "loading", isLoading )
+                        ]
+                   ]
+            )
+            [ text "Comment" ]

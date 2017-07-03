@@ -11799,13 +11799,17 @@ var _Gizra$elm_spa_exmple$ItemComment_Update$update = F2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						_elm_lang$core$Native_Utils.update(
 							model,
-							{comment: ''}),
+							{comment: '', status: _krisajenkins$remotedata$RemoteData$NotAsked}),
 						{ctor: '[]'});
 				} else {
 					var _p2 = A2(_elm_lang$core$Debug$log, 'HandleSaveComment (Err)', false);
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
-						model,
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{
+								status: _krisajenkins$remotedata$RemoteData$Failure(_p0._0._0)
+							}),
 						{ctor: '[]'});
 				}
 			case 'SetComment':
@@ -20195,17 +20199,35 @@ var _pablohirafuji$elm_markdown$Markdown$toHtml = F2(
 	});
 
 var _Gizra$elm_spa_exmple$ItemComment_View$viewActions = function (model) {
+	var isLoading = _elm_lang$core$Native_Utils.eq(model.status, _krisajenkins$remotedata$RemoteData$Loading);
+	var attrs = isLoading ? {
+		ctor: '::',
+		_0: _elm_lang$html$Html_Attributes$disabled(true),
+		_1: {ctor: '[]'}
+	} : {
+		ctor: '::',
+		_0: _elm_lang$html$Html_Events$onClick(_Gizra$elm_spa_exmple$ItemComment_Model$SaveComment),
+		_1: {ctor: '[]'}
+	};
 	return A2(
 		_elm_lang$html$Html$div,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('ui button primary'),
-			_1: {
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			attrs,
+			{
 				ctor: '::',
-				_0: _elm_lang$html$Html_Events$onClick(_Gizra$elm_spa_exmple$ItemComment_Model$SaveComment),
+				_0: _elm_lang$html$Html_Attributes$classList(
+					{
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: 'ui button primary', _1: true},
+						_1: {
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: 'loading', _1: isLoading},
+							_1: {ctor: '[]'}
+						}
+					}),
 				_1: {ctor: '[]'}
-			}
-		},
+			}),
 		{
 			ctor: '::',
 			_0: _elm_lang$html$Html$text('Comment'),

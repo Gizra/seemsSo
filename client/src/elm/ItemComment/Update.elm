@@ -24,14 +24,14 @@ update msg model =
                 _ =
                     Debug.log "HandleSaveComment (OK)" True
             in
-                { model | comment = "" } ! []
+                { model | comment = "", status = NotAsked } ! []
 
         HandleSaveComment (Err err) ->
             let
                 _ =
                     Debug.log "HandleSaveComment (Err)" False
             in
-                model ! []
+                { model | status = Failure err } ! []
 
         SetComment comment ->
             { model | comment = comment } ! []
