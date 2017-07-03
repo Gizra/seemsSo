@@ -19837,7 +19837,7 @@ var _Gizra$elm_spa_exmple$ItemComment_View$viewActions = function (model) {
 		_elm_lang$html$Html$button,
 		{
 			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('ui button'),
+			_0: _elm_lang$html$Html_Attributes$class('ui button primary'),
 			_1: {ctor: '[]'}
 		},
 		{
