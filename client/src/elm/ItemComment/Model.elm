@@ -15,7 +15,7 @@ type alias Model =
 emptyModel : Model
 emptyModel =
     { itemId = 0
-    , comment = ""
+    , comment = "Some text"
     , status = NotAsked
     , selectedTab = Edit
     }

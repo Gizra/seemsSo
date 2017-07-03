@@ -8991,7 +8991,7 @@ var _Gizra$elm_spa_exmple$ItemComment_Model$Model = F4(
 	});
 var _Gizra$elm_spa_exmple$ItemComment_Model$Preview = {ctor: 'Preview'};
 var _Gizra$elm_spa_exmple$ItemComment_Model$Edit = {ctor: 'Edit'};
-var _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel = {itemId: 0, comment: '', status: _krisajenkins$remotedata$RemoteData$NotAsked, selectedTab: _Gizra$elm_spa_exmple$ItemComment_Model$Edit};
+var _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel = {itemId: 0, comment: 'Some text', status: _krisajenkins$remotedata$RemoteData$NotAsked, selectedTab: _Gizra$elm_spa_exmple$ItemComment_Model$Edit};
 var _Gizra$elm_spa_exmple$ItemComment_Model$SetTab = function (a) {
 	return {ctor: 'SetTab', _0: a};
 };
@@ -12111,6 +12111,46 @@ var _Gizra$elm_spa_exmple$Homepage_View$view = F2(
 			});
 	});
 
+var _Gizra$elm_spa_exmple$ItemComment_View$viewPreview = function (comment) {
+	return A2(
+		_elm_lang$html$Html$textarea,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$required(true),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$value(comment),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$rows(3),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$disabled(true),
+						_1: {ctor: '[]'}
+					}
+				}
+			}
+		},
+		{ctor: '[]'});
+};
+var _Gizra$elm_spa_exmple$ItemComment_View$viewEdit = function (comment) {
+	return A2(
+		_elm_lang$html$Html$textarea,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$required(true),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$value(comment),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Events$onInput(_Gizra$elm_spa_exmple$ItemComment_Model$SetComment),
+					_1: {ctor: '[]'}
+				}
+			}
+		},
+		{ctor: '[]'});
+};
 var _Gizra$elm_spa_exmple$ItemComment_View$viewTabs = function (selectedTab) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -12189,6 +12229,14 @@ var _Gizra$elm_spa_exmple$ItemComment_View$viewTabs = function (selectedTab) {
 };
 var _Gizra$elm_spa_exmple$ItemComment_View$view = F2(
 	function (muser, model) {
+		var mainArea = function () {
+			var _p0 = model.selectedTab;
+			if (_p0.ctor === 'Edit') {
+				return _Gizra$elm_spa_exmple$ItemComment_View$viewEdit(model.comment);
+			} else {
+				return _Gizra$elm_spa_exmple$ItemComment_View$viewPreview(model.comment);
+			}
+		}();
 		return A2(
 			_elm_lang$html$Html$div,
 			{ctor: '[]'},
@@ -12197,7 +12245,7 @@ var _Gizra$elm_spa_exmple$ItemComment_View$view = F2(
 				_0: _Gizra$elm_spa_exmple$ItemComment_View$viewTabs(model.selectedTab),
 				_1: {
 					ctor: '::',
-					_0: _elm_lang$html$Html$text('Item Comment'),
+					_0: mainArea,
 					_1: {ctor: '[]'}
 				}
 			});
