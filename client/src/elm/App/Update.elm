@@ -8,6 +8,7 @@ port module App.Update
 import App.Model exposing (..)
 import App.Types exposing (Widget(..))
 import Homepage.Update
+import ItemComment.Update
 import Json.Decode exposing (Value, decodeValue)
 import User.Decoder exposing (decodeUser)
 
@@ -52,6 +53,15 @@ update msg model =
             in
                 ( { model | pageHomepage = val }
                 , Cmd.map MsgPagesHomepage cmds
+                )
+
+        MsgPagesItemComment subMsg ->
+            let
+                ( val, cmds ) =
+                    ItemComment.Update.update subMsg model.pageItemComment
+            in
+                ( { model | pageItemComment = val }
+                , Cmd.map MsgPagesItemComment cmds
                 )
 
 
