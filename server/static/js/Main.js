@@ -11769,9 +11769,16 @@ var _Gizra$elm_spa_exmple$ItemComment_Update$saveComment = function (model) {
 		A2(
 			_lukewestby$elm_http_builder$HttpBuilder$withJsonBody,
 			_elm_lang$core$Json_Encode$string(model.comment),
-			_lukewestby$elm_http_builder$HttpBuilder$withCredentials(
-				_lukewestby$elm_http_builder$HttpBuilder$post(
-					A2(_elm_lang$core$Basics_ops['++'], backendUrl, '/api/bids')))));
+			A2(
+				_lukewestby$elm_http_builder$HttpBuilder$withQueryParams,
+				{
+					ctor: '::',
+					_0: {ctor: '_Tuple2', _0: '_accept', _1: 'application/json'},
+					_1: {ctor: '[]'}
+				},
+				_lukewestby$elm_http_builder$HttpBuilder$withCredentials(
+					_lukewestby$elm_http_builder$HttpBuilder$post(
+						A2(_elm_lang$core$Basics_ops['++'], backendUrl, '/api/comment'))))));
 };
 var _Gizra$elm_spa_exmple$ItemComment_Update$update = F2(
 	function (msg, model) {
@@ -20189,7 +20196,7 @@ var _pablohirafuji$elm_markdown$Markdown$toHtml = F2(
 
 var _Gizra$elm_spa_exmple$ItemComment_View$viewActions = function (model) {
 	return A2(
-		_elm_lang$html$Html$button,
+		_elm_lang$html$Html$div,
 		{
 			ctor: '::',
 			_0: _elm_lang$html$Html_Attributes$class('ui button primary'),

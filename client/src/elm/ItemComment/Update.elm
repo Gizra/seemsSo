@@ -47,7 +47,8 @@ saveComment model =
         backendUrl =
             "http://localhost:3000"
     in
-        HttpBuilder.post (backendUrl ++ "/api/bids")
+        HttpBuilder.post (backendUrl ++ "/api/comment")
             |> withCredentials
+            |> withQueryParams [ ( "_accept", "application/json" ) ]
             |> withJsonBody (string model.comment)
             |> send HandleSaveComment
