@@ -1,9 +1,10 @@
 module ItemComment.View exposing (view)
 
 import Html exposing (..)
-import Html.Attributes exposing (alt, class, classList, disabled, href, placeholder, required, rows, src, style, target, type_, value)
+import Html.Attributes exposing (alt, class, classList, cols, disabled, href, placeholder, required, rows, src, style, target, type_, value)
 import Html.Events exposing (onClick, onInput)
 import ItemComment.Model exposing (Model, Msg(..), Tab(..))
+import Markdown
 import User.Model exposing (User)
 import Utils.Html exposing (divider, sectionDivider, showIf, showMaybe)
 
@@ -48,16 +49,13 @@ viewEdit comment =
         [ required True
         , value comment
         , onInput SetComment
+        , rows 6
+        , cols 60
         ]
         []
 
 
 viewPreview : String -> Html Msg
 viewPreview comment =
-    textarea
-        [ required True
-        , value comment
-        , rows 3
-        , disabled True
-        ]
-        []
+    div [] <|
+        Markdown.toHtml Nothing comment

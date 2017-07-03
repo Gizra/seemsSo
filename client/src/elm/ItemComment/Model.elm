@@ -15,7 +15,11 @@ type alias Model =
 emptyModel : Model
 emptyModel =
     { itemId = 0
-    , comment = "Some text"
+    , comment =
+        """## Some Markdown text
+
+With _italic_, __bold__ and a [link](https://example.com)!
+"""
     , status = NotAsked
     , selectedTab = Edit
     }
