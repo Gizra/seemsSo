@@ -9,5 +9,8 @@ import ItemComment.Model exposing (Model, Msg(..))
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        NoOp ->
-            model ! []
+        SetComment comment ->
+            { model | comment = comment } ! []
+
+        SetTab tab ->
+            { model | selectedTab = tab } ! []

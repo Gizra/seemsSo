@@ -8985,12 +8985,19 @@ var _krisajenkins$remotedata$RemoteData$update = F2(
 		}
 	});
 
-var _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel = {itemId: 0, comment: '', status: _krisajenkins$remotedata$RemoteData$NotAsked};
-var _Gizra$elm_spa_exmple$ItemComment_Model$Model = F3(
-	function (a, b, c) {
-		return {itemId: a, comment: b, status: c};
+var _Gizra$elm_spa_exmple$ItemComment_Model$Model = F4(
+	function (a, b, c, d) {
+		return {itemId: a, comment: b, status: c, selectedTab: d};
 	});
-var _Gizra$elm_spa_exmple$ItemComment_Model$NoOp = {ctor: 'NoOp'};
+var _Gizra$elm_spa_exmple$ItemComment_Model$Preview = {ctor: 'Preview'};
+var _Gizra$elm_spa_exmple$ItemComment_Model$Edit = {ctor: 'Edit'};
+var _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel = {itemId: 0, comment: '', status: _krisajenkins$remotedata$RemoteData$NotAsked, selectedTab: _Gizra$elm_spa_exmple$ItemComment_Model$Edit};
+var _Gizra$elm_spa_exmple$ItemComment_Model$SetTab = function (a) {
+	return {ctor: 'SetTab', _0: a};
+};
+var _Gizra$elm_spa_exmple$ItemComment_Model$SetComment = function (a) {
+	return {ctor: 'SetComment', _0: a};
+};
 
 var _Gizra$elm_spa_exmple$User_Model$User = function (a) {
 	return {name: a};
@@ -9401,10 +9408,21 @@ var _Gizra$elm_spa_exmple$Homepage_Update$subscriptions = _Gizra$elm_spa_exmple$
 var _Gizra$elm_spa_exmple$ItemComment_Update$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
-		return A2(
-			_elm_lang$core$Platform_Cmd_ops['!'],
-			model,
-			{ctor: '[]'});
+		if (_p0.ctor === 'SetComment') {
+			return A2(
+				_elm_lang$core$Platform_Cmd_ops['!'],
+				_elm_lang$core$Native_Utils.update(
+					model,
+					{comment: _p0._0}),
+				{ctor: '[]'});
+		} else {
+			return A2(
+				_elm_lang$core$Platform_Cmd_ops['!'],
+				_elm_lang$core$Native_Utils.update(
+					model,
+					{selectedTab: _p0._0}),
+				{ctor: '[]'});
+		}
 	});
 
 var _Gizra$elm_spa_exmple$User_Decoder$decodeUser = A3(
@@ -12093,15 +12111,95 @@ var _Gizra$elm_spa_exmple$Homepage_View$view = F2(
 			});
 	});
 
+var _Gizra$elm_spa_exmple$ItemComment_View$viewTabs = function (selectedTab) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('ui secondary pointing menu'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$a,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$classList(
+						{
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: 'item', _1: true},
+							_1: {
+								ctor: '::',
+								_0: {
+									ctor: '_Tuple2',
+									_0: 'active',
+									_1: _elm_lang$core$Native_Utils.eq(selectedTab, _Gizra$elm_spa_exmple$ItemComment_Model$Edit)
+								},
+								_1: {ctor: '[]'}
+							}
+						}),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Events$onClick(
+							_Gizra$elm_spa_exmple$ItemComment_Model$SetTab(_Gizra$elm_spa_exmple$ItemComment_Model$Edit)),
+						_1: {ctor: '[]'}
+					}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Edit'),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$a,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$classList(
+							{
+								ctor: '::',
+								_0: {ctor: '_Tuple2', _0: 'item', _1: true},
+								_1: {
+									ctor: '::',
+									_0: {
+										ctor: '_Tuple2',
+										_0: 'active',
+										_1: _elm_lang$core$Native_Utils.eq(selectedTab, _Gizra$elm_spa_exmple$ItemComment_Model$Preview)
+									},
+									_1: {ctor: '[]'}
+								}
+							}),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Events$onClick(
+								_Gizra$elm_spa_exmple$ItemComment_Model$SetTab(_Gizra$elm_spa_exmple$ItemComment_Model$Preview)),
+							_1: {ctor: '[]'}
+						}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('Preview'),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			}
+		});
+};
 var _Gizra$elm_spa_exmple$ItemComment_View$view = F2(
-	function (muser, items) {
+	function (muser, model) {
 		return A2(
 			_elm_lang$html$Html$div,
 			{ctor: '[]'},
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html$text('Item Comment'),
-				_1: {ctor: '[]'}
+				_0: _Gizra$elm_spa_exmple$ItemComment_View$viewTabs(model.selectedTab),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Item Comment'),
+					_1: {ctor: '[]'}
+				}
 			});
 	});
 
