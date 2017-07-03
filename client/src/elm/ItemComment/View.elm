@@ -22,7 +22,10 @@ view muser model =
     in
         div []
             [ viewTabs model.selectedTab
-            , mainArea
+            , form [ class "ui form" ]
+                [ mainArea
+                , viewActions model
+                ]
             ]
 
 
@@ -45,17 +48,26 @@ viewTabs selectedTab =
 
 viewEdit : String -> Html Msg
 viewEdit comment =
-    textarea
-        [ required True
-        , value comment
-        , onInput SetComment
-        , rows 6
-        , cols 60
+    div [ class "field" ]
+        [ textarea
+            [ required True
+            , value comment
+            , onInput SetComment
+            , rows 6
+            , cols 60
+            ]
+            []
         ]
-        []
 
 
 viewPreview : String -> Html Msg
 viewPreview comment =
     div [] <|
         Markdown.toHtml Nothing comment
+
+
+viewActions : Model -> Html Msg
+viewActions model =
+    button
+        [ class "ui button" ]
+        [ text "Comment" ]

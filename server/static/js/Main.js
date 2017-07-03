@@ -19832,6 +19832,20 @@ var _pablohirafuji$elm_markdown$Markdown$toHtml = F2(
 				A2(_pablohirafuji$elm_markdown$Markdown_Block$parse, maybeOptions, rawText)));
 	});
 
+var _Gizra$elm_spa_exmple$ItemComment_View$viewActions = function (model) {
+	return A2(
+		_elm_lang$html$Html$button,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('ui button'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html$text('Comment'),
+			_1: {ctor: '[]'}
+		});
+};
 var _Gizra$elm_spa_exmple$ItemComment_View$viewPreview = function (comment) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -19840,29 +19854,40 @@ var _Gizra$elm_spa_exmple$ItemComment_View$viewPreview = function (comment) {
 };
 var _Gizra$elm_spa_exmple$ItemComment_View$viewEdit = function (comment) {
 	return A2(
-		_elm_lang$html$Html$textarea,
+		_elm_lang$html$Html$div,
 		{
 			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$required(true),
-			_1: {
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$value(comment),
-				_1: {
+			_0: _elm_lang$html$Html_Attributes$class('field'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$textarea,
+				{
 					ctor: '::',
-					_0: _elm_lang$html$Html_Events$onInput(_Gizra$elm_spa_exmple$ItemComment_Model$SetComment),
+					_0: _elm_lang$html$Html_Attributes$required(true),
 					_1: {
 						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$rows(6),
+						_0: _elm_lang$html$Html_Attributes$value(comment),
 						_1: {
 							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$cols(60),
-							_1: {ctor: '[]'}
+							_0: _elm_lang$html$Html_Events$onInput(_Gizra$elm_spa_exmple$ItemComment_Model$SetComment),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$rows(6),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$cols(60),
+									_1: {ctor: '[]'}
+								}
+							}
 						}
 					}
-				}
-			}
-		},
-		{ctor: '[]'});
+				},
+				{ctor: '[]'}),
+			_1: {ctor: '[]'}
+		});
 };
 var _Gizra$elm_spa_exmple$ItemComment_View$viewTabs = function (selectedTab) {
 	return A2(
@@ -19958,7 +19983,22 @@ var _Gizra$elm_spa_exmple$ItemComment_View$view = F2(
 				_0: _Gizra$elm_spa_exmple$ItemComment_View$viewTabs(model.selectedTab),
 				_1: {
 					ctor: '::',
-					_0: mainArea,
+					_0: A2(
+						_elm_lang$html$Html$form,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('ui form'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: mainArea,
+							_1: {
+								ctor: '::',
+								_0: _Gizra$elm_spa_exmple$ItemComment_View$viewActions(model),
+								_1: {ctor: '[]'}
+							}
+						}),
 					_1: {ctor: '[]'}
 				}
 			});
