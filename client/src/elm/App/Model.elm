@@ -13,7 +13,7 @@ import User.Model exposing (User)
 
 
 type Msg
-    = HandleUser (Result String User)
+    = HandleUser (Result String (Maybe User))
     | MsgPagesHomepage Homepage.Model.Msg
     | MsgPagesItemComment ItemComment.Model.Msg
 

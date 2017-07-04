@@ -36,8 +36,8 @@ init flags =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        HandleUser (Ok user) ->
-            { model | user = Just user } ! []
+        HandleUser (Ok muser) ->
+            { model | user = muser } ! []
 
         HandleUser (Err err) ->
             let

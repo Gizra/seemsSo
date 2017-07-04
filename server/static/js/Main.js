@@ -11844,11 +11844,26 @@ var _Gizra$elm_spa_exmple$ItemComment_Update$update = F2(
 		}
 	});
 
-var _Gizra$elm_spa_exmple$User_Decoder$decodeUser = A3(
-	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-	'name',
-	_elm_lang$core$Json_Decode$string,
-	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$User_Model$User));
+var _Gizra$elm_spa_exmple$User_Decoder$decodeUser = _elm_lang$core$Json_Decode$oneOf(
+	{
+		ctor: '::',
+		_0: _elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
+		_1: {
+			ctor: '::',
+			_0: A2(
+				_elm_lang$core$Json_Decode$andThen,
+				function (user) {
+					return _elm_lang$core$Json_Decode$succeed(
+						_elm_lang$core$Maybe$Just(user));
+				},
+				A3(
+					_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+					'name',
+					_elm_lang$core$Json_Decode$string,
+					_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$User_Model$User))),
+			_1: {ctor: '[]'}
+		}
+	});
 
 var _Gizra$elm_spa_exmple$App_Update$update = F2(
 	function (msg, model) {
@@ -11860,9 +11875,7 @@ var _Gizra$elm_spa_exmple$App_Update$update = F2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						_elm_lang$core$Native_Utils.update(
 							model,
-							{
-								user: _elm_lang$core$Maybe$Just(_p0._0._0)
-							}),
+							{user: _p0._0._0}),
 						{ctor: '[]'});
 				} else {
 					var _p1 = A2(_elm_lang$core$Debug$log, 'HandleUser', _p0._0._0);
