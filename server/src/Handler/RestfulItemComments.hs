@@ -30,13 +30,17 @@ postRestfulItemCommentsR itemId = do
     currentTime <- liftIO getCurrentTime
     userId <- requireAuthId
     semiItemComment <- requireJsonBody :: Handler SemiItemComment
-    let itemComment =
-            ItemComment
-            { itemCommentComment = semiItemCommentComment semiItemComment
-            , itemCommentItem = itemId
-            , itemCommentUser = userId
-            , itemCommentCreated = currentTime
-            }
-    itemCommentId <- runDB $ insert itemComment
-    returnVal <- getRestfulItemCommentR itemId itemCommentId
-    sendResponseStatus status201 returnVal
+    let commentText = semiItemCommentComment semiItemComment :: Text
+    if null commentText
+        then invalidArgs ["Comment text is required."]
+        else do
+            let itemComment =
+                    ItemComment
+                    { itemCommentComment = commentText
+                    , itemCommentItem = itemId
+                    , itemCommentUser = userId
+                    , itemCommentCreated = currentTime
+                    }
+            itemCommentId <- runDB $ insert itemComment
+            returnVal <- getRestfulItemCommentR itemId itemCommentId
+            sendResponseStatus status201 returnVal
