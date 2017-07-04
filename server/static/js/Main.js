@@ -11768,7 +11768,16 @@ var _Gizra$elm_spa_exmple$ItemComment_Update$saveComment = function (model) {
 		_Gizra$elm_spa_exmple$ItemComment_Model$HandleSaveComment,
 		A2(
 			_lukewestby$elm_http_builder$HttpBuilder$withJsonBody,
-			_elm_lang$core$Json_Encode$string(model.comment),
+			_elm_lang$core$Json_Encode$object(
+				{
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'comment',
+						_1: _elm_lang$core$Json_Encode$string(model.comment)
+					},
+					_1: {ctor: '[]'}
+				}),
 			A2(
 				_lukewestby$elm_http_builder$HttpBuilder$withQueryParams,
 				{

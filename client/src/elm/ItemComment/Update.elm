@@ -5,7 +5,7 @@ port module ItemComment.Update
 
 import HttpBuilder exposing (send, toTask, withCredentials, withExpect, withJsonBody, withQueryParams)
 import ItemComment.Model exposing (Model, Msg(..))
-import Json.Encode exposing (string)
+import Json.Encode exposing (object, string)
 import RemoteData exposing (..)
 import Task exposing (Task)
 import Utils.WebData exposing (sendWithHandler)
@@ -50,5 +50,5 @@ saveComment model =
         HttpBuilder.post (backendUrl ++ "/api/comments/" ++ (toString model.itemId))
             |> withCredentials
             |> withQueryParams [ ( "_accept", "application/json" ) ]
-            |> withJsonBody (string model.comment)
+            |> withJsonBody (object [ ( "comment", string model.comment ) ])
             |> send HandleSaveComment
