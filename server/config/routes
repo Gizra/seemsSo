@@ -13,6 +13,10 @@
 /api/items/#CompanyId RestfulItemsR GET
 /api/items/#CompanyId/#ItemId RestfulItemR GET
 
+
+/api/comments/#ItemId RestfulItemCommentsR GET POST
+/api/comments/#ItemId/#ItemCommentId RestfulItemCommentR GET
+
 /api/login-token LoginTokenR GET
 
 /add/item CreateItemR GET POST

@@ -8991,7 +8991,7 @@ var _Gizra$elm_spa_exmple$ItemComment_Model$Model = F4(
 	});
 var _Gizra$elm_spa_exmple$ItemComment_Model$Preview = {ctor: 'Preview'};
 var _Gizra$elm_spa_exmple$ItemComment_Model$Edit = {ctor: 'Edit'};
-var _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel = {itemId: 0, comment: '## Some Markdown text\n\nWith _italic_, __bold__ and a [link](https://example.com)!\n', status: _krisajenkins$remotedata$RemoteData$NotAsked, selectedTab: _Gizra$elm_spa_exmple$ItemComment_Model$Edit};
+var _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel = {itemId: 1, comment: '## Some Markdown text\n\nWith _italic_, __bold__ and a [link](https://example.com)!\n', status: _krisajenkins$remotedata$RemoteData$NotAsked, selectedTab: _Gizra$elm_spa_exmple$ItemComment_Model$Edit};
 var _Gizra$elm_spa_exmple$ItemComment_Model$SetTab = function (a) {
 	return {ctor: 'SetTab', _0: a};
 };
@@ -11778,7 +11778,13 @@ var _Gizra$elm_spa_exmple$ItemComment_Update$saveComment = function (model) {
 				},
 				_lukewestby$elm_http_builder$HttpBuilder$withCredentials(
 					_lukewestby$elm_http_builder$HttpBuilder$post(
-						A2(_elm_lang$core$Basics_ops['++'], backendUrl, '/api/comment'))))));
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							backendUrl,
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								'/api/comments/',
+								_elm_lang$core$Basics$toString(model.itemId))))))));
 };
 var _Gizra$elm_spa_exmple$ItemComment_Update$update = F2(
 	function (msg, model) {

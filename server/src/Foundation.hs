@@ -183,6 +183,11 @@ instance Yesod App
     isAuthorized (EditItemR _) _ = isAuthenticated
     isAuthorized (RestfulItemR _ _) _ = isAuthenticated
     isAuthorized (RestfulItemsR _) _ = isAuthenticated
+    -- Anonymous can read comments
+    isAuthorized (RestfulItemCommentsR _) False = return Authorized
+    -- Only authenticated can write comments
+    isAuthorized (RestfulItemCommentsR _) True = isAuthenticated
+    isAuthorized (RestfulItemCommentR _ _) _ = return Authorized
     isAuthorized (PdfFileR _) _ = isAuthenticated
     isAuthorized PdfFileCreateR _ = isAuthenticated
     -- Orders

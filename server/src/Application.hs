@@ -47,6 +47,8 @@ import Handler.PdfFile
 import Handler.Profile
 import Handler.RegenerateAccessToken
 import Handler.RestfulItem
+import Handler.RestfulItemComment
+import Handler.RestfulItemComments
 import Handler.RestfulItems
 import Handler.RestfulOrder
 

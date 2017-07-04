@@ -15,7 +15,8 @@ type alias Model =
 
 emptyModel : Model
 emptyModel =
-    { itemId = 0
+    -- @todo: Get real item ID.
+    { itemId = 1
     , comment =
         """## Some Markdown text
 
