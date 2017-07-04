@@ -73,8 +73,11 @@ viewActions model =
         isLoading =
             model.status == Loading
 
+        emptyComment =
+            String.isEmpty model.comment
+
         attrs =
-            if isLoading then
+            if isLoading || emptyComment then
                 [ disabled True ]
             else
                 [ onClick <| SaveComment
@@ -85,6 +88,7 @@ viewActions model =
                 ++ [ classList
                         [ ( "ui button primary", True )
                         , ( "loading", isLoading )
+                        , ( "disabled", emptyComment )
                         ]
                    ]
             )

@@ -20214,8 +20214,9 @@ var _pablohirafuji$elm_markdown$Markdown$toHtml = F2(
 	});
 
 var _Gizra$elm_spa_exmple$ItemComment_View$viewActions = function (model) {
+	var emptyComment = _elm_lang$core$String$isEmpty(model.comment);
 	var isLoading = _elm_lang$core$Native_Utils.eq(model.status, _krisajenkins$remotedata$RemoteData$Loading);
-	var attrs = isLoading ? {
+	var attrs = (isLoading || emptyComment) ? {
 		ctor: '::',
 		_0: _elm_lang$html$Html_Attributes$disabled(true),
 		_1: {ctor: '[]'}
@@ -20238,7 +20239,11 @@ var _Gizra$elm_spa_exmple$ItemComment_View$viewActions = function (model) {
 						_1: {
 							ctor: '::',
 							_0: {ctor: '_Tuple2', _0: 'loading', _1: isLoading},
-							_1: {ctor: '[]'}
+							_1: {
+								ctor: '::',
+								_0: {ctor: '_Tuple2', _0: 'disabled', _1: emptyComment},
+								_1: {ctor: '[]'}
+							}
 						}
 					}),
 				_1: {ctor: '[]'}
