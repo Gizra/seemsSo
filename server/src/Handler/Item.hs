@@ -25,6 +25,7 @@ getItemR itemId = do
             E.on $ user ^. UserId E.==. itemComment ^. ItemCommentUser
             E.on $ item ^. ItemId E.==. itemComment ^. ItemCommentItem
             E.where_ $ itemComment ^. ItemCommentItem E.==. E.val itemId
+            E.orderBy [E.asc (itemComment ^. ItemCommentId)]
             E.limit 200
             return
                 ( itemComment ^. ItemCommentId
