@@ -1,6 +1,8 @@
 module Item.Decoder
     exposing
-        ( decodeItems
+        ( decodeItemId
+        , decodeItemTuple
+        , decodeItems
         )
 
 import Item.Model exposing (Item, ItemId, EveryDictListItems)
@@ -33,3 +35,10 @@ decodeItem : Decoder Item
 decodeItem =
     decode Item
         |> required "name" string
+
+
+decodeItemTuple : Decoder ( ItemId, Item )
+decodeItemTuple =
+    decode (,)
+        |> custom decodeItemId
+        |> custom decodeItem

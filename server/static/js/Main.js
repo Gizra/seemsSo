@@ -8756,6 +8756,17 @@ var _Gizra$elm_spa_exmple$Item_Decoder$decodeItem = A3(
 	_elm_lang$core$Json_Decode$string,
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$Item_Model$Item));
 var _Gizra$elm_spa_exmple$Item_Decoder$decodeItemId = _Gizra$elm_spa_exmple$Utils_Json$decodeInt;
+var _Gizra$elm_spa_exmple$Item_Decoder$decodeItemTuple = A2(
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
+	_Gizra$elm_spa_exmple$Item_Decoder$decodeItem,
+	A2(
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
+		_Gizra$elm_spa_exmple$Item_Decoder$decodeItemId,
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(
+			F2(
+				function (v0, v1) {
+					return {ctor: '_Tuple2', _0: v0, _1: v1};
+				}))));
 var _Gizra$elm_spa_exmple$Item_Decoder$decodeItems = _elm_lang$core$Json_Decode$oneOf(
 	{
 		ctor: '::',
