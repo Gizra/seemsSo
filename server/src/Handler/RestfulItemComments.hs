@@ -32,10 +32,10 @@ postRestfulItemCommentsR itemId = do
     semiItemComment <- requireJsonBody :: Handler SemiItemComment
     let itemComment =
             ItemComment
-            {itemCommentComment = semiItemCommentComment semiItemComment
-            , itemCommentItem            = itemId
-            , itemCommentUser            = userId
-            , itemCommentCreated       = currentTime
+            { itemCommentComment = semiItemCommentComment semiItemComment
+            , itemCommentItem = itemId
+            , itemCommentUser = userId
+            , itemCommentCreated = currentTime
             }
     itemCommentId <- runDB $ insert itemComment
     returnVal <- getRestfulItemCommentR itemId itemCommentId
