@@ -1,7 +1,7 @@
 <div class="ui container">
     <h2>#{userIdent user}
 
-    <div class="ui labeled input">
+    <div class="ui labeled input access-token">
         <div class="ui label"> Access token:
         <input type="text" value=#{accessTokenText}>
 
