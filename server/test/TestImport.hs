@@ -38,7 +38,11 @@ runHandler handler = do
 withApp :: SpecWith (TestApp App) -> Spec
 withApp =
     before $ do
-        settings <- loadYamlSettings ["config/test-settings.yml", "config/settings.yml"] [] useEnv
+        settings <-
+            loadYamlSettings
+                ["config/test-settings.yml", "config/settings.yml"]
+                []
+                useEnv
         foundation <- makeFoundation settings
         wipeDB foundation
         logWare <- liftIO $ makeLogWare foundation
@@ -81,4 +85,4 @@ authenticateAs (Entity _ u) = do
 -- | Create a user.
 createUser :: Text -> YesodExample App (Entity User)
 createUser ident = do
-    runDB $ insertEntity User {userIdent = ident, userPassword = Nothing}
+    runDB $ insertEntity User {userIdent = ident, userPassword = Just ident}

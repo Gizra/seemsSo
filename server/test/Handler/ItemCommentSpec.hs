@@ -58,6 +58,16 @@ spec =
                 authenticateAs bob
                 get $ RestfulItemCommentsR itemId
                 statusIs 200
+            it "should not allow anonymous user to create a comment" $ do
+                assertPostComment 403
+            it "should allow authenticated user to create a comment" $ do
+                bob <- createUser "bob"
+                currentTime <- liftIO getCurrentTime
+                let (Entity uid _) = bob
+                _ <-
+                    runDB . insert $
+                    AccessToken currentTime uid "someRandomToken"
+                assertPostComment 200
 
 {-| Go to Item's page, and assert the comment exist.
 -}
@@ -72,6 +82,18 @@ assertCommentExists itemId = do
     htmlAnyContain
         ".ui.comments > .comment > div > div.text"
         "Comment for Item1"
+
+assertPostComment :: Int -> YesodExample App ()
+assertPostComment status = do
+    (_, _, _, itemId) <- prepareScenarioWithoutComment
+    request $ do
+        setMethod "POST"
+        addPostParam "comment" "some text"
+        if status == 200
+            then addGetParam "access_token" "someRandomToken"
+            else return ()
+        setUrl $ RestfulItemCommentsR itemId
+    statusIs status
 
 prepareScenario ::
        YesodExample App ( Entity User
