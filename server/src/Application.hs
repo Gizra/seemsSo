@@ -50,6 +50,7 @@ import Handler.RestfulItem
 import Handler.RestfulItemComment
 import Handler.RestfulItemComments
 import Handler.RestfulItems
+import Handler.RestfulMe
 import Handler.RestfulOrder
 
 -- This line actually creates our YesodDispatch instance. It is the second half

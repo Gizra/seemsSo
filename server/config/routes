@@ -33,3 +33,5 @@
 
 /api/orders RestfulOrderR GET
 /api/order-items/#ItemId RestfulOrderItemR POST
+
+/api/me RestfulMeR GET

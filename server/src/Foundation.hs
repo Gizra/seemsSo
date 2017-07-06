@@ -189,6 +189,8 @@ instance Yesod App
     -- Only authenticated can write comments
     isAuthorized (RestfulItemCommentsR _) True = isAuthenticated
     isAuthorized (RestfulItemCommentR _ _) _ = return Authorized
+    -- /api/me
+    isAuthorized RestfulMeR _ = isAuthenticated
     isAuthorized (PdfFileR _) _ = isAuthenticated
     isAuthorized PdfFileCreateR _ = isAuthenticated
     -- Orders
