@@ -13,7 +13,7 @@ view model =
     case model.widget of
         HomePage ->
             div [ class "ui container" ]
-                [ Html.map MsgPagesHomepage <| Homepage.View.view model.user model.pageHomepage
+                [ Html.map MsgPagesHomepage <| Homepage.View.view model.baseUrl model.user model.pageHomepage
                 ]
 
         ItemComment ->

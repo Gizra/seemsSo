@@ -8,10 +8,13 @@ import Item.Model exposing (EveryDictListItems, Item)
 import Utils.Html exposing (divider, sectionDivider, showIf, showMaybe)
 
 
-viewItemsTeaser : EveryDictListItems -> Html msg
-viewItemsTeaser items =
+viewItemsTeaser : String -> EveryDictListItems -> Html msg
+viewItemsTeaser baseUrl items =
     div []
         (items
-            |> DictList.map (\_ item -> div [] [ text item.name ])
+            |> DictList.map
+                (\itemId item ->
+                    a [ href <| baseUrl ++ "item/" ++ toString itemId ] [ text item.name ]
+                )
             |> DictList.values
         )

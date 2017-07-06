@@ -11,9 +11,9 @@ import User.View
 import Utils.Html exposing (divider, sectionDivider, showIf, showMaybe)
 
 
-view : Maybe User -> Model -> Html Msg
-view muser model =
+view : String -> Maybe User -> Model -> Html Msg
+view baseUrl muser model =
     div []
         [ User.View.view muser
-        , viewItemsTeaser model.items
+        , viewItemsTeaser baseUrl model.items
         ]

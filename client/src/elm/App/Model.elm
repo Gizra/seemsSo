@@ -28,6 +28,7 @@ type alias Model =
     , pageHomepage : Homepage.Model.Model
     , pageItemComment : ItemComment.Model.Model
     , user : Maybe User
+    , baseUrl : String
     }
 
 
@@ -37,4 +38,8 @@ emptyModel =
     , pageHomepage = Homepage.Model.emptyModel
     , pageItemComment = ItemComment.Model.emptyModel
     , user = Nothing
+
+    -- @todo: Get dynamically.
+    , baseUrl =
+        "http://localhost:3000/"
     }
