@@ -7,10 +7,12 @@
 
 module Foundation where
 
+import qualified Data.Text as TX
 import Database.Persist.Sql (ConnectionPool, runSqlPool)
 import Import.NoFoundation
 import Text.Hamlet (hamletFile)
 import Text.Jasmine (minifym)
+import Yesod.Auth.Email
 
 -- Used only when in "auth-dummy-login" setting is enabled.
 import Yesod.Auth.Dummy
@@ -18,7 +20,6 @@ import Yesod.Auth.Dummy
 import qualified Data.CaseInsensitive as CI
 import qualified Data.Text.Encoding as TE
 import Utils.AccessToken
-import Yesod.Auth.OpenId (IdentifierType(Claimed), authOpenId)
 import Yesod.Core.Types (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
 import Yesod.Default.Util (addStaticContentExternal)
@@ -183,6 +184,13 @@ instance Yesod App
     isAuthorized (EditItemR _) _ = isAuthenticated
     isAuthorized (RestfulItemR _ _) _ = isAuthenticated
     isAuthorized (RestfulItemsR _) _ = isAuthenticated
+    -- Anonymous can read comments
+    isAuthorized (RestfulItemCommentsR _) False = return Authorized
+    -- Only authenticated can write comments
+    isAuthorized (RestfulItemCommentsR _) True = isAuthenticated
+    isAuthorized (RestfulItemCommentR _ _) _ = return Authorized
+    -- /api/me
+    isAuthorized RestfulMeR _ = isAuthenticated
     isAuthorized (PdfFileR _) _ = isAuthenticated
     isAuthorized PdfFileCreateR _ = isAuthenticated
     -- Orders
@@ -256,16 +264,81 @@ instance YesodAuth App where
                             { userIdent = credsIdent creds
                             , userPassword = Nothing
                             }
-              -- Create access token for the new user.
+                    -- Create access token for the new user.
                     accessTokenText <- generateToken
                     currentTime <- liftIO getCurrentTime
                     _ <- insert $ AccessToken currentTime uid accessTokenText
                     return $ Authenticated uid
     -- You can add other plugins like Google Email, email or OAuth here
-    authPlugins app = [authOpenId Claimed []] ++ extraAuthPlugins
+    authPlugins app = [] ++ extraAuthPlugins
         -- Enable authDummy login if enabled.
       where
         extraAuthPlugins = [authDummy | appAuthDummyLogin $ appSettings app]
+    -- Try to authenticate with the access token.
+    maybeAuthId = do
+        urlRender <- getUrlRender
+        let baseUrl = urlRender HomeR
+        mCurrentRoute <- getCurrentRoute
+          -- Determine if route is prefixed with "/api"
+        let isApiRoute =
+                maybe
+                    False
+                    (\currentRoute
+                      -- Strip the base URL.
+                      ->
+                         let route =
+                                 TX.drop
+                                     (length baseUrl)
+                                     (urlRender currentRoute)
+                         in isPrefixOf "api/" route)
+                    mCurrentRoute
+        if isApiRoute
+            then do
+                defaultAuth <- defaultMaybeAuthId
+                mToken <- lookupGetParam "access_token"
+                tokenAuth <-
+                    maybe
+                        (return Nothing)
+                        (\token -> do
+                             mTokenId <-
+                                 runDB $
+                                 selectFirst [AccessTokenToken ==. token] []
+                             return $
+                                 fmap
+                                     (\tokenId ->
+                                          accessTokenUserId $ entityVal tokenId)
+                                     mTokenId)
+                        mToken
+              -- Determine if Basic auth was used and is valid.
+                basicAuthValues <- lookupBasicAuth
+                basicAuth <-
+                    maybe
+                        (return Nothing)
+                        (\(userFromHeader, passwordFromHeader) -> do
+                             mUser <-
+                                 runDB $
+                                 selectFirst [UserIdent ==. userFromHeader] []
+                             return $
+                                 maybe
+                                     Nothing
+                                     (\user ->
+                                          let saltedPass =
+                                                  fromMaybe
+                                                      ""
+                                                      (userPassword $
+                                                       entityVal user)
+                                          in if (isValidPass
+                                                     passwordFromHeader
+                                                     saltedPass)
+                                                 then Just $ entityKey user
+                                                 else Nothing)
+                                     mUser)
+                        basicAuthValues
+                return $
+                    case catMaybes [defaultAuth, tokenAuth, basicAuth] of
+                        [] -> Nothing
+                        (x:_) -> Just x
+            else defaultMaybeAuthId
     authHttpManager = getHttpManager
 
 -- | Access function to determine if a user is logged in.

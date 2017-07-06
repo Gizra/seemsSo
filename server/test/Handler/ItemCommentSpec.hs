@@ -5,34 +5,65 @@ module Handler.ItemCommentSpec
     ( spec
     ) where
 
+import Data.Aeson
 import TestImport
 
 spec :: Spec
 spec =
-    withApp $
-    describe "Item's comments" $ do
-        it "should show 'No comments' to anonymous user" $ do
-            (_, _, _, itemId) <- prepareScenarioWithoutComment
-            get $ ItemR itemId
-            htmlAnyContain "section.comments > div" "No comments"
-        it "should show 'No comments' to authenticated user" $ do
-            (_, _, _, itemId) <- prepareScenarioWithoutComment
-            bob <- createUser "bob"
-            authenticateAs bob
-            get $ ItemR itemId
-            htmlAnyContain "section.comments > div" "No comments"
-        it "should show comment to anonymous user" $ do
-            (_, _, _, itemId, _, _) <- prepareScenario
-            assertCommentExists itemId
-        it "should show comment to autheenticated user" $ do
-            (_, _, _, itemId, _, _) <- prepareScenario
-            bob <- createUser "bob"
-            authenticateAs bob
-            assertCommentExists itemId
-        it "should show comment to comment owner" $ do
-            (_, _, _, itemId, alice, _) <- prepareScenario
-            authenticateAs alice
-            assertCommentExists itemId
+    withApp $ do
+        describe "Item's comments" $ do
+            it "should show 'No comments' to anonymous user" $ do
+                (_, _, _, itemId) <- prepareScenarioWithoutComment
+                get $ ItemR itemId
+                htmlAnyContain "section.comments > div" "No comments"
+            it "should show 'No comments' to authenticated user" $ do
+                (_, _, _, itemId) <- prepareScenarioWithoutComment
+                bob <- createUser "bob"
+                authenticateAs bob
+                get $ ItemR itemId
+                htmlAnyContain "section.comments > div" "No comments"
+            it "should show comment to anonymous user" $ do
+                (_, _, _, itemId, _, _) <- prepareScenario
+                assertCommentExists itemId
+            it "should show comment to autheenticated user" $ do
+                (_, _, _, itemId, _, _) <- prepareScenario
+                bob <- createUser "bob"
+                authenticateAs bob
+                assertCommentExists itemId
+            it "should show comment to comment owner" $ do
+                (_, _, _, itemId, alice, _) <- prepareScenario
+                authenticateAs alice
+                assertCommentExists itemId
+        describe "Item's comments via RESTful" $ do
+            it
+                "should show allow access to anonymous user when there are no comments" $ do
+                (_, _, _, itemId) <- prepareScenarioWithoutComment
+                get $ RestfulItemCommentsR itemId
+                statusIs 200
+            it
+                "should show allow access to anonymous user when there are comments" $ do
+                (_, _, _, itemId, _, _) <- prepareScenario
+                get $ RestfulItemCommentsR itemId
+                statusIs 200
+            it
+                "should show allow access to authenticated user when there are no comments" $ do
+                (_, _, _, itemId) <- prepareScenarioWithoutComment
+                bob <- createUser "bob"
+                authenticateAs bob
+                get $ RestfulItemCommentsR itemId
+                statusIs 200
+            it
+                "should show allow access to authenticated user when there are comments" $ do
+                (_, _, _, itemId, _, _) <- prepareScenario
+                bob <- createUser "bob"
+                authenticateAs bob
+                get $ RestfulItemCommentsR itemId
+                statusIs 200
+            it "should not allow anonymous user to create a comment" $ do
+                assertPostComment False
+            it "should allow authenticated user to create a comment" $ do
+                createUserWithAccessToken "bob"
+                assertPostComment True
 
 {-| Go to Item's page, and assert the comment exist.
 -}
@@ -47,6 +78,24 @@ assertCommentExists itemId = do
     htmlAnyContain
         ".ui.comments > .comment > div > div.text"
         "Comment for Item1"
+
+assertPostComment :: Bool -> YesodExample App ()
+assertPostComment isAuthenticated = do
+    (_, _, _, itemId) <- prepareScenarioWithoutComment
+    request $ do
+        setMethod "POST"
+        addRequestHeader ("Content-Type", "application/json")
+        let body = object ["comment" .= ("some comment" :: Text)]
+        setRequestBody $ encode body
+        if isAuthenticated
+            then addGetParam "access_token" "bob--token"
+            else return ()
+        setUrl $ RestfulItemCommentsR itemId
+    let status =
+            if isAuthenticated
+                then 201
+                else 403
+    statusIs status
 
 prepareScenario ::
        YesodExample App ( Entity User

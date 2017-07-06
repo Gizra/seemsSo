@@ -8,6 +8,7 @@ port module App.Update
 import App.Model exposing (..)
 import App.Types exposing (Widget(..))
 import Homepage.Update
+import ItemComment.Update
 import Json.Decode exposing (Value, decodeValue)
 import User.Decoder exposing (decodeUser)
 
@@ -17,6 +18,9 @@ init flags =
     let
         widget =
             case flags.widget of
+                "itemComment" ->
+                    ItemComment
+
                 "homepage" ->
                     HomePage
 
@@ -32,8 +36,8 @@ init flags =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        HandleUser (Ok user) ->
-            { model | user = Just user } ! []
+        HandleUser (Ok muser) ->
+            { model | user = muser } ! []
 
         HandleUser (Err err) ->
             let
@@ -51,12 +55,24 @@ update msg model =
                 , Cmd.map MsgPagesHomepage cmds
                 )
 
+        MsgPagesItemComment subMsg ->
+            let
+                ( val, cmds ) =
+                    ItemComment.Update.update subMsg model.pageItemComment
+            in
+                ( { model | pageItemComment = val }
+                , Cmd.map MsgPagesItemComment cmds
+                )
+
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
     let
         subs =
             case model.widget of
+                ItemComment ->
+                    Sub.none
+
                 HomePage ->
                     Sub.map MsgPagesHomepage <| Homepage.Update.subscriptions
 

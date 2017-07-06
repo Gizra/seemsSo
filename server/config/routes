@@ -7,11 +7,14 @@
 / HomeR GET
 
 /profile ProfileR GET
-
 /regenerate-access-token/#UserId RegenerateAccessTokenR GET POST
 
 /api/items/#CompanyId RestfulItemsR GET
 /api/items/#CompanyId/#ItemId RestfulItemR GET
+
+
+/api/comments/#ItemId RestfulItemCommentsR GET POST
+/api/comments/#ItemId/#ItemCommentId RestfulItemCommentR GET
 
 /api/login-token LoginTokenR GET
 
@@ -29,3 +32,5 @@
 
 /api/orders RestfulOrderR GET
 /api/order-items/#ItemId RestfulOrderItemR POST
+
+/api/me RestfulMeR GET

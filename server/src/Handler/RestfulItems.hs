@@ -12,4 +12,7 @@ import Utils.Restful (getEntityList)
 getRestfulItemsR :: CompanyId -> Handler Value
 getRestfulItemsR companyId = do
     company <- runDB $ get404 companyId
-    getEntityList (RestfulItemsR companyId) (RestfulItemR companyId) [ItemCompany ==. companyId]
+    getEntityList
+        (RestfulItemsR companyId)
+        (RestfulItemR companyId)
+        [ItemCompany ==. companyId]
