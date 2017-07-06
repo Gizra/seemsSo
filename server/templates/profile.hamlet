@@ -1,10 +1,13 @@
-<div .ui.container>
+<div class="ui container">
+    Hi <strong><span class="username">#{userIdent user}</span></strong>!
 
-    <h1>
-      Access granted!
+    <div class="access-token">
+      <div>
+        Access token:
+          <input value=#{accessTokenText}>
 
-    <p>
-      This page is protected and access is allowed only for authenticated users.
+      <div>
+        <a href="@{RegenerateAccessTokenR uid}">Regenerate access token
 
-    <p>
-      Your data is protected with us <strong><span class="username">#{userIdent user}</span></strong>!
+      <div>
+        <a href="@{LoginTokenR}">Login token

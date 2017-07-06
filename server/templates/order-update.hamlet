@@ -7,4 +7,4 @@
 
     <form class="ui form" method=post action=@{EditOrderR orderId} enctype=#{enctype}>
         ^{widget}
-        <button.ui.primary.button>Update Order
+        <button class="ui primary button">Update Order

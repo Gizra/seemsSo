@@ -6,23 +6,23 @@
             Edit
 
 
-    <div.ui.segment>
-        <div.name>
+    <div class="ui segment">
+        <div class="name">
             <strong>Name:</strong> <span class="name">#{itemName item}</span>
 
-        <div.company>
+        <div class="company">
             <strong>Company:</strong> <span class="company">#{companyName company}</span>
 
-        <div.price>
+        <div class="price">
             <strong>Price:</strong> <span class="price">#{itemPrice item}</span>
 
         $maybe (Entity _ pdf) <- mpdf
-            <div.download>
+            <div class="download">
                 <a href=/#{pdfFilePath $ pdfFileFilename pdf}>
                     Download PDF
 
 
-        <section.comments>
+        <section class="comments">
           <h2>Comments
 
           $if null comments

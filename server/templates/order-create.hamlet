@@ -2,4 +2,4 @@
 
   <form class="ui form" method=post action=@{CreateOrderR} enctype=#{enctype}>
     ^{widget}
-    <button.ui.primary.button>Create Order
+    <button class="ui primary button">Create Order

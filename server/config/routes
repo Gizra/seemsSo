@@ -7,7 +7,6 @@
 / HomeR GET
 
 /profile ProfileR GET
-
 /regenerate-access-token/#UserId RegenerateAccessTokenR GET POST
 
 /api/items/#CompanyId RestfulItemsR GET
