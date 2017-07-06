@@ -24,4 +24,4 @@ spec =
                 authenticateAs userEntity
                 get ProfileR
                 let (Entity _ user) = userEntity
-                htmlAnyContain ".username" . unpack $ userIdent user
+                htmlAnyContain "h2" . unpack $ userIdent user
