@@ -5,6 +5,7 @@ module Handler.ItemCommentSpec
     ( spec
     ) where
 
+import Data.Aeson
 import TestImport
 
 spec :: Spec
@@ -59,15 +60,16 @@ spec =
                 get $ RestfulItemCommentsR itemId
                 statusIs 200
             it "should not allow anonymous user to create a comment" $ do
-                assertPostComment 403
+                assertPostComment False
             it "should allow authenticated user to create a comment" $ do
                 bob <- createUser "bob"
                 currentTime <- liftIO getCurrentTime
                 let (Entity uid _) = bob
+                -- @todo: Create user with an access token.
                 _ <-
                     runDB . insert $
                     AccessToken currentTime uid "someRandomToken"
-                assertPostComment 200
+                assertPostComment True
 
 {-| Go to Item's page, and assert the comment exist.
 -}
@@ -83,16 +85,22 @@ assertCommentExists itemId = do
         ".ui.comments > .comment > div > div.text"
         "Comment for Item1"
 
-assertPostComment :: Int -> YesodExample App ()
-assertPostComment status = do
+assertPostComment :: Bool -> YesodExample App ()
+assertPostComment isAuthenticated = do
     (_, _, _, itemId) <- prepareScenarioWithoutComment
     request $ do
         setMethod "POST"
-        addPostParam "comment" "some text"
-        if status == 200
+        addRequestHeader ("Content-Type", "application/json")
+        let body = object ["comment" .= ("some comment" :: Text)]
+        setRequestBody $ encode body
+        if isAuthenticated == True
             then addGetParam "access_token" "someRandomToken"
             else return ()
         setUrl $ RestfulItemCommentsR itemId
+    let status =
+            if isAuthenticated
+                then 201
+                else 403
     statusIs status
 
 prepareScenario ::
