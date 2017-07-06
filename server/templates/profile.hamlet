@@ -1,13 +1,12 @@
 <div class="ui container">
-    Hi <strong><span class="username">#{userIdent user}</span></strong>!
+    <h2>#{userIdent user}
 
-    <div class="access-token">
-      <div>
-        Access token:
-          <input value=#{accessTokenText}>
+    <div class="ui labeled input">
+        <div class="ui label"> Access token:
+        <input type="text" value=#{accessTokenText}>
 
-      <div>
+    <div>
         <a href="@{RegenerateAccessTokenR uid}">Regenerate access token
 
-      <div>
+    <div>
         <a href="@{LoginTokenR}">Login token
