@@ -62,13 +62,7 @@ spec =
             it "should not allow anonymous user to create a comment" $ do
                 assertPostComment False
             it "should allow authenticated user to create a comment" $ do
-                bob <- createUser "bob"
-                currentTime <- liftIO getCurrentTime
-                let (Entity uid _) = bob
-                -- @todo: Create user with an access token.
-                _ <-
-                    runDB . insert $
-                    AccessToken currentTime uid "someRandomToken"
+                createUserWithAccessToken "bob"
                 assertPostComment True
 
 {-| Go to Item's page, and assert the comment exist.
@@ -93,8 +87,8 @@ assertPostComment isAuthenticated = do
         addRequestHeader ("Content-Type", "application/json")
         let body = object ["comment" .= ("some comment" :: Text)]
         setRequestBody $ encode body
-        if isAuthenticated == True
-            then addGetParam "access_token" "someRandomToken"
+        if isAuthenticated
+            then addGetParam "access_token" "bob--token"
             else return ()
         setUrl $ RestfulItemCommentsR itemId
     let status =
