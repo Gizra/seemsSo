@@ -1,8 +1,14 @@
 module ItemComment.Model exposing (..)
 
+import DictList exposing (EveryDictList)
 import Http
 import Item.Model exposing (ItemId)
 import RemoteData exposing (..)
+import User.Model exposing (UserId)
+
+
+type ItemCommentId
+    = ItemCommentId Int
 
 
 type alias Model =
@@ -11,6 +17,16 @@ type alias Model =
     , status : WebData ()
     , selectedTab : Tab
     }
+
+
+type alias ItemComment =
+    { userId : UserId
+    , comment : String
+    }
+
+
+type alias EveryDictListItemComments =
+    EveryDictList ItemCommentId ItemComment
 
 
 emptyModel : Model

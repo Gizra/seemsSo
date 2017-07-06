@@ -8985,9 +8985,17 @@ var _krisajenkins$remotedata$RemoteData$update = F2(
 		}
 	});
 
+var _Gizra$elm_spa_exmple$User_Model$User = function (a) {
+	return {name: a};
+};
+
 var _Gizra$elm_spa_exmple$ItemComment_Model$Model = F4(
 	function (a, b, c, d) {
 		return {itemId: a, comment: b, status: c, selectedTab: d};
+	});
+var _Gizra$elm_spa_exmple$ItemComment_Model$ItemComment = F2(
+	function (a, b) {
+		return {userId: a, comment: b};
 	});
 var _Gizra$elm_spa_exmple$ItemComment_Model$Preview = {ctor: 'Preview'};
 var _Gizra$elm_spa_exmple$ItemComment_Model$Edit = {ctor: 'Edit'};
@@ -9001,10 +9009,6 @@ var _Gizra$elm_spa_exmple$ItemComment_Model$SetComment = function (a) {
 var _Gizra$elm_spa_exmple$ItemComment_Model$SaveComment = {ctor: 'SaveComment'};
 var _Gizra$elm_spa_exmple$ItemComment_Model$HandleSaveComment = function (a) {
 	return {ctor: 'HandleSaveComment', _0: a};
-};
-
-var _Gizra$elm_spa_exmple$User_Model$User = function (a) {
-	return {name: a};
 };
 
 var _Gizra$elm_spa_exmple$App_Model$emptyModel = {widget: _Gizra$elm_spa_exmple$App_Types$NotFound, pageHomepage: _Gizra$elm_spa_exmple$Pages_Homepage_Model$emptyModel, pageItemComment: _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel, user: _elm_lang$core$Maybe$Nothing, baseUrl: 'http://localhost:3000/'};
