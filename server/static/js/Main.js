@@ -7988,11 +7988,11 @@ var _Gizra$elm_spa_exmple$Item_Model$Item = function (a) {
 	return {name: a};
 };
 
-var _Gizra$elm_spa_exmple$Homepage_Model$emptyModel = {items: _Gizra$elm_dictlist$DictList$empty};
-var _Gizra$elm_spa_exmple$Homepage_Model$Model = function (a) {
+var _Gizra$elm_spa_exmple$Pages_Homepage_Model$emptyModel = {items: _Gizra$elm_dictlist$DictList$empty};
+var _Gizra$elm_spa_exmple$Pages_Homepage_Model$Model = function (a) {
 	return {items: a};
 };
-var _Gizra$elm_spa_exmple$Homepage_Model$HandleItems = function (a) {
+var _Gizra$elm_spa_exmple$Pages_Homepage_Model$HandleItems = function (a) {
 	return {ctor: 'HandleItems', _0: a};
 };
 
@@ -9007,7 +9007,7 @@ var _Gizra$elm_spa_exmple$User_Model$User = function (a) {
 	return {name: a};
 };
 
-var _Gizra$elm_spa_exmple$App_Model$emptyModel = {widget: _Gizra$elm_spa_exmple$App_Types$NotFound, pageHomepage: _Gizra$elm_spa_exmple$Homepage_Model$emptyModel, pageItemComment: _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel, user: _elm_lang$core$Maybe$Nothing, baseUrl: 'http://localhost:3000/'};
+var _Gizra$elm_spa_exmple$App_Model$emptyModel = {widget: _Gizra$elm_spa_exmple$App_Types$NotFound, pageHomepage: _Gizra$elm_spa_exmple$Pages_Homepage_Model$emptyModel, pageItemComment: _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel, user: _elm_lang$core$Maybe$Nothing, baseUrl: 'http://localhost:3000/'};
 var _Gizra$elm_spa_exmple$App_Model$Flags = function (a) {
 	return {widget: a};
 };
@@ -9384,7 +9384,7 @@ var _Gizra$elm_spa_exmple$Item_Decoder$decodeItems = _elm_lang$core$Json_Decode$
 		}
 	});
 
-var _Gizra$elm_spa_exmple$Homepage_Update$update = F2(
+var _Gizra$elm_spa_exmple$Pages_Homepage_Update$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
 		if (_p0._0.ctor === 'Ok') {
@@ -9402,10 +9402,10 @@ var _Gizra$elm_spa_exmple$Homepage_Update$update = F2(
 				{ctor: '[]'});
 		}
 	});
-var _Gizra$elm_spa_exmple$Homepage_Update$items = _elm_lang$core$Native_Platform.incomingPort('items', _elm_lang$core$Json_Decode$value);
-var _Gizra$elm_spa_exmple$Homepage_Update$subscriptions = _Gizra$elm_spa_exmple$Homepage_Update$items(
+var _Gizra$elm_spa_exmple$Pages_Homepage_Update$items = _elm_lang$core$Native_Platform.incomingPort('items', _elm_lang$core$Json_Decode$value);
+var _Gizra$elm_spa_exmple$Pages_Homepage_Update$subscriptions = _Gizra$elm_spa_exmple$Pages_Homepage_Update$items(
 	function (_p2) {
-		return _Gizra$elm_spa_exmple$Homepage_Model$HandleItems(
+		return _Gizra$elm_spa_exmple$Pages_Homepage_Model$HandleItems(
 			A2(_elm_lang$core$Json_Decode$decodeValue, _Gizra$elm_spa_exmple$Item_Decoder$decodeItems, _p2));
 	});
 
@@ -11885,7 +11885,7 @@ var _Gizra$elm_spa_exmple$App_Update$update = F2(
 						{ctor: '[]'});
 				}
 			case 'MsgPagesHomepage':
-				var _p2 = A2(_Gizra$elm_spa_exmple$Homepage_Update$update, _p0._0, model.pageHomepage);
+				var _p2 = A2(_Gizra$elm_spa_exmple$Pages_Homepage_Update$update, _p0._0, model.pageHomepage);
 				var val = _p2._0;
 				var cmds = _p2._1;
 				return {
@@ -11936,7 +11936,7 @@ var _Gizra$elm_spa_exmple$App_Update$subscriptions = function (model) {
 			case 'ItemComment':
 				return _elm_lang$core$Platform_Sub$none;
 			case 'HomePage':
-				return A2(_elm_lang$core$Platform_Sub$map, _Gizra$elm_spa_exmple$App_Model$MsgPagesHomepage, _Gizra$elm_spa_exmple$Homepage_Update$subscriptions);
+				return A2(_elm_lang$core$Platform_Sub$map, _Gizra$elm_spa_exmple$App_Model$MsgPagesHomepage, _Gizra$elm_spa_exmple$Pages_Homepage_Update$subscriptions);
 			default:
 				return _elm_lang$core$Platform_Sub$none;
 		}
@@ -12508,7 +12508,7 @@ var _Gizra$elm_spa_exmple$User_View$view = function (muser) {
 	}
 };
 
-var _Gizra$elm_spa_exmple$Homepage_View$view = F3(
+var _Gizra$elm_spa_exmple$Pages_Homepage_View$view = F3(
 	function (baseUrl, muser, model) {
 		return A2(
 			_elm_lang$html$Html$div,
@@ -20460,7 +20460,7 @@ var _Gizra$elm_spa_exmple$App_View$view = function (model) {
 					_0: A2(
 						_elm_lang$html$Html$map,
 						_Gizra$elm_spa_exmple$App_Model$MsgPagesHomepage,
-						A3(_Gizra$elm_spa_exmple$Homepage_View$view, model.baseUrl, model.user, model.pageHomepage)),
+						A3(_Gizra$elm_spa_exmple$Pages_Homepage_View$view, model.baseUrl, model.user, model.pageHomepage)),
 					_1: {ctor: '[]'}
 				});
 		case 'ItemComment':

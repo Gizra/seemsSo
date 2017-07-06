@@ -1,11 +1,11 @@
-port module Homepage.Update
+port module Pages.Homepage.Update
     exposing
         ( subscriptions
         , update
         )
 
 import Item.Decoder exposing (decodeItems)
-import Homepage.Model exposing (Model, Msg(..))
+import Pages.Homepage.Model exposing (Model, Msg(..))
 import Json.Decode exposing (Value, decodeValue)
 
 

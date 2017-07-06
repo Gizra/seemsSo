@@ -1,6 +1,6 @@
 port module Main exposing (..)
 
-import Homepage.Test
+import Pages.Homepage.Test
 import Json.Encode exposing (Value)
 import Test exposing (Test, describe)
 import Test.Runner.Node exposing (TestProgram, run)
@@ -9,7 +9,7 @@ import Test.Runner.Node exposing (TestProgram, run)
 allTests : Test
 allTests =
     describe "All tests"
-        [ Homepage.Test.all
+        [ Pages.Homepage.Test.all
         ]
 
 

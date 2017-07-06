@@ -7,7 +7,7 @@ port module App.Update
 
 import App.Model exposing (..)
 import App.Types exposing (Widget(..))
-import Homepage.Update
+import Pages.Homepage.Update
 import ItemComment.Update
 import Json.Decode exposing (Value, decodeValue)
 import User.Decoder exposing (decodeUser)
@@ -49,7 +49,7 @@ update msg model =
         MsgPagesHomepage subMsg ->
             let
                 ( val, cmds ) =
-                    Homepage.Update.update subMsg model.pageHomepage
+                    Pages.Homepage.Update.update subMsg model.pageHomepage
             in
                 ( { model | pageHomepage = val }
                 , Cmd.map MsgPagesHomepage cmds
@@ -74,7 +74,7 @@ subscriptions model =
                     Sub.none
 
                 HomePage ->
-                    Sub.map MsgPagesHomepage <| Homepage.Update.subscriptions
+                    Sub.map MsgPagesHomepage <| Pages.Homepage.Update.subscriptions
 
                 NotFound ->
                     Sub.none
