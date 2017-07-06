@@ -9007,13 +9007,13 @@ var _Gizra$elm_spa_exmple$User_Model$User = function (a) {
 	return {name: a};
 };
 
-var _Gizra$elm_spa_exmple$App_Model$emptyModel = {widget: _Gizra$elm_spa_exmple$App_Types$NotFound, pageHomepage: _Gizra$elm_spa_exmple$Homepage_Model$emptyModel, pageItemComment: _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel, user: _elm_lang$core$Maybe$Nothing};
+var _Gizra$elm_spa_exmple$App_Model$emptyModel = {widget: _Gizra$elm_spa_exmple$App_Types$NotFound, pageHomepage: _Gizra$elm_spa_exmple$Homepage_Model$emptyModel, pageItemComment: _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel, user: _elm_lang$core$Maybe$Nothing, baseUrl: 'http://localhost:3000/'};
 var _Gizra$elm_spa_exmple$App_Model$Flags = function (a) {
 	return {widget: a};
 };
-var _Gizra$elm_spa_exmple$App_Model$Model = F4(
-	function (a, b, c, d) {
-		return {widget: a, pageHomepage: b, pageItemComment: c, user: d};
+var _Gizra$elm_spa_exmple$App_Model$Model = F5(
+	function (a, b, c, d, e) {
+		return {widget: a, pageHomepage: b, pageItemComment: c, user: d, baseUrl: e};
 	});
 var _Gizra$elm_spa_exmple$App_Model$MsgPagesItemComment = function (a) {
 	return {ctor: 'MsgPagesItemComment', _0: a};
@@ -12445,26 +12445,45 @@ var _Gizra$elm_spa_exmple$Utils_Html$showIf = F2(
 	});
 var _Gizra$elm_spa_exmple$Utils_Html$showMaybe = _elm_lang$core$Maybe$withDefault(_Gizra$elm_spa_exmple$Utils_Html$emptyNode);
 
-var _Gizra$elm_spa_exmple$Item_View$viewItemsTeaser = function (items) {
-	return A2(
-		_elm_lang$html$Html$div,
-		{ctor: '[]'},
-		_Gizra$elm_dictlist$DictList$values(
-			A2(
-				_Gizra$elm_dictlist$DictList$map,
-				F2(
-					function (_p0, item) {
-						return A2(
-							_elm_lang$html$Html$div,
-							{ctor: '[]'},
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html$text(item.name),
-								_1: {ctor: '[]'}
-							});
-					}),
-				items)));
-};
+var _Gizra$elm_spa_exmple$Item_View$viewItemsTeaser = F2(
+	function (baseUrl, items) {
+		return A2(
+			_elm_lang$html$Html$ul,
+			{ctor: '[]'},
+			_Gizra$elm_dictlist$DictList$values(
+				A2(
+					_Gizra$elm_dictlist$DictList$map,
+					F2(
+						function (itemId, item) {
+							return A2(
+								_elm_lang$html$Html$li,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$a,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$href(
+												A2(
+													_elm_lang$core$Basics_ops['++'],
+													baseUrl,
+													A2(
+														_elm_lang$core$Basics_ops['++'],
+														'item/',
+														_elm_lang$core$Basics$toString(itemId)))),
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text(item.name),
+											_1: {ctor: '[]'}
+										}),
+									_1: {ctor: '[]'}
+								});
+						}),
+					items)));
+	});
 
 var _Gizra$elm_spa_exmple$User_View$view = function (muser) {
 	var _p0 = muser;
@@ -12489,8 +12508,8 @@ var _Gizra$elm_spa_exmple$User_View$view = function (muser) {
 	}
 };
 
-var _Gizra$elm_spa_exmple$Homepage_View$view = F2(
-	function (muser, model) {
+var _Gizra$elm_spa_exmple$Homepage_View$view = F3(
+	function (baseUrl, muser, model) {
 		return A2(
 			_elm_lang$html$Html$div,
 			{ctor: '[]'},
@@ -12499,7 +12518,7 @@ var _Gizra$elm_spa_exmple$Homepage_View$view = F2(
 				_0: _Gizra$elm_spa_exmple$User_View$view(muser),
 				_1: {
 					ctor: '::',
-					_0: _Gizra$elm_spa_exmple$Item_View$viewItemsTeaser(model.items),
+					_0: A2(_Gizra$elm_spa_exmple$Item_View$viewItemsTeaser, baseUrl, model.items),
 					_1: {ctor: '[]'}
 				}
 			});
@@ -20441,7 +20460,7 @@ var _Gizra$elm_spa_exmple$App_View$view = function (model) {
 					_0: A2(
 						_elm_lang$html$Html$map,
 						_Gizra$elm_spa_exmple$App_Model$MsgPagesHomepage,
-						A2(_Gizra$elm_spa_exmple$Homepage_View$view, model.user, model.pageHomepage)),
+						A3(_Gizra$elm_spa_exmple$Homepage_View$view, model.baseUrl, model.user, model.pageHomepage)),
 					_1: {ctor: '[]'}
 				});
 		case 'ItemComment':
