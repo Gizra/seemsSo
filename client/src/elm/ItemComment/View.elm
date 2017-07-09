@@ -1,9 +1,10 @@
 module ItemComment.View exposing (view)
 
+import EveryDictList exposing (EveryDictList)
 import Html exposing (..)
-import Html.Attributes exposing (alt, class, classList, cols, disabled, href, placeholder, required, rows, src, style, target, type_, value)
+import Html.Attributes exposing (alt, class, classList, cols, disabled, href, id, placeholder, required, rows, src, style, target, type_, value)
 import Html.Events exposing (onClick, onInput)
-import ItemComment.Model exposing (Model, Msg(..), Tab(..))
+import ItemComment.Model exposing (EveryDictListItemComments, ItemComment, ItemCommentId, Model, Msg(..), Tab(..))
 import Markdown
 import RemoteData exposing (..)
 import User.Model exposing (User)
@@ -28,6 +29,38 @@ view baseUrl muser model =
                 , viewActions model
                 ]
             ]
+
+
+viewItemcomments : Maybe User -> EveryDictListItemComments -> Html Msg
+viewItemcomments muser commentsDictList =
+    showIf (not (EveryDictList.isEmpty commentsDictList)) <|
+        div
+            [ class "ui comments" ]
+            []
+
+
+viewItemcomment : Maybe User -> ( ItemCommentId, ItemComment ) -> Html Msg
+viewItemcomment muser ( ItemComment.Model.ItemCommentId itemCommentId, itemComment ) =
+    div
+        [ id <| "comment-" ++ toString itemCommentId
+        , class "comment"
+        ]
+        [ a
+            [ class "avatar" ]
+            [ img
+                [ src "https://dummyimage.com/80x80/000/fff&text=Avatar" ]
+                []
+            ]
+        , div
+            [ class "content" ]
+            [ div
+                [ class "author" ]
+                [ text "#{userIdent}" ]
+            , div
+                [ class "text" ]
+                [ text "#{comment}" ]
+            ]
+        ]
 
 
 viewTabs : Tab -> Html Msg

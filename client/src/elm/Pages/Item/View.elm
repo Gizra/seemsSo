@@ -10,5 +10,5 @@ import User.Model exposing (User)
 
 
 view : String -> Maybe User -> Model -> Html msg
-view baseUrl muser items =
-    div [] []
+view baseUrl muser model =
+    div [] [ text "PAges.Item.View" ]

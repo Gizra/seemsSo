@@ -22,6 +22,4 @@ update msg model =
 --     items (decodeValue decodeItems >> HandleItems)
 --
 -- PORTS
-
-
-port items : (Value -> msg) -> Sub msg
+-- port items : (Value -> msg) -> Sub msg

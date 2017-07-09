@@ -10674,7 +10674,6 @@ var _Gizra$elm_spa_exmple$Pages_Item_Update$update = F2(
 			model,
 			{ctor: '[]'});
 	});
-var _Gizra$elm_spa_exmple$Pages_Item_Update$items = _elm_lang$core$Native_Platform.incomingPort('items', _elm_lang$core$Json_Decode$value);
 
 var _Gizra$elm_spa_exmple$User_Decoder$decodeUser = _elm_lang$core$Json_Decode$oneOf(
 	{
@@ -13395,11 +13394,15 @@ var _Gizra$elm_spa_exmple$Pages_Homepage_View$view = F3(
 	});
 
 var _Gizra$elm_spa_exmple$Pages_Item_View$view = F3(
-	function (baseUrl, muser, items) {
+	function (baseUrl, muser, model) {
 		return A2(
 			_elm_lang$html$Html$div,
 			{ctor: '[]'},
-			{ctor: '[]'});
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html$text('PAges.Item.View'),
+				_1: {ctor: '[]'}
+			});
 	});
 
 var _Gizra$elm_spa_exmple$App_View$view = function (model) {
