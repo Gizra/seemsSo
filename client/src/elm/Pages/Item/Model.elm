@@ -18,3 +18,7 @@ emptyModel =
     , comments = EveryDictList.empty
     , itemComment = ItemComment.Model.emptyModel
     }
+
+
+type Msg
+    = NoOp

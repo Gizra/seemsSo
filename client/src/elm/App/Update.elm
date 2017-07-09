@@ -18,8 +18,8 @@ init flags =
     let
         widget =
             case flags.widget of
-                "itemComment" ->
-                    ItemComment
+                "item" ->
+                    Item
 
                 "homepage" ->
                     HomePage
@@ -60,8 +60,8 @@ update msg model =
                 ( val, cmds ) =
                     Pages.Item.Update.update subMsg model.pageItem
             in
-                ( { model | pageItemComment = val }
-                , Cmd.map MsgPagesItemComment cmds
+                ( { model | pageItem = val }
+                , Cmd.map MsgPagesItem cmds
                 )
 
 
@@ -70,7 +70,8 @@ subscriptions model =
     let
         subs =
             case model.widget of
-                ItemComment ->
+                Item ->
+                    -- @todo: Subscribe to get items and comments.
                     Sub.none
 
                 HomePage ->

@@ -8,14 +8,14 @@ module App.Model
 
 import App.Types exposing (Widget(..))
 import Pages.Homepage.Model exposing (Model, Msg)
-import ItemComment.Model exposing (Model, Msg)
+import Pages.Item.Model exposing (Model, Msg)
 import User.Model exposing (User)
 
 
 type Msg
     = HandleUser (Result String (Maybe User))
     | MsgPagesHomepage Pages.Homepage.Model.Msg
-    | MsgPagesItemComment ItemComment.Model.Msg
+    | MsgPagesItem Pages.Item.Model.Msg
 
 
 type alias Flags =
@@ -26,7 +26,7 @@ type alias Flags =
 type alias Model =
     { widget : Widget
     , pageHomepage : Pages.Homepage.Model.Model
-    , pageItemComment : ItemComment.Model.Model
+    , pageItem : Pages.Item.Model.Model
     , user : Maybe User
     , baseUrl : String
     }
@@ -36,7 +36,7 @@ emptyModel : Model
 emptyModel =
     { widget = NotFound
     , pageHomepage = Pages.Homepage.Model.emptyModel
-    , pageItemComment = ItemComment.Model.emptyModel
+    , pageItem = Pages.Item.Model.emptyModel
     , user = Nothing
 
     -- @todo: Get dynamically.
