@@ -16,7 +16,7 @@ view model =
                 [ Html.map MsgPagesHomepage <| Pages.Homepage.View.view model.baseUrl model.user model.pageHomepage
                 ]
 
-        ItemComment ->
+        Item ->
             div [ class "ui container" ]
                 [ Html.map MsgPagesItemComment <| ItemComment.View.view model.user model.pageItemComment
                 ]

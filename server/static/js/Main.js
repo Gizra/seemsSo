@@ -3183,6 +3183,1936 @@ var _elm_lang$core$Dict$diff = F2(
 			t2);
 	});
 
+var _elm_lang$core$Debug$crash = _elm_lang$core$Native_Debug.crash;
+var _elm_lang$core$Debug$log = _elm_lang$core$Native_Debug.log;
+
+var _elm_lang$core$Tuple$mapSecond = F2(
+	function (func, _p0) {
+		var _p1 = _p0;
+		return {
+			ctor: '_Tuple2',
+			_0: _p1._0,
+			_1: func(_p1._1)
+		};
+	});
+var _elm_lang$core$Tuple$mapFirst = F2(
+	function (func, _p2) {
+		var _p3 = _p2;
+		return {
+			ctor: '_Tuple2',
+			_0: func(_p3._0),
+			_1: _p3._1
+		};
+	});
+var _elm_lang$core$Tuple$second = function (_p4) {
+	var _p5 = _p4;
+	return _p5._1;
+};
+var _elm_lang$core$Tuple$first = function (_p6) {
+	var _p7 = _p6;
+	return _p7._0;
+};
+
+//import //
+
+var _elm_lang$core$Native_Platform = function() {
+
+
+// PROGRAMS
+
+function program(impl)
+{
+	return function(flagDecoder)
+	{
+		return function(object, moduleName)
+		{
+			object['worker'] = function worker(flags)
+			{
+				if (typeof flags !== 'undefined')
+				{
+					throw new Error(
+						'The `' + moduleName + '` module does not need flags.\n'
+						+ 'Call ' + moduleName + '.worker() with no arguments and you should be all set!'
+					);
+				}
+
+				return initialize(
+					impl.init,
+					impl.update,
+					impl.subscriptions,
+					renderer
+				);
+			};
+		};
+	};
+}
+
+function programWithFlags(impl)
+{
+	return function(flagDecoder)
+	{
+		return function(object, moduleName)
+		{
+			object['worker'] = function worker(flags)
+			{
+				if (typeof flagDecoder === 'undefined')
+				{
+					throw new Error(
+						'Are you trying to sneak a Never value into Elm? Trickster!\n'
+						+ 'It looks like ' + moduleName + '.main is defined with `programWithFlags` but has type `Program Never`.\n'
+						+ 'Use `program` instead if you do not want flags.'
+					);
+				}
+
+				var result = A2(_elm_lang$core$Native_Json.run, flagDecoder, flags);
+				if (result.ctor === 'Err')
+				{
+					throw new Error(
+						moduleName + '.worker(...) was called with an unexpected argument.\n'
+						+ 'I tried to convert it to an Elm value, but ran into this problem:\n\n'
+						+ result._0
+					);
+				}
+
+				return initialize(
+					impl.init(result._0),
+					impl.update,
+					impl.subscriptions,
+					renderer
+				);
+			};
+		};
+	};
+}
+
+function renderer(enqueue, _)
+{
+	return function(_) {};
+}
+
+
+// HTML TO PROGRAM
+
+function htmlToProgram(vnode)
+{
+	var emptyBag = batch(_elm_lang$core$Native_List.Nil);
+	var noChange = _elm_lang$core$Native_Utils.Tuple2(
+		_elm_lang$core$Native_Utils.Tuple0,
+		emptyBag
+	);
+
+	return _elm_lang$virtual_dom$VirtualDom$program({
+		init: noChange,
+		view: function(model) { return main; },
+		update: F2(function(msg, model) { return noChange; }),
+		subscriptions: function (model) { return emptyBag; }
+	});
+}
+
+
+// INITIALIZE A PROGRAM
+
+function initialize(init, update, subscriptions, renderer)
+{
+	// ambient state
+	var managers = {};
+	var updateView;
+
+	// init and update state in main process
+	var initApp = _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
+		var model = init._0;
+		updateView = renderer(enqueue, model);
+		var cmds = init._1;
+		var subs = subscriptions(model);
+		dispatchEffects(managers, cmds, subs);
+		callback(_elm_lang$core$Native_Scheduler.succeed(model));
+	});
+
+	function onMessage(msg, model)
+	{
+		return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
+			var results = A2(update, msg, model);
+			model = results._0;
+			updateView(model);
+			var cmds = results._1;
+			var subs = subscriptions(model);
+			dispatchEffects(managers, cmds, subs);
+			callback(_elm_lang$core$Native_Scheduler.succeed(model));
+		});
+	}
+
+	var mainProcess = spawnLoop(initApp, onMessage);
+
+	function enqueue(msg)
+	{
+		_elm_lang$core$Native_Scheduler.rawSend(mainProcess, msg);
+	}
+
+	var ports = setupEffects(managers, enqueue);
+
+	return ports ? { ports: ports } : {};
+}
+
+
+// EFFECT MANAGERS
+
+var effectManagers = {};
+
+function setupEffects(managers, callback)
+{
+	var ports;
+
+	// setup all necessary effect managers
+	for (var key in effectManagers)
+	{
+		var manager = effectManagers[key];
+
+		if (manager.isForeign)
+		{
+			ports = ports || {};
+			ports[key] = manager.tag === 'cmd'
+				? setupOutgoingPort(key)
+				: setupIncomingPort(key, callback);
+		}
+
+		managers[key] = makeManager(manager, callback);
+	}
+
+	return ports;
+}
+
+function makeManager(info, callback)
+{
+	var router = {
+		main: callback,
+		self: undefined
+	};
+
+	var tag = info.tag;
+	var onEffects = info.onEffects;
+	var onSelfMsg = info.onSelfMsg;
+
+	function onMessage(msg, state)
+	{
+		if (msg.ctor === 'self')
+		{
+			return A3(onSelfMsg, router, msg._0, state);
+		}
+
+		var fx = msg._0;
+		switch (tag)
+		{
+			case 'cmd':
+				return A3(onEffects, router, fx.cmds, state);
+
+			case 'sub':
+				return A3(onEffects, router, fx.subs, state);
+
+			case 'fx':
+				return A4(onEffects, router, fx.cmds, fx.subs, state);
+		}
+	}
+
+	var process = spawnLoop(info.init, onMessage);
+	router.self = process;
+	return process;
+}
+
+function sendToApp(router, msg)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+	{
+		router.main(msg);
+		callback(_elm_lang$core$Native_Scheduler.succeed(_elm_lang$core$Native_Utils.Tuple0));
+	});
+}
+
+function sendToSelf(router, msg)
+{
+	return A2(_elm_lang$core$Native_Scheduler.send, router.self, {
+		ctor: 'self',
+		_0: msg
+	});
+}
+
+
+// HELPER for STATEFUL LOOPS
+
+function spawnLoop(init, onMessage)
+{
+	var andThen = _elm_lang$core$Native_Scheduler.andThen;
+
+	function loop(state)
+	{
+		var handleMsg = _elm_lang$core$Native_Scheduler.receive(function(msg) {
+			return onMessage(msg, state);
+		});
+		return A2(andThen, loop, handleMsg);
+	}
+
+	var task = A2(andThen, loop, init);
+
+	return _elm_lang$core$Native_Scheduler.rawSpawn(task);
+}
+
+
+// BAGS
+
+function leaf(home)
+{
+	return function(value)
+	{
+		return {
+			type: 'leaf',
+			home: home,
+			value: value
+		};
+	};
+}
+
+function batch(list)
+{
+	return {
+		type: 'node',
+		branches: list
+	};
+}
+
+function map(tagger, bag)
+{
+	return {
+		type: 'map',
+		tagger: tagger,
+		tree: bag
+	}
+}
+
+
+// PIPE BAGS INTO EFFECT MANAGERS
+
+function dispatchEffects(managers, cmdBag, subBag)
+{
+	var effectsDict = {};
+	gatherEffects(true, cmdBag, effectsDict, null);
+	gatherEffects(false, subBag, effectsDict, null);
+
+	for (var home in managers)
+	{
+		var fx = home in effectsDict
+			? effectsDict[home]
+			: {
+				cmds: _elm_lang$core$Native_List.Nil,
+				subs: _elm_lang$core$Native_List.Nil
+			};
+
+		_elm_lang$core$Native_Scheduler.rawSend(managers[home], { ctor: 'fx', _0: fx });
+	}
+}
+
+function gatherEffects(isCmd, bag, effectsDict, taggers)
+{
+	switch (bag.type)
+	{
+		case 'leaf':
+			var home = bag.home;
+			var effect = toEffect(isCmd, home, taggers, bag.value);
+			effectsDict[home] = insert(isCmd, effect, effectsDict[home]);
+			return;
+
+		case 'node':
+			var list = bag.branches;
+			while (list.ctor !== '[]')
+			{
+				gatherEffects(isCmd, list._0, effectsDict, taggers);
+				list = list._1;
+			}
+			return;
+
+		case 'map':
+			gatherEffects(isCmd, bag.tree, effectsDict, {
+				tagger: bag.tagger,
+				rest: taggers
+			});
+			return;
+	}
+}
+
+function toEffect(isCmd, home, taggers, value)
+{
+	function applyTaggers(x)
+	{
+		var temp = taggers;
+		while (temp)
+		{
+			x = temp.tagger(x);
+			temp = temp.rest;
+		}
+		return x;
+	}
+
+	var map = isCmd
+		? effectManagers[home].cmdMap
+		: effectManagers[home].subMap;
+
+	return A2(map, applyTaggers, value)
+}
+
+function insert(isCmd, newEffect, effects)
+{
+	effects = effects || {
+		cmds: _elm_lang$core$Native_List.Nil,
+		subs: _elm_lang$core$Native_List.Nil
+	};
+	if (isCmd)
+	{
+		effects.cmds = _elm_lang$core$Native_List.Cons(newEffect, effects.cmds);
+		return effects;
+	}
+	effects.subs = _elm_lang$core$Native_List.Cons(newEffect, effects.subs);
+	return effects;
+}
+
+
+// PORTS
+
+function checkPortName(name)
+{
+	if (name in effectManagers)
+	{
+		throw new Error('There can only be one port named `' + name + '`, but your program has multiple.');
+	}
+}
+
+
+// OUTGOING PORTS
+
+function outgoingPort(name, converter)
+{
+	checkPortName(name);
+	effectManagers[name] = {
+		tag: 'cmd',
+		cmdMap: outgoingPortMap,
+		converter: converter,
+		isForeign: true
+	};
+	return leaf(name);
+}
+
+var outgoingPortMap = F2(function cmdMap(tagger, value) {
+	return value;
+});
+
+function setupOutgoingPort(name)
+{
+	var subs = [];
+	var converter = effectManagers[name].converter;
+
+	// CREATE MANAGER
+
+	var init = _elm_lang$core$Native_Scheduler.succeed(null);
+
+	function onEffects(router, cmdList, state)
+	{
+		while (cmdList.ctor !== '[]')
+		{
+			// grab a separate reference to subs in case unsubscribe is called
+			var currentSubs = subs;
+			var value = converter(cmdList._0);
+			for (var i = 0; i < currentSubs.length; i++)
+			{
+				currentSubs[i](value);
+			}
+			cmdList = cmdList._1;
+		}
+		return init;
+	}
+
+	effectManagers[name].init = init;
+	effectManagers[name].onEffects = F3(onEffects);
+
+	// PUBLIC API
+
+	function subscribe(callback)
+	{
+		subs.push(callback);
+	}
+
+	function unsubscribe(callback)
+	{
+		// copy subs into a new array in case unsubscribe is called within a
+		// subscribed callback
+		subs = subs.slice();
+		var index = subs.indexOf(callback);
+		if (index >= 0)
+		{
+			subs.splice(index, 1);
+		}
+	}
+
+	return {
+		subscribe: subscribe,
+		unsubscribe: unsubscribe
+	};
+}
+
+
+// INCOMING PORTS
+
+function incomingPort(name, converter)
+{
+	checkPortName(name);
+	effectManagers[name] = {
+		tag: 'sub',
+		subMap: incomingPortMap,
+		converter: converter,
+		isForeign: true
+	};
+	return leaf(name);
+}
+
+var incomingPortMap = F2(function subMap(tagger, finalTagger)
+{
+	return function(value)
+	{
+		return tagger(finalTagger(value));
+	};
+});
+
+function setupIncomingPort(name, callback)
+{
+	var sentBeforeInit = [];
+	var subs = _elm_lang$core$Native_List.Nil;
+	var converter = effectManagers[name].converter;
+	var currentOnEffects = preInitOnEffects;
+	var currentSend = preInitSend;
+
+	// CREATE MANAGER
+
+	var init = _elm_lang$core$Native_Scheduler.succeed(null);
+
+	function preInitOnEffects(router, subList, state)
+	{
+		var postInitResult = postInitOnEffects(router, subList, state);
+
+		for(var i = 0; i < sentBeforeInit.length; i++)
+		{
+			postInitSend(sentBeforeInit[i]);
+		}
+
+		sentBeforeInit = null; // to release objects held in queue
+		currentSend = postInitSend;
+		currentOnEffects = postInitOnEffects;
+		return postInitResult;
+	}
+
+	function postInitOnEffects(router, subList, state)
+	{
+		subs = subList;
+		return init;
+	}
+
+	function onEffects(router, subList, state)
+	{
+		return currentOnEffects(router, subList, state);
+	}
+
+	effectManagers[name].init = init;
+	effectManagers[name].onEffects = F3(onEffects);
+
+	// PUBLIC API
+
+	function preInitSend(value)
+	{
+		sentBeforeInit.push(value);
+	}
+
+	function postInitSend(value)
+	{
+		var temp = subs;
+		while (temp.ctor !== '[]')
+		{
+			callback(temp._0(value));
+			temp = temp._1;
+		}
+	}
+
+	function send(incomingValue)
+	{
+		var result = A2(_elm_lang$core$Json_Decode$decodeValue, converter, incomingValue);
+		if (result.ctor === 'Err')
+		{
+			throw new Error('Trying to send an unexpected type of value through port `' + name + '`:\n' + result._0);
+		}
+
+		currentSend(result._0);
+	}
+
+	return { send: send };
+}
+
+return {
+	// routers
+	sendToApp: F2(sendToApp),
+	sendToSelf: F2(sendToSelf),
+
+	// global setup
+	effectManagers: effectManagers,
+	outgoingPort: outgoingPort,
+	incomingPort: incomingPort,
+
+	htmlToProgram: htmlToProgram,
+	program: program,
+	programWithFlags: programWithFlags,
+	initialize: initialize,
+
+	// effect bags
+	leaf: leaf,
+	batch: batch,
+	map: F2(map)
+};
+
+}();
+
+//import Native.Utils //
+
+var _elm_lang$core$Native_Scheduler = function() {
+
+var MAX_STEPS = 10000;
+
+
+// TASKS
+
+function succeed(value)
+{
+	return {
+		ctor: '_Task_succeed',
+		value: value
+	};
+}
+
+function fail(error)
+{
+	return {
+		ctor: '_Task_fail',
+		value: error
+	};
+}
+
+function nativeBinding(callback)
+{
+	return {
+		ctor: '_Task_nativeBinding',
+		callback: callback,
+		cancel: null
+	};
+}
+
+function andThen(callback, task)
+{
+	return {
+		ctor: '_Task_andThen',
+		callback: callback,
+		task: task
+	};
+}
+
+function onError(callback, task)
+{
+	return {
+		ctor: '_Task_onError',
+		callback: callback,
+		task: task
+	};
+}
+
+function receive(callback)
+{
+	return {
+		ctor: '_Task_receive',
+		callback: callback
+	};
+}
+
+
+// PROCESSES
+
+function rawSpawn(task)
+{
+	var process = {
+		ctor: '_Process',
+		id: _elm_lang$core$Native_Utils.guid(),
+		root: task,
+		stack: null,
+		mailbox: []
+	};
+
+	enqueue(process);
+
+	return process;
+}
+
+function spawn(task)
+{
+	return nativeBinding(function(callback) {
+		var process = rawSpawn(task);
+		callback(succeed(process));
+	});
+}
+
+function rawSend(process, msg)
+{
+	process.mailbox.push(msg);
+	enqueue(process);
+}
+
+function send(process, msg)
+{
+	return nativeBinding(function(callback) {
+		rawSend(process, msg);
+		callback(succeed(_elm_lang$core$Native_Utils.Tuple0));
+	});
+}
+
+function kill(process)
+{
+	return nativeBinding(function(callback) {
+		var root = process.root;
+		if (root.ctor === '_Task_nativeBinding' && root.cancel)
+		{
+			root.cancel();
+		}
+
+		process.root = null;
+
+		callback(succeed(_elm_lang$core$Native_Utils.Tuple0));
+	});
+}
+
+function sleep(time)
+{
+	return nativeBinding(function(callback) {
+		var id = setTimeout(function() {
+			callback(succeed(_elm_lang$core$Native_Utils.Tuple0));
+		}, time);
+
+		return function() { clearTimeout(id); };
+	});
+}
+
+
+// STEP PROCESSES
+
+function step(numSteps, process)
+{
+	while (numSteps < MAX_STEPS)
+	{
+		var ctor = process.root.ctor;
+
+		if (ctor === '_Task_succeed')
+		{
+			while (process.stack && process.stack.ctor === '_Task_onError')
+			{
+				process.stack = process.stack.rest;
+			}
+			if (process.stack === null)
+			{
+				break;
+			}
+			process.root = process.stack.callback(process.root.value);
+			process.stack = process.stack.rest;
+			++numSteps;
+			continue;
+		}
+
+		if (ctor === '_Task_fail')
+		{
+			while (process.stack && process.stack.ctor === '_Task_andThen')
+			{
+				process.stack = process.stack.rest;
+			}
+			if (process.stack === null)
+			{
+				break;
+			}
+			process.root = process.stack.callback(process.root.value);
+			process.stack = process.stack.rest;
+			++numSteps;
+			continue;
+		}
+
+		if (ctor === '_Task_andThen')
+		{
+			process.stack = {
+				ctor: '_Task_andThen',
+				callback: process.root.callback,
+				rest: process.stack
+			};
+			process.root = process.root.task;
+			++numSteps;
+			continue;
+		}
+
+		if (ctor === '_Task_onError')
+		{
+			process.stack = {
+				ctor: '_Task_onError',
+				callback: process.root.callback,
+				rest: process.stack
+			};
+			process.root = process.root.task;
+			++numSteps;
+			continue;
+		}
+
+		if (ctor === '_Task_nativeBinding')
+		{
+			process.root.cancel = process.root.callback(function(newRoot) {
+				process.root = newRoot;
+				enqueue(process);
+			});
+
+			break;
+		}
+
+		if (ctor === '_Task_receive')
+		{
+			var mailbox = process.mailbox;
+			if (mailbox.length === 0)
+			{
+				break;
+			}
+
+			process.root = process.root.callback(mailbox.shift());
+			++numSteps;
+			continue;
+		}
+
+		throw new Error(ctor);
+	}
+
+	if (numSteps < MAX_STEPS)
+	{
+		return numSteps + 1;
+	}
+	enqueue(process);
+
+	return numSteps;
+}
+
+
+// WORK QUEUE
+
+var working = false;
+var workQueue = [];
+
+function enqueue(process)
+{
+	workQueue.push(process);
+
+	if (!working)
+	{
+		setTimeout(work, 0);
+		working = true;
+	}
+}
+
+function work()
+{
+	var numSteps = 0;
+	var process;
+	while (numSteps < MAX_STEPS && (process = workQueue.shift()))
+	{
+		if (process.root)
+		{
+			numSteps = step(numSteps, process);
+		}
+	}
+	if (!process)
+	{
+		working = false;
+		return;
+	}
+	setTimeout(work, 0);
+}
+
+
+return {
+	succeed: succeed,
+	fail: fail,
+	nativeBinding: nativeBinding,
+	andThen: F2(andThen),
+	onError: F2(onError),
+	receive: receive,
+
+	spawn: spawn,
+	kill: kill,
+	sleep: sleep,
+	send: F2(send),
+
+	rawSpawn: rawSpawn,
+	rawSend: rawSend
+};
+
+}();
+var _elm_lang$core$Platform_Cmd$batch = _elm_lang$core$Native_Platform.batch;
+var _elm_lang$core$Platform_Cmd$none = _elm_lang$core$Platform_Cmd$batch(
+	{ctor: '[]'});
+var _elm_lang$core$Platform_Cmd_ops = _elm_lang$core$Platform_Cmd_ops || {};
+_elm_lang$core$Platform_Cmd_ops['!'] = F2(
+	function (model, commands) {
+		return {
+			ctor: '_Tuple2',
+			_0: model,
+			_1: _elm_lang$core$Platform_Cmd$batch(commands)
+		};
+	});
+var _elm_lang$core$Platform_Cmd$map = _elm_lang$core$Native_Platform.map;
+var _elm_lang$core$Platform_Cmd$Cmd = {ctor: 'Cmd'};
+
+var _elm_lang$core$Platform_Sub$batch = _elm_lang$core$Native_Platform.batch;
+var _elm_lang$core$Platform_Sub$none = _elm_lang$core$Platform_Sub$batch(
+	{ctor: '[]'});
+var _elm_lang$core$Platform_Sub$map = _elm_lang$core$Native_Platform.map;
+var _elm_lang$core$Platform_Sub$Sub = {ctor: 'Sub'};
+
+var _elm_lang$core$Platform$hack = _elm_lang$core$Native_Scheduler.succeed;
+var _elm_lang$core$Platform$sendToSelf = _elm_lang$core$Native_Platform.sendToSelf;
+var _elm_lang$core$Platform$sendToApp = _elm_lang$core$Native_Platform.sendToApp;
+var _elm_lang$core$Platform$programWithFlags = _elm_lang$core$Native_Platform.programWithFlags;
+var _elm_lang$core$Platform$program = _elm_lang$core$Native_Platform.program;
+var _elm_lang$core$Platform$Program = {ctor: 'Program'};
+var _elm_lang$core$Platform$Task = {ctor: 'Task'};
+var _elm_lang$core$Platform$ProcessId = {ctor: 'ProcessId'};
+var _elm_lang$core$Platform$Router = {ctor: 'Router'};
+
+var _eeue56$elm_all_dict$AllDict$foldr = F3(
+	function (f, acc, t) {
+		foldr:
+		while (true) {
+			var _p0 = t;
+			if (_p0.ctor === 'RBEmpty_elm_builtin') {
+				return acc;
+			} else {
+				var _v1 = f,
+					_v2 = A3(
+					f,
+					_p0._1,
+					_p0._2,
+					A3(_eeue56$elm_all_dict$AllDict$foldr, f, acc, _p0._4)),
+					_v3 = _p0._3;
+				f = _v1;
+				acc = _v2;
+				t = _v3;
+				continue foldr;
+			}
+		}
+	});
+var _eeue56$elm_all_dict$AllDict$keys = function (dict) {
+	return A3(
+		_eeue56$elm_all_dict$AllDict$foldr,
+		F3(
+			function (key, value, keyList) {
+				return {ctor: '::', _0: key, _1: keyList};
+			}),
+		{ctor: '[]'},
+		dict);
+};
+var _eeue56$elm_all_dict$AllDict$values = function (dict) {
+	return A3(
+		_eeue56$elm_all_dict$AllDict$foldr,
+		F3(
+			function (key, value, valueList) {
+				return {ctor: '::', _0: value, _1: valueList};
+			}),
+		{ctor: '[]'},
+		dict);
+};
+var _eeue56$elm_all_dict$AllDict$toList = function (dict) {
+	return A3(
+		_eeue56$elm_all_dict$AllDict$foldr,
+		F3(
+			function (key, value, list) {
+				return {
+					ctor: '::',
+					_0: {ctor: '_Tuple2', _0: key, _1: value},
+					_1: list
+				};
+			}),
+		{ctor: '[]'},
+		dict);
+};
+var _eeue56$elm_all_dict$AllDict$foldl = F3(
+	function (f, acc, dict) {
+		foldl:
+		while (true) {
+			var _p1 = dict;
+			if (_p1.ctor === 'RBEmpty_elm_builtin') {
+				return acc;
+			} else {
+				var _v5 = f,
+					_v6 = A3(
+					f,
+					_p1._1,
+					_p1._2,
+					A3(_eeue56$elm_all_dict$AllDict$foldl, f, acc, _p1._3)),
+					_v7 = _p1._4;
+				f = _v5;
+				acc = _v6;
+				dict = _v7;
+				continue foldl;
+			}
+		}
+	});
+var _eeue56$elm_all_dict$AllDict$isBBlack = function (dict) {
+	var _p2 = dict;
+	_v8_2:
+	do {
+		if (_p2.ctor === 'RBNode_elm_builtin') {
+			if (_p2._0.ctor === 'BBlack') {
+				return true;
+			} else {
+				break _v8_2;
+			}
+		} else {
+			if (_p2._0.ctor === 'LBBlack') {
+				return true;
+			} else {
+				break _v8_2;
+			}
+		}
+	} while(false);
+	return false;
+};
+var _eeue56$elm_all_dict$AllDict$showFlag = function (f) {
+	var _p3 = f;
+	switch (_p3.ctor) {
+		case 'Insert':
+			return 'Insert';
+		case 'Remove':
+			return 'Remove';
+		default:
+			return 'Same';
+	}
+};
+var _eeue56$elm_all_dict$AllDict$sizeHelp = F2(
+	function (n, dict) {
+		sizeHelp:
+		while (true) {
+			var _p4 = dict;
+			if (_p4.ctor === 'RBEmpty_elm_builtin') {
+				return n;
+			} else {
+				var _v11 = A2(_eeue56$elm_all_dict$AllDict$sizeHelp, n + 1, _p4._4),
+					_v12 = _p4._3;
+				n = _v11;
+				dict = _v12;
+				continue sizeHelp;
+			}
+		}
+	});
+var _eeue56$elm_all_dict$AllDict$size = function (dict) {
+	return A2(_eeue56$elm_all_dict$AllDict$sizeHelp, 0, dict);
+};
+var _eeue56$elm_all_dict$AllDict$isEmpty = function (dict) {
+	var _p5 = dict;
+	if (_p5.ctor === 'RBEmpty_elm_builtin') {
+		return true;
+	} else {
+		return false;
+	}
+};
+var _eeue56$elm_all_dict$AllDict$getOrd = function (dict) {
+	getOrd:
+	while (true) {
+		var _p6 = dict;
+		if (_p6.ctor === 'RBEmpty_elm_builtin') {
+			return _p6._1;
+		} else {
+			var _v15 = _p6._3;
+			dict = _v15;
+			continue getOrd;
+		}
+	}
+};
+var _eeue56$elm_all_dict$AllDict$getHelper = F2(
+	function (targetKey, dict) {
+		getHelper:
+		while (true) {
+			var ord = _eeue56$elm_all_dict$AllDict$getOrd(dict);
+			var _p7 = dict;
+			if (_p7.ctor === 'RBEmpty_elm_builtin') {
+				return _elm_lang$core$Maybe$Nothing;
+			} else {
+				var _p8 = A2(
+					_elm_lang$core$Basics$compare,
+					ord(targetKey),
+					ord(_p7._1));
+				switch (_p8.ctor) {
+					case 'LT':
+						var _v18 = targetKey,
+							_v19 = _p7._3;
+						targetKey = _v18;
+						dict = _v19;
+						continue getHelper;
+					case 'EQ':
+						return _elm_lang$core$Maybe$Just(_p7._2);
+					default:
+						var _v20 = targetKey,
+							_v21 = _p7._4;
+						targetKey = _v20;
+						dict = _v21;
+						continue getHelper;
+				}
+			}
+		}
+	});
+var _eeue56$elm_all_dict$AllDict$get = F2(
+	function (targetKey, dict) {
+		return A2(_eeue56$elm_all_dict$AllDict$getHelper, targetKey, dict);
+	});
+var _eeue56$elm_all_dict$AllDict$member = F2(
+	function (key, dict) {
+		var _p9 = A2(_eeue56$elm_all_dict$AllDict$getHelper, key, dict);
+		if (_p9.ctor === 'Just') {
+			return true;
+		} else {
+			return false;
+		}
+	});
+var _eeue56$elm_all_dict$AllDict$max = function (dict) {
+	max:
+	while (true) {
+		var _p10 = dict;
+		if (_p10.ctor === 'RBNode_elm_builtin') {
+			if (_p10._4.ctor === 'RBEmpty_elm_builtin') {
+				return {ctor: '_Tuple2', _0: _p10._1, _1: _p10._2};
+			} else {
+				var _v24 = _p10._4;
+				dict = _v24;
+				continue max;
+			}
+		} else {
+			return _elm_lang$core$Native_Utils.crashCase(
+				'AllDict',
+				{
+					start: {line: 157, column: 5},
+					end: {line: 165, column: 51}
+				},
+				_p10)('(max Empty) is not defined');
+		}
+	}
+};
+var _eeue56$elm_all_dict$AllDict$min = function (dict) {
+	min:
+	while (true) {
+		var _p12 = dict;
+		if (_p12.ctor === 'RBNode_elm_builtin') {
+			if ((_p12._3.ctor === 'RBEmpty_elm_builtin') && (_p12._3._0.ctor === 'LBlack')) {
+				return {ctor: '_Tuple2', _0: _p12._1, _1: _p12._2};
+			} else {
+				var _v26 = _p12._3;
+				dict = _v26;
+				continue min;
+			}
+		} else {
+			return _elm_lang$core$Native_Utils.crashCase(
+				'AllDict',
+				{
+					start: {line: 145, column: 5},
+					end: {line: 153, column: 51}
+				},
+				_p12)('(min Empty) is not defined');
+		}
+	}
+};
+var _eeue56$elm_all_dict$AllDict$fullEq = F2(
+	function (first, second) {
+		return _elm_lang$core$Native_Utils.eq(
+			_eeue56$elm_all_dict$AllDict$toList(first),
+			_eeue56$elm_all_dict$AllDict$toList(second)) && _elm_lang$core$Native_Utils.eq(
+			_eeue56$elm_all_dict$AllDict$getOrd(first),
+			_eeue56$elm_all_dict$AllDict$getOrd(second));
+	});
+var _eeue56$elm_all_dict$AllDict$eq = F2(
+	function (first, second) {
+		return _elm_lang$core$Native_Utils.eq(
+			_eeue56$elm_all_dict$AllDict$toList(first),
+			_eeue56$elm_all_dict$AllDict$toList(second));
+	});
+var _eeue56$elm_all_dict$AllDict$showLColor = function (color) {
+	var _p14 = color;
+	if (_p14.ctor === 'LBlack') {
+		return 'LBlack';
+	} else {
+		return 'LBBlack';
+	}
+};
+var _eeue56$elm_all_dict$AllDict$showNColor = function (c) {
+	var _p15 = c;
+	switch (_p15.ctor) {
+		case 'Red':
+			return 'Red';
+		case 'Black':
+			return 'Black';
+		case 'BBlack':
+			return 'BBlack';
+		default:
+			return 'NBlack';
+	}
+};
+var _eeue56$elm_all_dict$AllDict$reportRemBug = F4(
+	function (msg, c, lgot, rgot) {
+		return _elm_lang$core$Native_Utils.crash(
+			'AllDict',
+			{
+				start: {line: 365, column: 3},
+				end: {line: 365, column: 14}
+			})(
+			_elm_lang$core$String$concat(
+				{
+					ctor: '::',
+					_0: 'Internal red-black tree invariant violated, expected ',
+					_1: {
+						ctor: '::',
+						_0: msg,
+						_1: {
+							ctor: '::',
+							_0: ' and got ',
+							_1: {
+								ctor: '::',
+								_0: _eeue56$elm_all_dict$AllDict$showNColor(c),
+								_1: {
+									ctor: '::',
+									_0: '/',
+									_1: {
+										ctor: '::',
+										_0: lgot,
+										_1: {
+											ctor: '::',
+											_0: '/',
+											_1: {
+												ctor: '::',
+												_0: rgot,
+												_1: {
+													ctor: '::',
+													_0: '\nPlease report this bug to <https://github.com/elm-lang/Elm/issues>',
+													_1: {ctor: '[]'}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}));
+	});
+var _eeue56$elm_all_dict$AllDict$NBlack = {ctor: 'NBlack'};
+var _eeue56$elm_all_dict$AllDict$BBlack = {ctor: 'BBlack'};
+var _eeue56$elm_all_dict$AllDict$Black = {ctor: 'Black'};
+var _eeue56$elm_all_dict$AllDict$blackish = function (t) {
+	var _p16 = t;
+	if (_p16.ctor === 'RBNode_elm_builtin') {
+		var _p17 = _p16._0;
+		return _elm_lang$core$Native_Utils.eq(_p17, _eeue56$elm_all_dict$AllDict$Black) || _elm_lang$core$Native_Utils.eq(_p17, _eeue56$elm_all_dict$AllDict$BBlack);
+	} else {
+		return true;
+	}
+};
+var _eeue56$elm_all_dict$AllDict$Red = {ctor: 'Red'};
+var _eeue56$elm_all_dict$AllDict$moreBlack = function (color) {
+	var _p18 = color;
+	switch (_p18.ctor) {
+		case 'Black':
+			return _eeue56$elm_all_dict$AllDict$BBlack;
+		case 'Red':
+			return _eeue56$elm_all_dict$AllDict$Black;
+		case 'NBlack':
+			return _eeue56$elm_all_dict$AllDict$Red;
+		default:
+			return _elm_lang$core$Native_Utils.crashCase(
+				'AllDict',
+				{
+					start: {line: 339, column: 5},
+					end: {line: 343, column: 73}
+				},
+				_p18)('Can\'t make a double black node more black!');
+	}
+};
+var _eeue56$elm_all_dict$AllDict$lessBlack = function (color) {
+	var _p20 = color;
+	switch (_p20.ctor) {
+		case 'BBlack':
+			return _eeue56$elm_all_dict$AllDict$Black;
+		case 'Black':
+			return _eeue56$elm_all_dict$AllDict$Red;
+		case 'Red':
+			return _eeue56$elm_all_dict$AllDict$NBlack;
+		default:
+			return _elm_lang$core$Native_Utils.crashCase(
+				'AllDict',
+				{
+					start: {line: 348, column: 5},
+					end: {line: 352, column: 75}
+				},
+				_p20)('Can\'t make a negative black node less black!');
+	}
+};
+var _eeue56$elm_all_dict$AllDict$LBBlack = {ctor: 'LBBlack'};
+var _eeue56$elm_all_dict$AllDict$LBlack = {ctor: 'LBlack'};
+var _eeue56$elm_all_dict$AllDict$RBEmpty_elm_builtin = F2(
+	function (a, b) {
+		return {ctor: 'RBEmpty_elm_builtin', _0: a, _1: b};
+	});
+var _eeue56$elm_all_dict$AllDict$empty = function (ord) {
+	return A2(_eeue56$elm_all_dict$AllDict$RBEmpty_elm_builtin, _eeue56$elm_all_dict$AllDict$LBlack, ord);
+};
+var _eeue56$elm_all_dict$AllDict$RBNode_elm_builtin = F5(
+	function (a, b, c, d, e) {
+		return {ctor: 'RBNode_elm_builtin', _0: a, _1: b, _2: c, _3: d, _4: e};
+	});
+var _eeue56$elm_all_dict$AllDict$ensureBlackRoot = function (dict) {
+	var _p22 = dict;
+	_v32_2:
+	do {
+		if (_p22.ctor === 'RBNode_elm_builtin') {
+			switch (_p22._0.ctor) {
+				case 'Red':
+					return A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _eeue56$elm_all_dict$AllDict$Black, _p22._1, _p22._2, _p22._3, _p22._4);
+				case 'Black':
+					return dict;
+				default:
+					break _v32_2;
+			}
+		} else {
+			break _v32_2;
+		}
+	} while(false);
+	return dict;
+};
+var _eeue56$elm_all_dict$AllDict$lessBlackTree = function (dict) {
+	var _p23 = dict;
+	if (_p23.ctor === 'RBNode_elm_builtin') {
+		return A5(
+			_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin,
+			_eeue56$elm_all_dict$AllDict$lessBlack(_p23._0),
+			_p23._1,
+			_p23._2,
+			_p23._3,
+			_p23._4);
+	} else {
+		if (_p23._0.ctor === 'LBBlack') {
+			return A2(_eeue56$elm_all_dict$AllDict$RBEmpty_elm_builtin, _eeue56$elm_all_dict$AllDict$LBlack, _p23._1);
+		} else {
+			return dict;
+		}
+	}
+};
+var _eeue56$elm_all_dict$AllDict$blacken = function (t) {
+	var _p24 = t;
+	if (_p24.ctor === 'RBEmpty_elm_builtin') {
+		return A2(_eeue56$elm_all_dict$AllDict$RBEmpty_elm_builtin, _eeue56$elm_all_dict$AllDict$LBlack, _p24._1);
+	} else {
+		return A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _eeue56$elm_all_dict$AllDict$Black, _p24._1, _p24._2, _p24._3, _p24._4);
+	}
+};
+var _eeue56$elm_all_dict$AllDict$redden = function (t) {
+	var _p25 = t;
+	if (_p25.ctor === 'RBEmpty_elm_builtin') {
+		return _elm_lang$core$Native_Utils.crashCase(
+			'AllDict',
+			{
+				start: {line: 486, column: 5},
+				end: {line: 488, column: 69}
+			},
+			_p25)('can\'t make a Leaf red');
+	} else {
+		return A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _eeue56$elm_all_dict$AllDict$Red, _p25._1, _p25._2, _p25._3, _p25._4);
+	}
+};
+var _eeue56$elm_all_dict$AllDict$balance_node = function (t) {
+	var assemble = function (col) {
+		return function (xk) {
+			return function (xv) {
+				return function (yk) {
+					return function (yv) {
+						return function (zk) {
+							return function (zv) {
+								return function (a) {
+									return function (b) {
+										return function (c) {
+											return function (d) {
+												return A5(
+													_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin,
+													_eeue56$elm_all_dict$AllDict$lessBlack(col),
+													yk,
+													yv,
+													A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _eeue56$elm_all_dict$AllDict$Black, xk, xv, a, b),
+													A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _eeue56$elm_all_dict$AllDict$Black, zk, zv, c, d));
+											};
+										};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+	if (_eeue56$elm_all_dict$AllDict$blackish(t)) {
+		var _p27 = t;
+		_v36_6:
+		do {
+			_v36_5:
+			do {
+				_v36_4:
+				do {
+					_v36_3:
+					do {
+						_v36_2:
+						do {
+							_v36_1:
+							do {
+								_v36_0:
+								do {
+									if (_p27.ctor === 'RBNode_elm_builtin') {
+										if (_p27._3.ctor === 'RBNode_elm_builtin') {
+											if (_p27._4.ctor === 'RBNode_elm_builtin') {
+												switch (_p27._3._0.ctor) {
+													case 'Red':
+														switch (_p27._4._0.ctor) {
+															case 'Red':
+																if ((_p27._3._3.ctor === 'RBNode_elm_builtin') && (_p27._3._3._0.ctor === 'Red')) {
+																	break _v36_0;
+																} else {
+																	if ((_p27._3._4.ctor === 'RBNode_elm_builtin') && (_p27._3._4._0.ctor === 'Red')) {
+																		break _v36_1;
+																	} else {
+																		if ((_p27._4._3.ctor === 'RBNode_elm_builtin') && (_p27._4._3._0.ctor === 'Red')) {
+																			break _v36_2;
+																		} else {
+																			if ((_p27._4._4.ctor === 'RBNode_elm_builtin') && (_p27._4._4._0.ctor === 'Red')) {
+																				break _v36_3;
+																			} else {
+																				break _v36_6;
+																			}
+																		}
+																	}
+																}
+															case 'NBlack':
+																if ((_p27._3._3.ctor === 'RBNode_elm_builtin') && (_p27._3._3._0.ctor === 'Red')) {
+																	break _v36_0;
+																} else {
+																	if ((_p27._3._4.ctor === 'RBNode_elm_builtin') && (_p27._3._4._0.ctor === 'Red')) {
+																		break _v36_1;
+																	} else {
+																		if (((_p27._0.ctor === 'BBlack') && (_p27._4._3.ctor === 'RBNode_elm_builtin')) && (_p27._4._3._0.ctor === 'Black')) {
+																			break _v36_4;
+																		} else {
+																			break _v36_6;
+																		}
+																	}
+																}
+															default:
+																if ((_p27._3._3.ctor === 'RBNode_elm_builtin') && (_p27._3._3._0.ctor === 'Red')) {
+																	break _v36_0;
+																} else {
+																	if ((_p27._3._4.ctor === 'RBNode_elm_builtin') && (_p27._3._4._0.ctor === 'Red')) {
+																		break _v36_1;
+																	} else {
+																		break _v36_6;
+																	}
+																}
+														}
+													case 'NBlack':
+														switch (_p27._4._0.ctor) {
+															case 'Red':
+																if ((_p27._4._3.ctor === 'RBNode_elm_builtin') && (_p27._4._3._0.ctor === 'Red')) {
+																	break _v36_2;
+																} else {
+																	if ((_p27._4._4.ctor === 'RBNode_elm_builtin') && (_p27._4._4._0.ctor === 'Red')) {
+																		break _v36_3;
+																	} else {
+																		if (((_p27._0.ctor === 'BBlack') && (_p27._3._4.ctor === 'RBNode_elm_builtin')) && (_p27._3._4._0.ctor === 'Black')) {
+																			break _v36_5;
+																		} else {
+																			break _v36_6;
+																		}
+																	}
+																}
+															case 'NBlack':
+																if (_p27._0.ctor === 'BBlack') {
+																	if ((_p27._4._3.ctor === 'RBNode_elm_builtin') && (_p27._4._3._0.ctor === 'Black')) {
+																		break _v36_4;
+																	} else {
+																		if ((_p27._3._4.ctor === 'RBNode_elm_builtin') && (_p27._3._4._0.ctor === 'Black')) {
+																			break _v36_5;
+																		} else {
+																			break _v36_6;
+																		}
+																	}
+																} else {
+																	break _v36_6;
+																}
+															default:
+																if (((_p27._0.ctor === 'BBlack') && (_p27._3._4.ctor === 'RBNode_elm_builtin')) && (_p27._3._4._0.ctor === 'Black')) {
+																	break _v36_5;
+																} else {
+																	break _v36_6;
+																}
+														}
+													default:
+														switch (_p27._4._0.ctor) {
+															case 'Red':
+																if ((_p27._4._3.ctor === 'RBNode_elm_builtin') && (_p27._4._3._0.ctor === 'Red')) {
+																	break _v36_2;
+																} else {
+																	if ((_p27._4._4.ctor === 'RBNode_elm_builtin') && (_p27._4._4._0.ctor === 'Red')) {
+																		break _v36_3;
+																	} else {
+																		break _v36_6;
+																	}
+																}
+															case 'NBlack':
+																if (((_p27._0.ctor === 'BBlack') && (_p27._4._3.ctor === 'RBNode_elm_builtin')) && (_p27._4._3._0.ctor === 'Black')) {
+																	break _v36_4;
+																} else {
+																	break _v36_6;
+																}
+															default:
+																break _v36_6;
+														}
+												}
+											} else {
+												switch (_p27._3._0.ctor) {
+													case 'Red':
+														if ((_p27._3._3.ctor === 'RBNode_elm_builtin') && (_p27._3._3._0.ctor === 'Red')) {
+															break _v36_0;
+														} else {
+															if ((_p27._3._4.ctor === 'RBNode_elm_builtin') && (_p27._3._4._0.ctor === 'Red')) {
+																break _v36_1;
+															} else {
+																break _v36_6;
+															}
+														}
+													case 'NBlack':
+														if (((_p27._0.ctor === 'BBlack') && (_p27._3._4.ctor === 'RBNode_elm_builtin')) && (_p27._3._4._0.ctor === 'Black')) {
+															break _v36_5;
+														} else {
+															break _v36_6;
+														}
+													default:
+														break _v36_6;
+												}
+											}
+										} else {
+											if (_p27._4.ctor === 'RBNode_elm_builtin') {
+												switch (_p27._4._0.ctor) {
+													case 'Red':
+														if ((_p27._4._3.ctor === 'RBNode_elm_builtin') && (_p27._4._3._0.ctor === 'Red')) {
+															break _v36_2;
+														} else {
+															if ((_p27._4._4.ctor === 'RBNode_elm_builtin') && (_p27._4._4._0.ctor === 'Red')) {
+																break _v36_3;
+															} else {
+																break _v36_6;
+															}
+														}
+													case 'NBlack':
+														if (((_p27._0.ctor === 'BBlack') && (_p27._4._3.ctor === 'RBNode_elm_builtin')) && (_p27._4._3._0.ctor === 'Black')) {
+															break _v36_4;
+														} else {
+															break _v36_6;
+														}
+													default:
+														break _v36_6;
+												}
+											} else {
+												break _v36_6;
+											}
+										}
+									} else {
+										break _v36_6;
+									}
+								} while(false);
+								return assemble(_p27._0)(_p27._3._3._1)(_p27._3._3._2)(_p27._3._1)(_p27._3._2)(_p27._1)(_p27._2)(_p27._3._3._3)(_p27._3._3._4)(_p27._3._4)(_p27._4);
+							} while(false);
+							return assemble(_p27._0)(_p27._3._1)(_p27._3._2)(_p27._3._4._1)(_p27._3._4._2)(_p27._1)(_p27._2)(_p27._3._3)(_p27._3._4._3)(_p27._3._4._4)(_p27._4);
+						} while(false);
+						return assemble(_p27._0)(_p27._1)(_p27._2)(_p27._4._3._1)(_p27._4._3._2)(_p27._4._1)(_p27._4._2)(_p27._3)(_p27._4._3._3)(_p27._4._3._4)(_p27._4._4);
+					} while(false);
+					return assemble(_p27._0)(_p27._1)(_p27._2)(_p27._4._1)(_p27._4._2)(_p27._4._4._1)(_p27._4._4._2)(_p27._3)(_p27._4._3)(_p27._4._4._3)(_p27._4._4._4);
+				} while(false);
+				var _p29 = _p27._4._4;
+				var _p28 = _p29;
+				if ((_p28.ctor === 'RBNode_elm_builtin') && (_p28._0.ctor === 'Black')) {
+					return A5(
+						_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin,
+						_eeue56$elm_all_dict$AllDict$Black,
+						_p27._4._3._1,
+						_p27._4._3._2,
+						A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _eeue56$elm_all_dict$AllDict$Black, _p27._1, _p27._2, _p27._3, _p27._4._3._3),
+						A5(
+							_eeue56$elm_all_dict$AllDict$balance,
+							_eeue56$elm_all_dict$AllDict$Black,
+							_p27._4._1,
+							_p27._4._2,
+							_p27._4._3._4,
+							_eeue56$elm_all_dict$AllDict$redden(_p29)));
+				} else {
+					return t;
+				}
+			} while(false);
+			var _p31 = _p27._3._3;
+			var _p30 = _p31;
+			if ((_p30.ctor === 'RBNode_elm_builtin') && (_p30._0.ctor === 'Black')) {
+				return A5(
+					_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin,
+					_eeue56$elm_all_dict$AllDict$Black,
+					_p27._3._4._1,
+					_p27._3._4._2,
+					A5(
+						_eeue56$elm_all_dict$AllDict$balance,
+						_eeue56$elm_all_dict$AllDict$Black,
+						_p27._3._1,
+						_p27._3._2,
+						_eeue56$elm_all_dict$AllDict$redden(_p31),
+						_p27._3._4._3),
+					A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _eeue56$elm_all_dict$AllDict$Black, _p27._1, _p27._2, _p27._3._4._4, _p27._4));
+			} else {
+				return t;
+			}
+		} while(false);
+		return t;
+	} else {
+		return t;
+	}
+};
+var _eeue56$elm_all_dict$AllDict$balance = F5(
+	function (c, k, v, l, r) {
+		return _eeue56$elm_all_dict$AllDict$balance_node(
+			A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, c, k, v, l, r));
+	});
+var _eeue56$elm_all_dict$AllDict$bubble = F5(
+	function (c, k, v, l, r) {
+		return (_eeue56$elm_all_dict$AllDict$isBBlack(l) || _eeue56$elm_all_dict$AllDict$isBBlack(r)) ? A5(
+			_eeue56$elm_all_dict$AllDict$balance,
+			_eeue56$elm_all_dict$AllDict$moreBlack(c),
+			k,
+			v,
+			_eeue56$elm_all_dict$AllDict$lessBlackTree(l),
+			_eeue56$elm_all_dict$AllDict$lessBlackTree(r)) : A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, c, k, v, l, r);
+	});
+var _eeue56$elm_all_dict$AllDict$remove_max = F5(
+	function (c, k, v, l, r) {
+		var _p32 = r;
+		if (_p32.ctor === 'RBEmpty_elm_builtin') {
+			return A3(_eeue56$elm_all_dict$AllDict$rem, c, l, r);
+		} else {
+			return A5(
+				_eeue56$elm_all_dict$AllDict$bubble,
+				c,
+				k,
+				v,
+				l,
+				A5(_eeue56$elm_all_dict$AllDict$remove_max, _p32._0, _p32._1, _p32._2, _p32._3, _p32._4));
+		}
+	});
+var _eeue56$elm_all_dict$AllDict$rem = F3(
+	function (c, l, r) {
+		var _p33 = {ctor: '_Tuple2', _0: l, _1: r};
+		if (_p33._0.ctor === 'RBEmpty_elm_builtin') {
+			if (_p33._1.ctor === 'RBEmpty_elm_builtin') {
+				var _p35 = _p33._0._1;
+				var _p34 = c;
+				switch (_p34.ctor) {
+					case 'Red':
+						return A2(_eeue56$elm_all_dict$AllDict$RBEmpty_elm_builtin, _eeue56$elm_all_dict$AllDict$LBlack, _p35);
+					case 'Black':
+						return A2(_eeue56$elm_all_dict$AllDict$RBEmpty_elm_builtin, _eeue56$elm_all_dict$AllDict$LBBlack, _p35);
+					default:
+						return _eeue56$elm_all_dict$Native_Debug.crash('cannot have bblack or nblack nodes at this point');
+				}
+			} else {
+				var _p38 = _p33._1._0;
+				var _p37 = _p33._0._0;
+				var _p36 = {ctor: '_Tuple3', _0: c, _1: _p37, _2: _p38};
+				if ((((_p36.ctor === '_Tuple3') && (_p36._0.ctor === 'Black')) && (_p36._1.ctor === 'LBlack')) && (_p36._2.ctor === 'Red')) {
+					return A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _eeue56$elm_all_dict$AllDict$Black, _p33._1._1, _p33._1._2, _p33._1._3, _p33._1._4);
+				} else {
+					return A4(
+						_eeue56$elm_all_dict$AllDict$reportRemBug,
+						'Black/LBlack/Red',
+						c,
+						_eeue56$elm_all_dict$AllDict$showLColor(_p37),
+						_eeue56$elm_all_dict$AllDict$showNColor(_p38));
+				}
+			}
+		} else {
+			if (_p33._1.ctor === 'RBEmpty_elm_builtin') {
+				var _p41 = _p33._1._0;
+				var _p40 = _p33._0._0;
+				var _p39 = {ctor: '_Tuple3', _0: c, _1: _p40, _2: _p41};
+				if ((((_p39.ctor === '_Tuple3') && (_p39._0.ctor === 'Black')) && (_p39._1.ctor === 'Red')) && (_p39._2.ctor === 'LBlack')) {
+					return A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _eeue56$elm_all_dict$AllDict$Black, _p33._0._1, _p33._0._2, _p33._0._3, _p33._0._4);
+				} else {
+					return A4(
+						_eeue56$elm_all_dict$AllDict$reportRemBug,
+						'Black/Red/LBlack',
+						c,
+						_eeue56$elm_all_dict$AllDict$showNColor(_p40),
+						_eeue56$elm_all_dict$AllDict$showLColor(_p41));
+				}
+			} else {
+				var _p47 = _p33._0._2;
+				var _p46 = _p33._0._4;
+				var _p45 = _p33._0._3;
+				var _p44 = _p33._0._1;
+				var _p43 = _p33._0._0;
+				var l_ = A5(_eeue56$elm_all_dict$AllDict$remove_max, _p43, _p44, _p47, _p45, _p46);
+				var r = A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _p33._1._0, _p33._1._1, _p33._1._2, _p33._1._3, _p33._1._4);
+				var l = A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _p43, _p44, _p47, _p45, _p46);
+				var _p42 = _eeue56$elm_all_dict$AllDict$max(l);
+				var k = _p42._0;
+				var v = _p42._1;
+				return A5(_eeue56$elm_all_dict$AllDict$bubble, c, k, v, l_, r);
+			}
+		}
+	});
+var _eeue56$elm_all_dict$AllDict$map = F2(
+	function (f, dict) {
+		var _p48 = dict;
+		if (_p48.ctor === 'RBEmpty_elm_builtin') {
+			return A2(_eeue56$elm_all_dict$AllDict$RBEmpty_elm_builtin, _p48._0, _p48._1);
+		} else {
+			var _p49 = _p48._1;
+			return A5(
+				_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin,
+				_p48._0,
+				_p49,
+				A2(f, _p49, _p48._2),
+				A2(_eeue56$elm_all_dict$AllDict$map, f, _p48._3),
+				A2(_eeue56$elm_all_dict$AllDict$map, f, _p48._4));
+		}
+	});
+var _eeue56$elm_all_dict$AllDict$Same = {ctor: 'Same'};
+var _eeue56$elm_all_dict$AllDict$Remove = {ctor: 'Remove'};
+var _eeue56$elm_all_dict$AllDict$Insert = {ctor: 'Insert'};
+var _eeue56$elm_all_dict$AllDict$update = F3(
+	function (k, alter, dict) {
+		var ord = _eeue56$elm_all_dict$AllDict$getOrd(dict);
+		var empty_ = _eeue56$elm_all_dict$AllDict$empty(ord);
+		var up = function (dict) {
+			var _p50 = dict;
+			if (_p50.ctor === 'RBEmpty_elm_builtin') {
+				var _p51 = alter(_elm_lang$core$Maybe$Nothing);
+				if (_p51.ctor === 'Nothing') {
+					return {ctor: '_Tuple2', _0: _eeue56$elm_all_dict$AllDict$Same, _1: empty_};
+				} else {
+					return {
+						ctor: '_Tuple2',
+						_0: _eeue56$elm_all_dict$AllDict$Insert,
+						_1: A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _eeue56$elm_all_dict$AllDict$Red, k, _p51._0, empty_, empty_)
+					};
+				}
+			} else {
+				var _p62 = _p50._2;
+				var _p61 = _p50._4;
+				var _p60 = _p50._3;
+				var _p59 = _p50._1;
+				var _p58 = _p50._0;
+				var _p52 = A2(
+					_elm_lang$core$Basics$compare,
+					ord(k),
+					ord(_p59));
+				switch (_p52.ctor) {
+					case 'EQ':
+						var _p53 = alter(
+							_elm_lang$core$Maybe$Just(_p62));
+						if (_p53.ctor === 'Nothing') {
+							return {
+								ctor: '_Tuple2',
+								_0: _eeue56$elm_all_dict$AllDict$Remove,
+								_1: A3(_eeue56$elm_all_dict$AllDict$rem, _p58, _p60, _p61)
+							};
+						} else {
+							return {
+								ctor: '_Tuple2',
+								_0: _eeue56$elm_all_dict$AllDict$Same,
+								_1: A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _p58, _p59, _p53._0, _p60, _p61)
+							};
+						}
+					case 'LT':
+						var _p54 = up(_p60);
+						var flag = _p54._0;
+						var newLeft = _p54._1;
+						var _p55 = flag;
+						switch (_p55.ctor) {
+							case 'Same':
+								return {
+									ctor: '_Tuple2',
+									_0: _eeue56$elm_all_dict$AllDict$Same,
+									_1: A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _p58, _p59, _p62, newLeft, _p61)
+								};
+							case 'Insert':
+								return {
+									ctor: '_Tuple2',
+									_0: _eeue56$elm_all_dict$AllDict$Insert,
+									_1: A5(_eeue56$elm_all_dict$AllDict$balance, _p58, _p59, _p62, newLeft, _p61)
+								};
+							default:
+								return {
+									ctor: '_Tuple2',
+									_0: _eeue56$elm_all_dict$AllDict$Remove,
+									_1: A5(_eeue56$elm_all_dict$AllDict$bubble, _p58, _p59, _p62, newLeft, _p61)
+								};
+						}
+					default:
+						var _p56 = up(_p61);
+						var flag = _p56._0;
+						var newRight = _p56._1;
+						var _p57 = flag;
+						switch (_p57.ctor) {
+							case 'Same':
+								return {
+									ctor: '_Tuple2',
+									_0: _eeue56$elm_all_dict$AllDict$Same,
+									_1: A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _p58, _p59, _p62, _p60, newRight)
+								};
+							case 'Insert':
+								return {
+									ctor: '_Tuple2',
+									_0: _eeue56$elm_all_dict$AllDict$Insert,
+									_1: A5(_eeue56$elm_all_dict$AllDict$balance, _p58, _p59, _p62, _p60, newRight)
+								};
+							default:
+								return {
+									ctor: '_Tuple2',
+									_0: _eeue56$elm_all_dict$AllDict$Remove,
+									_1: A5(_eeue56$elm_all_dict$AllDict$bubble, _p58, _p59, _p62, _p60, newRight)
+								};
+						}
+				}
+			}
+		};
+		var _p63 = up(dict);
+		var flag = _p63._0;
+		var updatedDict = _p63._1;
+		var _p64 = flag;
+		switch (_p64.ctor) {
+			case 'Same':
+				return updatedDict;
+			case 'Insert':
+				return _eeue56$elm_all_dict$AllDict$ensureBlackRoot(updatedDict);
+			default:
+				return _eeue56$elm_all_dict$AllDict$blacken(updatedDict);
+		}
+	});
+var _eeue56$elm_all_dict$AllDict$insert = F3(
+	function (key, value, dict) {
+		return A3(
+			_eeue56$elm_all_dict$AllDict$update,
+			key,
+			_elm_lang$core$Basics$always(
+				_elm_lang$core$Maybe$Just(value)),
+			dict);
+	});
+var _eeue56$elm_all_dict$AllDict$singleton = F3(
+	function (ord, key, value) {
+		return A3(
+			_eeue56$elm_all_dict$AllDict$insert,
+			key,
+			value,
+			_eeue56$elm_all_dict$AllDict$empty(ord));
+	});
+var _eeue56$elm_all_dict$AllDict$union = F2(
+	function (t1, t2) {
+		return A3(_eeue56$elm_all_dict$AllDict$foldl, _eeue56$elm_all_dict$AllDict$insert, t2, t1);
+	});
+var _eeue56$elm_all_dict$AllDict$fromList = F2(
+	function (ord, assocs) {
+		return A3(
+			_elm_lang$core$List$foldl,
+			F2(
+				function (_p65, dict) {
+					var _p66 = _p65;
+					return A3(_eeue56$elm_all_dict$AllDict$insert, _p66._0, _p66._1, dict);
+				}),
+			_eeue56$elm_all_dict$AllDict$empty(ord),
+			assocs);
+	});
+var _eeue56$elm_all_dict$AllDict$filter = F2(
+	function (predicate, dictionary) {
+		var add = F3(
+			function (key, value, dict) {
+				return A2(predicate, key, value) ? A3(_eeue56$elm_all_dict$AllDict$insert, key, value, dict) : dict;
+			});
+		return A3(
+			_eeue56$elm_all_dict$AllDict$foldl,
+			add,
+			_eeue56$elm_all_dict$AllDict$empty(
+				_eeue56$elm_all_dict$AllDict$getOrd(dictionary)),
+			dictionary);
+	});
+var _eeue56$elm_all_dict$AllDict$intersect = F2(
+	function (t1, t2) {
+		return A2(
+			_eeue56$elm_all_dict$AllDict$filter,
+			F2(
+				function (k, _p67) {
+					return A2(_eeue56$elm_all_dict$AllDict$member, k, t2);
+				}),
+			t1);
+	});
+var _eeue56$elm_all_dict$AllDict$partition = F2(
+	function (predicate, dict) {
+		var ord = _eeue56$elm_all_dict$AllDict$getOrd(dict);
+		var add = F3(
+			function (key, value, _p68) {
+				var _p69 = _p68;
+				var _p71 = _p69._1;
+				var _p70 = _p69._0;
+				return A2(predicate, key, value) ? {
+					ctor: '_Tuple2',
+					_0: A3(_eeue56$elm_all_dict$AllDict$insert, key, value, _p70),
+					_1: _p71
+				} : {
+					ctor: '_Tuple2',
+					_0: _p70,
+					_1: A3(_eeue56$elm_all_dict$AllDict$insert, key, value, _p71)
+				};
+			});
+		return A3(
+			_eeue56$elm_all_dict$AllDict$foldl,
+			add,
+			{
+				ctor: '_Tuple2',
+				_0: _eeue56$elm_all_dict$AllDict$empty(ord),
+				_1: _eeue56$elm_all_dict$AllDict$empty(ord)
+			},
+			dict);
+	});
+var _eeue56$elm_all_dict$AllDict$remove = F2(
+	function (key, dict) {
+		return A3(
+			_eeue56$elm_all_dict$AllDict$update,
+			key,
+			_elm_lang$core$Basics$always(_elm_lang$core$Maybe$Nothing),
+			dict);
+	});
+var _eeue56$elm_all_dict$AllDict$diff = F2(
+	function (t1, t2) {
+		return A3(
+			_eeue56$elm_all_dict$AllDict$foldl,
+			F3(
+				function (k, v, t) {
+					return A2(_eeue56$elm_all_dict$AllDict$remove, k, t);
+				}),
+			t1,
+			t2);
+	});
+
 //import Native.List //
 
 var _elm_lang$core$Native_Array = function() {
@@ -4986,908 +6916,6 @@ var _elm_lang$core$Set$partition = F2(
 		};
 	});
 
-var _elm_lang$core$Tuple$mapSecond = F2(
-	function (func, _p0) {
-		var _p1 = _p0;
-		return {
-			ctor: '_Tuple2',
-			_0: _p1._0,
-			_1: func(_p1._1)
-		};
-	});
-var _elm_lang$core$Tuple$mapFirst = F2(
-	function (func, _p2) {
-		var _p3 = _p2;
-		return {
-			ctor: '_Tuple2',
-			_0: func(_p3._0),
-			_1: _p3._1
-		};
-	});
-var _elm_lang$core$Tuple$second = function (_p4) {
-	var _p5 = _p4;
-	return _p5._1;
-};
-var _elm_lang$core$Tuple$first = function (_p6) {
-	var _p7 = _p6;
-	return _p7._0;
-};
-
-var _elm_lang$core$Debug$crash = _elm_lang$core$Native_Debug.crash;
-var _elm_lang$core$Debug$log = _elm_lang$core$Native_Debug.log;
-
-//import //
-
-var _elm_lang$core$Native_Platform = function() {
-
-
-// PROGRAMS
-
-function program(impl)
-{
-	return function(flagDecoder)
-	{
-		return function(object, moduleName)
-		{
-			object['worker'] = function worker(flags)
-			{
-				if (typeof flags !== 'undefined')
-				{
-					throw new Error(
-						'The `' + moduleName + '` module does not need flags.\n'
-						+ 'Call ' + moduleName + '.worker() with no arguments and you should be all set!'
-					);
-				}
-
-				return initialize(
-					impl.init,
-					impl.update,
-					impl.subscriptions,
-					renderer
-				);
-			};
-		};
-	};
-}
-
-function programWithFlags(impl)
-{
-	return function(flagDecoder)
-	{
-		return function(object, moduleName)
-		{
-			object['worker'] = function worker(flags)
-			{
-				if (typeof flagDecoder === 'undefined')
-				{
-					throw new Error(
-						'Are you trying to sneak a Never value into Elm? Trickster!\n'
-						+ 'It looks like ' + moduleName + '.main is defined with `programWithFlags` but has type `Program Never`.\n'
-						+ 'Use `program` instead if you do not want flags.'
-					);
-				}
-
-				var result = A2(_elm_lang$core$Native_Json.run, flagDecoder, flags);
-				if (result.ctor === 'Err')
-				{
-					throw new Error(
-						moduleName + '.worker(...) was called with an unexpected argument.\n'
-						+ 'I tried to convert it to an Elm value, but ran into this problem:\n\n'
-						+ result._0
-					);
-				}
-
-				return initialize(
-					impl.init(result._0),
-					impl.update,
-					impl.subscriptions,
-					renderer
-				);
-			};
-		};
-	};
-}
-
-function renderer(enqueue, _)
-{
-	return function(_) {};
-}
-
-
-// HTML TO PROGRAM
-
-function htmlToProgram(vnode)
-{
-	var emptyBag = batch(_elm_lang$core$Native_List.Nil);
-	var noChange = _elm_lang$core$Native_Utils.Tuple2(
-		_elm_lang$core$Native_Utils.Tuple0,
-		emptyBag
-	);
-
-	return _elm_lang$virtual_dom$VirtualDom$program({
-		init: noChange,
-		view: function(model) { return main; },
-		update: F2(function(msg, model) { return noChange; }),
-		subscriptions: function (model) { return emptyBag; }
-	});
-}
-
-
-// INITIALIZE A PROGRAM
-
-function initialize(init, update, subscriptions, renderer)
-{
-	// ambient state
-	var managers = {};
-	var updateView;
-
-	// init and update state in main process
-	var initApp = _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
-		var model = init._0;
-		updateView = renderer(enqueue, model);
-		var cmds = init._1;
-		var subs = subscriptions(model);
-		dispatchEffects(managers, cmds, subs);
-		callback(_elm_lang$core$Native_Scheduler.succeed(model));
-	});
-
-	function onMessage(msg, model)
-	{
-		return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
-			var results = A2(update, msg, model);
-			model = results._0;
-			updateView(model);
-			var cmds = results._1;
-			var subs = subscriptions(model);
-			dispatchEffects(managers, cmds, subs);
-			callback(_elm_lang$core$Native_Scheduler.succeed(model));
-		});
-	}
-
-	var mainProcess = spawnLoop(initApp, onMessage);
-
-	function enqueue(msg)
-	{
-		_elm_lang$core$Native_Scheduler.rawSend(mainProcess, msg);
-	}
-
-	var ports = setupEffects(managers, enqueue);
-
-	return ports ? { ports: ports } : {};
-}
-
-
-// EFFECT MANAGERS
-
-var effectManagers = {};
-
-function setupEffects(managers, callback)
-{
-	var ports;
-
-	// setup all necessary effect managers
-	for (var key in effectManagers)
-	{
-		var manager = effectManagers[key];
-
-		if (manager.isForeign)
-		{
-			ports = ports || {};
-			ports[key] = manager.tag === 'cmd'
-				? setupOutgoingPort(key)
-				: setupIncomingPort(key, callback);
-		}
-
-		managers[key] = makeManager(manager, callback);
-	}
-
-	return ports;
-}
-
-function makeManager(info, callback)
-{
-	var router = {
-		main: callback,
-		self: undefined
-	};
-
-	var tag = info.tag;
-	var onEffects = info.onEffects;
-	var onSelfMsg = info.onSelfMsg;
-
-	function onMessage(msg, state)
-	{
-		if (msg.ctor === 'self')
-		{
-			return A3(onSelfMsg, router, msg._0, state);
-		}
-
-		var fx = msg._0;
-		switch (tag)
-		{
-			case 'cmd':
-				return A3(onEffects, router, fx.cmds, state);
-
-			case 'sub':
-				return A3(onEffects, router, fx.subs, state);
-
-			case 'fx':
-				return A4(onEffects, router, fx.cmds, fx.subs, state);
-		}
-	}
-
-	var process = spawnLoop(info.init, onMessage);
-	router.self = process;
-	return process;
-}
-
-function sendToApp(router, msg)
-{
-	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
-	{
-		router.main(msg);
-		callback(_elm_lang$core$Native_Scheduler.succeed(_elm_lang$core$Native_Utils.Tuple0));
-	});
-}
-
-function sendToSelf(router, msg)
-{
-	return A2(_elm_lang$core$Native_Scheduler.send, router.self, {
-		ctor: 'self',
-		_0: msg
-	});
-}
-
-
-// HELPER for STATEFUL LOOPS
-
-function spawnLoop(init, onMessage)
-{
-	var andThen = _elm_lang$core$Native_Scheduler.andThen;
-
-	function loop(state)
-	{
-		var handleMsg = _elm_lang$core$Native_Scheduler.receive(function(msg) {
-			return onMessage(msg, state);
-		});
-		return A2(andThen, loop, handleMsg);
-	}
-
-	var task = A2(andThen, loop, init);
-
-	return _elm_lang$core$Native_Scheduler.rawSpawn(task);
-}
-
-
-// BAGS
-
-function leaf(home)
-{
-	return function(value)
-	{
-		return {
-			type: 'leaf',
-			home: home,
-			value: value
-		};
-	};
-}
-
-function batch(list)
-{
-	return {
-		type: 'node',
-		branches: list
-	};
-}
-
-function map(tagger, bag)
-{
-	return {
-		type: 'map',
-		tagger: tagger,
-		tree: bag
-	}
-}
-
-
-// PIPE BAGS INTO EFFECT MANAGERS
-
-function dispatchEffects(managers, cmdBag, subBag)
-{
-	var effectsDict = {};
-	gatherEffects(true, cmdBag, effectsDict, null);
-	gatherEffects(false, subBag, effectsDict, null);
-
-	for (var home in managers)
-	{
-		var fx = home in effectsDict
-			? effectsDict[home]
-			: {
-				cmds: _elm_lang$core$Native_List.Nil,
-				subs: _elm_lang$core$Native_List.Nil
-			};
-
-		_elm_lang$core$Native_Scheduler.rawSend(managers[home], { ctor: 'fx', _0: fx });
-	}
-}
-
-function gatherEffects(isCmd, bag, effectsDict, taggers)
-{
-	switch (bag.type)
-	{
-		case 'leaf':
-			var home = bag.home;
-			var effect = toEffect(isCmd, home, taggers, bag.value);
-			effectsDict[home] = insert(isCmd, effect, effectsDict[home]);
-			return;
-
-		case 'node':
-			var list = bag.branches;
-			while (list.ctor !== '[]')
-			{
-				gatherEffects(isCmd, list._0, effectsDict, taggers);
-				list = list._1;
-			}
-			return;
-
-		case 'map':
-			gatherEffects(isCmd, bag.tree, effectsDict, {
-				tagger: bag.tagger,
-				rest: taggers
-			});
-			return;
-	}
-}
-
-function toEffect(isCmd, home, taggers, value)
-{
-	function applyTaggers(x)
-	{
-		var temp = taggers;
-		while (temp)
-		{
-			x = temp.tagger(x);
-			temp = temp.rest;
-		}
-		return x;
-	}
-
-	var map = isCmd
-		? effectManagers[home].cmdMap
-		: effectManagers[home].subMap;
-
-	return A2(map, applyTaggers, value)
-}
-
-function insert(isCmd, newEffect, effects)
-{
-	effects = effects || {
-		cmds: _elm_lang$core$Native_List.Nil,
-		subs: _elm_lang$core$Native_List.Nil
-	};
-	if (isCmd)
-	{
-		effects.cmds = _elm_lang$core$Native_List.Cons(newEffect, effects.cmds);
-		return effects;
-	}
-	effects.subs = _elm_lang$core$Native_List.Cons(newEffect, effects.subs);
-	return effects;
-}
-
-
-// PORTS
-
-function checkPortName(name)
-{
-	if (name in effectManagers)
-	{
-		throw new Error('There can only be one port named `' + name + '`, but your program has multiple.');
-	}
-}
-
-
-// OUTGOING PORTS
-
-function outgoingPort(name, converter)
-{
-	checkPortName(name);
-	effectManagers[name] = {
-		tag: 'cmd',
-		cmdMap: outgoingPortMap,
-		converter: converter,
-		isForeign: true
-	};
-	return leaf(name);
-}
-
-var outgoingPortMap = F2(function cmdMap(tagger, value) {
-	return value;
-});
-
-function setupOutgoingPort(name)
-{
-	var subs = [];
-	var converter = effectManagers[name].converter;
-
-	// CREATE MANAGER
-
-	var init = _elm_lang$core$Native_Scheduler.succeed(null);
-
-	function onEffects(router, cmdList, state)
-	{
-		while (cmdList.ctor !== '[]')
-		{
-			// grab a separate reference to subs in case unsubscribe is called
-			var currentSubs = subs;
-			var value = converter(cmdList._0);
-			for (var i = 0; i < currentSubs.length; i++)
-			{
-				currentSubs[i](value);
-			}
-			cmdList = cmdList._1;
-		}
-		return init;
-	}
-
-	effectManagers[name].init = init;
-	effectManagers[name].onEffects = F3(onEffects);
-
-	// PUBLIC API
-
-	function subscribe(callback)
-	{
-		subs.push(callback);
-	}
-
-	function unsubscribe(callback)
-	{
-		// copy subs into a new array in case unsubscribe is called within a
-		// subscribed callback
-		subs = subs.slice();
-		var index = subs.indexOf(callback);
-		if (index >= 0)
-		{
-			subs.splice(index, 1);
-		}
-	}
-
-	return {
-		subscribe: subscribe,
-		unsubscribe: unsubscribe
-	};
-}
-
-
-// INCOMING PORTS
-
-function incomingPort(name, converter)
-{
-	checkPortName(name);
-	effectManagers[name] = {
-		tag: 'sub',
-		subMap: incomingPortMap,
-		converter: converter,
-		isForeign: true
-	};
-	return leaf(name);
-}
-
-var incomingPortMap = F2(function subMap(tagger, finalTagger)
-{
-	return function(value)
-	{
-		return tagger(finalTagger(value));
-	};
-});
-
-function setupIncomingPort(name, callback)
-{
-	var sentBeforeInit = [];
-	var subs = _elm_lang$core$Native_List.Nil;
-	var converter = effectManagers[name].converter;
-	var currentOnEffects = preInitOnEffects;
-	var currentSend = preInitSend;
-
-	// CREATE MANAGER
-
-	var init = _elm_lang$core$Native_Scheduler.succeed(null);
-
-	function preInitOnEffects(router, subList, state)
-	{
-		var postInitResult = postInitOnEffects(router, subList, state);
-
-		for(var i = 0; i < sentBeforeInit.length; i++)
-		{
-			postInitSend(sentBeforeInit[i]);
-		}
-
-		sentBeforeInit = null; // to release objects held in queue
-		currentSend = postInitSend;
-		currentOnEffects = postInitOnEffects;
-		return postInitResult;
-	}
-
-	function postInitOnEffects(router, subList, state)
-	{
-		subs = subList;
-		return init;
-	}
-
-	function onEffects(router, subList, state)
-	{
-		return currentOnEffects(router, subList, state);
-	}
-
-	effectManagers[name].init = init;
-	effectManagers[name].onEffects = F3(onEffects);
-
-	// PUBLIC API
-
-	function preInitSend(value)
-	{
-		sentBeforeInit.push(value);
-	}
-
-	function postInitSend(value)
-	{
-		var temp = subs;
-		while (temp.ctor !== '[]')
-		{
-			callback(temp._0(value));
-			temp = temp._1;
-		}
-	}
-
-	function send(incomingValue)
-	{
-		var result = A2(_elm_lang$core$Json_Decode$decodeValue, converter, incomingValue);
-		if (result.ctor === 'Err')
-		{
-			throw new Error('Trying to send an unexpected type of value through port `' + name + '`:\n' + result._0);
-		}
-
-		currentSend(result._0);
-	}
-
-	return { send: send };
-}
-
-return {
-	// routers
-	sendToApp: F2(sendToApp),
-	sendToSelf: F2(sendToSelf),
-
-	// global setup
-	effectManagers: effectManagers,
-	outgoingPort: outgoingPort,
-	incomingPort: incomingPort,
-
-	htmlToProgram: htmlToProgram,
-	program: program,
-	programWithFlags: programWithFlags,
-	initialize: initialize,
-
-	// effect bags
-	leaf: leaf,
-	batch: batch,
-	map: F2(map)
-};
-
-}();
-
-//import Native.Utils //
-
-var _elm_lang$core$Native_Scheduler = function() {
-
-var MAX_STEPS = 10000;
-
-
-// TASKS
-
-function succeed(value)
-{
-	return {
-		ctor: '_Task_succeed',
-		value: value
-	};
-}
-
-function fail(error)
-{
-	return {
-		ctor: '_Task_fail',
-		value: error
-	};
-}
-
-function nativeBinding(callback)
-{
-	return {
-		ctor: '_Task_nativeBinding',
-		callback: callback,
-		cancel: null
-	};
-}
-
-function andThen(callback, task)
-{
-	return {
-		ctor: '_Task_andThen',
-		callback: callback,
-		task: task
-	};
-}
-
-function onError(callback, task)
-{
-	return {
-		ctor: '_Task_onError',
-		callback: callback,
-		task: task
-	};
-}
-
-function receive(callback)
-{
-	return {
-		ctor: '_Task_receive',
-		callback: callback
-	};
-}
-
-
-// PROCESSES
-
-function rawSpawn(task)
-{
-	var process = {
-		ctor: '_Process',
-		id: _elm_lang$core$Native_Utils.guid(),
-		root: task,
-		stack: null,
-		mailbox: []
-	};
-
-	enqueue(process);
-
-	return process;
-}
-
-function spawn(task)
-{
-	return nativeBinding(function(callback) {
-		var process = rawSpawn(task);
-		callback(succeed(process));
-	});
-}
-
-function rawSend(process, msg)
-{
-	process.mailbox.push(msg);
-	enqueue(process);
-}
-
-function send(process, msg)
-{
-	return nativeBinding(function(callback) {
-		rawSend(process, msg);
-		callback(succeed(_elm_lang$core$Native_Utils.Tuple0));
-	});
-}
-
-function kill(process)
-{
-	return nativeBinding(function(callback) {
-		var root = process.root;
-		if (root.ctor === '_Task_nativeBinding' && root.cancel)
-		{
-			root.cancel();
-		}
-
-		process.root = null;
-
-		callback(succeed(_elm_lang$core$Native_Utils.Tuple0));
-	});
-}
-
-function sleep(time)
-{
-	return nativeBinding(function(callback) {
-		var id = setTimeout(function() {
-			callback(succeed(_elm_lang$core$Native_Utils.Tuple0));
-		}, time);
-
-		return function() { clearTimeout(id); };
-	});
-}
-
-
-// STEP PROCESSES
-
-function step(numSteps, process)
-{
-	while (numSteps < MAX_STEPS)
-	{
-		var ctor = process.root.ctor;
-
-		if (ctor === '_Task_succeed')
-		{
-			while (process.stack && process.stack.ctor === '_Task_onError')
-			{
-				process.stack = process.stack.rest;
-			}
-			if (process.stack === null)
-			{
-				break;
-			}
-			process.root = process.stack.callback(process.root.value);
-			process.stack = process.stack.rest;
-			++numSteps;
-			continue;
-		}
-
-		if (ctor === '_Task_fail')
-		{
-			while (process.stack && process.stack.ctor === '_Task_andThen')
-			{
-				process.stack = process.stack.rest;
-			}
-			if (process.stack === null)
-			{
-				break;
-			}
-			process.root = process.stack.callback(process.root.value);
-			process.stack = process.stack.rest;
-			++numSteps;
-			continue;
-		}
-
-		if (ctor === '_Task_andThen')
-		{
-			process.stack = {
-				ctor: '_Task_andThen',
-				callback: process.root.callback,
-				rest: process.stack
-			};
-			process.root = process.root.task;
-			++numSteps;
-			continue;
-		}
-
-		if (ctor === '_Task_onError')
-		{
-			process.stack = {
-				ctor: '_Task_onError',
-				callback: process.root.callback,
-				rest: process.stack
-			};
-			process.root = process.root.task;
-			++numSteps;
-			continue;
-		}
-
-		if (ctor === '_Task_nativeBinding')
-		{
-			process.root.cancel = process.root.callback(function(newRoot) {
-				process.root = newRoot;
-				enqueue(process);
-			});
-
-			break;
-		}
-
-		if (ctor === '_Task_receive')
-		{
-			var mailbox = process.mailbox;
-			if (mailbox.length === 0)
-			{
-				break;
-			}
-
-			process.root = process.root.callback(mailbox.shift());
-			++numSteps;
-			continue;
-		}
-
-		throw new Error(ctor);
-	}
-
-	if (numSteps < MAX_STEPS)
-	{
-		return numSteps + 1;
-	}
-	enqueue(process);
-
-	return numSteps;
-}
-
-
-// WORK QUEUE
-
-var working = false;
-var workQueue = [];
-
-function enqueue(process)
-{
-	workQueue.push(process);
-
-	if (!working)
-	{
-		setTimeout(work, 0);
-		working = true;
-	}
-}
-
-function work()
-{
-	var numSteps = 0;
-	var process;
-	while (numSteps < MAX_STEPS && (process = workQueue.shift()))
-	{
-		if (process.root)
-		{
-			numSteps = step(numSteps, process);
-		}
-	}
-	if (!process)
-	{
-		working = false;
-		return;
-	}
-	setTimeout(work, 0);
-}
-
-
-return {
-	succeed: succeed,
-	fail: fail,
-	nativeBinding: nativeBinding,
-	andThen: F2(andThen),
-	onError: F2(onError),
-	receive: receive,
-
-	spawn: spawn,
-	kill: kill,
-	sleep: sleep,
-	send: F2(send),
-
-	rawSpawn: rawSpawn,
-	rawSend: rawSend
-};
-
-}();
-var _elm_lang$core$Platform_Cmd$batch = _elm_lang$core$Native_Platform.batch;
-var _elm_lang$core$Platform_Cmd$none = _elm_lang$core$Platform_Cmd$batch(
-	{ctor: '[]'});
-var _elm_lang$core$Platform_Cmd_ops = _elm_lang$core$Platform_Cmd_ops || {};
-_elm_lang$core$Platform_Cmd_ops['!'] = F2(
-	function (model, commands) {
-		return {
-			ctor: '_Tuple2',
-			_0: model,
-			_1: _elm_lang$core$Platform_Cmd$batch(commands)
-		};
-	});
-var _elm_lang$core$Platform_Cmd$map = _elm_lang$core$Native_Platform.map;
-var _elm_lang$core$Platform_Cmd$Cmd = {ctor: 'Cmd'};
-
-var _elm_lang$core$Platform_Sub$batch = _elm_lang$core$Native_Platform.batch;
-var _elm_lang$core$Platform_Sub$none = _elm_lang$core$Platform_Sub$batch(
-	{ctor: '[]'});
-var _elm_lang$core$Platform_Sub$map = _elm_lang$core$Native_Platform.map;
-var _elm_lang$core$Platform_Sub$Sub = {ctor: 'Sub'};
-
-var _elm_lang$core$Platform$hack = _elm_lang$core$Native_Scheduler.succeed;
-var _elm_lang$core$Platform$sendToSelf = _elm_lang$core$Native_Platform.sendToSelf;
-var _elm_lang$core$Platform$sendToApp = _elm_lang$core$Native_Platform.sendToApp;
-var _elm_lang$core$Platform$programWithFlags = _elm_lang$core$Native_Platform.programWithFlags;
-var _elm_lang$core$Platform$program = _elm_lang$core$Native_Platform.program;
-var _elm_lang$core$Platform$Program = {ctor: 'Program'};
-var _elm_lang$core$Platform$Task = {ctor: 'Task'};
-var _elm_lang$core$Platform$ProcessId = {ctor: 'ProcessId'};
-var _elm_lang$core$Platform$Router = {ctor: 'Router'};
-
 var _elm_community$list_extra$List_Extra$greedyGroupsOfWithStep = F3(
 	function (size, step, xs) {
 		var okayXs = _elm_lang$core$Native_Utils.cmp(
@@ -7094,52 +8122,56 @@ var _elm_community$list_extra$List_Extra$init = function () {
 var _elm_community$list_extra$List_Extra$last = _elm_community$list_extra$List_Extra$foldl1(
 	_elm_lang$core$Basics$flip(_elm_lang$core$Basics$always));
 
-var _Gizra$elm_dictlist$DictList$unsafeGet = F2(
+var _Gizra$elm_dictlist$AllDictList$unsafeGet = F2(
 	function (key, dict) {
-		var _p0 = A2(_elm_lang$core$Dict$get, key, dict);
+		var _p0 = A2(_eeue56$elm_all_dict$AllDict$get, key, dict);
 		if (_p0.ctor === 'Just') {
 			return _p0._0;
 		} else {
 			return _elm_lang$core$Native_Utils.crashCase(
-				'DictList',
+				'AllDictList',
 				{
-					start: {line: 1150, column: 5},
-					end: {line: 1155, column: 78}
+					start: {line: 1210, column: 5},
+					end: {line: 1215, column: 81}
 				},
-				_p0)('Internal error: DictList list not in sync with dict');
+				_p0)('Internal error: AllDictList list not in sync with dict');
 		}
 	});
-var _Gizra$elm_dictlist$DictList$toDict = function (_p2) {
+var _Gizra$elm_dictlist$AllDictList$toDict = function (_p2) {
 	var _p3 = _p2;
-	return _p3._0;
+	return A3(_eeue56$elm_all_dict$AllDict$foldl, _elm_lang$core$Dict$insert, _elm_lang$core$Dict$empty, _p3._0);
 };
-var _Gizra$elm_dictlist$DictList$keys = function (_p4) {
+var _Gizra$elm_dictlist$AllDictList$toAllDict = function (_p4) {
 	var _p5 = _p4;
-	return _p5._1;
+	return _p5._0;
 };
-var _Gizra$elm_dictlist$DictList$foldr = F3(
-	function (func, accum, _p6) {
-		var _p7 = _p6;
+var _Gizra$elm_dictlist$AllDictList$keys = function (_p6) {
+	var _p7 = _p6;
+	return _p7._1;
+};
+var _Gizra$elm_dictlist$AllDictList$foldr = F3(
+	function (func, accum, _p8) {
+		var _p9 = _p8;
 		var go = F2(
 			function (key, acc) {
-				var _p8 = A2(_elm_lang$core$Dict$get, key, _p7._0);
-				if (_p8.ctor === 'Just') {
-					return A3(func, key, _p8._0, acc);
+				var _p10 = A2(_eeue56$elm_all_dict$AllDict$get, key, _p9._0);
+				if (_p10.ctor === 'Just') {
+					return A3(func, key, _p10._0, acc);
 				} else {
 					return _elm_lang$core$Native_Utils.crashCase(
-						'DictList',
+						'AllDictList',
 						{
-							start: {line: 967, column: 13},
-							end: {line: 972, column: 86}
+							start: {line: 1005, column: 13},
+							end: {line: 1010, column: 89}
 						},
-						_p8)('Internal error: DictList list not in sync with dict');
+						_p10)('Internal error: AllDictList list not in sync with dict');
 				}
 			});
-		return A3(_elm_lang$core$List$foldr, go, accum, _p7._1);
+		return A3(_elm_lang$core$List$foldr, go, accum, _p9._1);
 	});
-var _Gizra$elm_dictlist$DictList$values = function (dictList) {
+var _Gizra$elm_dictlist$AllDictList$values = function (dictList) {
 	return A3(
-		_Gizra$elm_dictlist$DictList$foldr,
+		_Gizra$elm_dictlist$AllDictList$foldr,
 		F3(
 			function (key, value, valueList) {
 				return {ctor: '::', _0: value, _1: valueList};
@@ -7147,9 +8179,9 @@ var _Gizra$elm_dictlist$DictList$values = function (dictList) {
 		{ctor: '[]'},
 		dictList);
 };
-var _Gizra$elm_dictlist$DictList$toList = function (dict) {
+var _Gizra$elm_dictlist$AllDictList$toList = function (dict) {
 	return A3(
-		_Gizra$elm_dictlist$DictList$foldr,
+		_Gizra$elm_dictlist$AllDictList$foldr,
 		F3(
 			function (key, value, list) {
 				return {
@@ -7161,87 +8193,105 @@ var _Gizra$elm_dictlist$DictList$toList = function (dict) {
 		{ctor: '[]'},
 		dict);
 };
-var _Gizra$elm_dictlist$DictList$foldl = F3(
-	function (func, accum, _p10) {
-		var _p11 = _p10;
+var _Gizra$elm_dictlist$AllDictList$foldl = F3(
+	function (func, accum, _p12) {
+		var _p13 = _p12;
 		var go = F2(
 			function (key, acc) {
 				return A3(
 					func,
 					key,
-					A2(_Gizra$elm_dictlist$DictList$unsafeGet, key, _p11._0),
+					A2(_Gizra$elm_dictlist$AllDictList$unsafeGet, key, _p13._0),
 					acc);
 			});
-		return A3(_elm_lang$core$List$foldl, go, accum, _p11._1);
+		return A3(_elm_lang$core$List$foldl, go, accum, _p13._1);
 	});
-var _Gizra$elm_dictlist$DictList$merge = F6(
-	function (leftFunc, bothFunc, rightFunc, leftDict, _p12, initialResult) {
-		var _p13 = _p12;
-		var _p22 = _p13._0;
+var _Gizra$elm_dictlist$AllDictList$merge = F6(
+	function (leftFunc, bothFunc, rightFunc, leftDict, _p14, initialResult) {
+		var _p15 = _p14;
+		var _p24 = _p15._0;
 		var goRight = F3(
 			function (remainingRight, rightKey, accumRight) {
-				var _p14 = A2(_elm_lang$core$Dict$get, rightKey, remainingRight);
-				if (_p14.ctor === 'Just') {
-					return A3(rightFunc, rightKey, _p14._0, accumRight);
+				var _p16 = A2(_eeue56$elm_all_dict$AllDict$get, rightKey, remainingRight);
+				if (_p16.ctor === 'Just') {
+					return A3(rightFunc, rightKey, _p16._0, accumRight);
 				} else {
 					return accumRight;
 				}
 			});
 		var goLeft = F3(
-			function (leftKey, leftValue, _p15) {
-				var _p16 = _p15;
-				var _p19 = _p16._0;
-				var _p18 = _p16._1;
-				var _p17 = A2(_elm_lang$core$Dict$get, leftKey, _p22);
-				if (_p17.ctor === 'Just') {
+			function (leftKey, leftValue, _p17) {
+				var _p18 = _p17;
+				var _p21 = _p18._0;
+				var _p20 = _p18._1;
+				var _p19 = A2(_eeue56$elm_all_dict$AllDict$get, leftKey, _p24);
+				if (_p19.ctor === 'Just') {
 					return {
 						ctor: '_Tuple2',
-						_0: A2(_elm_lang$core$Dict$remove, leftKey, _p19),
-						_1: A4(bothFunc, leftKey, leftValue, _p17._0, _p18)
+						_0: A2(_eeue56$elm_all_dict$AllDict$remove, leftKey, _p21),
+						_1: A4(bothFunc, leftKey, leftValue, _p19._0, _p20)
 					};
 				} else {
 					return {
 						ctor: '_Tuple2',
-						_0: _p19,
-						_1: A3(leftFunc, leftKey, leftValue, _p18)
+						_0: _p21,
+						_1: A3(leftFunc, leftKey, leftValue, _p20)
 					};
 				}
 			});
-		return function (_p20) {
-			var _p21 = _p20;
+		return function (_p22) {
+			var _p23 = _p22;
 			return A3(
 				_elm_lang$core$List$foldl,
-				goRight(_p21._0),
-				_p21._1,
-				_p13._1);
+				goRight(_p23._0),
+				_p23._1,
+				_p15._1);
 		}(
 			A3(
-				_Gizra$elm_dictlist$DictList$foldl,
+				_Gizra$elm_dictlist$AllDictList$foldl,
 				goLeft,
-				{ctor: '_Tuple2', _0: _p22, _1: initialResult},
+				{ctor: '_Tuple2', _0: _p24, _1: initialResult},
 				leftDict));
 	});
-var _Gizra$elm_dictlist$DictList$isEmpty = function (_p23) {
-	var _p24 = _p23;
-	return _elm_lang$core$List$isEmpty(_p24._1);
-};
-var _Gizra$elm_dictlist$DictList$size = function (_p25) {
+var _Gizra$elm_dictlist$AllDictList$isEmpty = function (_p25) {
 	var _p26 = _p25;
-	return _elm_lang$core$Dict$size(_p26._0);
+	return _elm_lang$core$List$isEmpty(_p26._1);
 };
-var _Gizra$elm_dictlist$DictList$member = F2(
-	function (key, _p27) {
-		var _p28 = _p27;
-		return A2(_elm_lang$core$Dict$member, key, _p28._0);
-	});
-var _Gizra$elm_dictlist$DictList$get = F2(
+var _Gizra$elm_dictlist$AllDictList$size = function (_p27) {
+	var _p28 = _p27;
+	return _eeue56$elm_all_dict$AllDict$size(_p28._0);
+};
+var _Gizra$elm_dictlist$AllDictList$member = F2(
 	function (key, _p29) {
 		var _p30 = _p29;
-		return A2(_elm_lang$core$Dict$get, key, _p30._0);
+		return A2(_eeue56$elm_all_dict$AllDict$member, key, _p30._0);
 	});
-var _Gizra$elm_dictlist$DictList$getAt = F2(
-	function (index, _p31) {
+var _Gizra$elm_dictlist$AllDictList$get = F2(
+	function (key, _p31) {
 		var _p32 = _p31;
+		return A2(_eeue56$elm_all_dict$AllDict$get, key, _p32._0);
+	});
+var _Gizra$elm_dictlist$AllDictList$getOrd = function (_p33) {
+	var _p34 = _p33;
+	return _eeue56$elm_all_dict$AllDict$getOrd(_p34._0);
+};
+var _Gizra$elm_dictlist$AllDictList$fullEq = F2(
+	function (first, second) {
+		return _elm_lang$core$Native_Utils.eq(
+			_Gizra$elm_dictlist$AllDictList$toList(first),
+			_Gizra$elm_dictlist$AllDictList$toList(second)) && _elm_lang$core$Native_Utils.eq(
+			_Gizra$elm_dictlist$AllDictList$getOrd(first),
+			_Gizra$elm_dictlist$AllDictList$getOrd(second));
+	});
+var _Gizra$elm_dictlist$AllDictList$eq = F2(
+	function (first, second) {
+		return _elm_lang$core$Native_Utils.eq(
+			_Gizra$elm_dictlist$AllDictList$toList(first),
+			_Gizra$elm_dictlist$AllDictList$toList(second));
+	});
+var _Gizra$elm_dictlist$AllDictList$getAt = F2(
+	function (index, _p35) {
+		var _p36 = _p35;
 		return A2(
 			_elm_lang$core$Maybe$andThen,
 			function (key) {
@@ -7250,62 +8300,48 @@ var _Gizra$elm_dictlist$DictList$getAt = F2(
 					function (value) {
 						return {ctor: '_Tuple2', _0: key, _1: value};
 					},
-					A2(_elm_lang$core$Dict$get, key, _p32._0));
+					A2(_eeue56$elm_all_dict$AllDict$get, key, _p36._0));
 			},
-			A2(_elm_community$list_extra$List_Extra$getAt, index, _p32._1));
+			A2(_elm_community$list_extra$List_Extra$getAt, index, _p36._1));
 	});
-var _Gizra$elm_dictlist$DictList$getKeyAt = F2(
-	function (index, _p33) {
-		var _p34 = _p33;
-		return A2(_elm_community$list_extra$List_Extra$getAt, index, _p34._1);
+var _Gizra$elm_dictlist$AllDictList$getKeyAt = F2(
+	function (index, _p37) {
+		var _p38 = _p37;
+		return A2(_elm_community$list_extra$List_Extra$getAt, index, _p38._1);
 	});
-var _Gizra$elm_dictlist$DictList$indexOfKey = F2(
-	function (key, _p35) {
-		var _p36 = _p35;
-		return A2(_elm_community$list_extra$List_Extra$elemIndex, key, _p36._1);
+var _Gizra$elm_dictlist$AllDictList$indexOfKey = F2(
+	function (key, _p39) {
+		var _p40 = _p39;
+		return A2(_elm_community$list_extra$List_Extra$elemIndex, key, _p40._1);
 	});
-var _Gizra$elm_dictlist$DictList$next = F2(
+var _Gizra$elm_dictlist$AllDictList$next = F2(
 	function (key, dictlist) {
 		return A2(
 			_elm_lang$core$Maybe$andThen,
 			function (index) {
-				return A2(_Gizra$elm_dictlist$DictList$getAt, index + 1, dictlist);
+				return A2(_Gizra$elm_dictlist$AllDictList$getAt, index + 1, dictlist);
 			},
-			A2(_Gizra$elm_dictlist$DictList$indexOfKey, key, dictlist));
+			A2(_Gizra$elm_dictlist$AllDictList$indexOfKey, key, dictlist));
 	});
-var _Gizra$elm_dictlist$DictList$previous = F2(
+var _Gizra$elm_dictlist$AllDictList$previous = F2(
 	function (key, dictlist) {
 		return A2(
 			_elm_lang$core$Maybe$andThen,
 			function (index) {
-				return A2(_Gizra$elm_dictlist$DictList$getAt, index - 1, dictlist);
+				return A2(_Gizra$elm_dictlist$AllDictList$getAt, index - 1, dictlist);
 			},
-			A2(_Gizra$elm_dictlist$DictList$indexOfKey, key, dictlist));
+			A2(_Gizra$elm_dictlist$AllDictList$indexOfKey, key, dictlist));
 	});
-var _Gizra$elm_dictlist$DictList$atRelativePosition = F2(
+var _Gizra$elm_dictlist$AllDictList$atRelativePosition = F2(
 	function (position, dictlist) {
-		var _p37 = position;
-		if (_p37.ctor === 'BeforeKey') {
-			return A2(_Gizra$elm_dictlist$DictList$previous, _p37._0, dictlist);
+		var _p41 = position;
+		if (_p41.ctor === 'BeforeKey') {
+			return A2(_Gizra$elm_dictlist$AllDictList$previous, _p41._0, dictlist);
 		} else {
-			return A2(_Gizra$elm_dictlist$DictList$next, _p37._0, dictlist);
+			return A2(_Gizra$elm_dictlist$AllDictList$next, _p41._0, dictlist);
 		}
 	});
-var _Gizra$elm_dictlist$DictList$minimum = function (_p38) {
-	var _p39 = _p38;
-	var go = F3(
-		function (_p40, value, acc) {
-			var _p41 = acc;
-			if (_p41.ctor === 'Nothing') {
-				return _elm_lang$core$Maybe$Just(value);
-			} else {
-				return _elm_lang$core$Maybe$Just(
-					A2(_elm_lang$core$Basics$min, _p41._0, value));
-			}
-		});
-	return A3(_elm_lang$core$Dict$foldl, go, _elm_lang$core$Maybe$Nothing, _p39._0);
-};
-var _Gizra$elm_dictlist$DictList$maximum = function (_p42) {
+var _Gizra$elm_dictlist$AllDictList$minimum = function (_p42) {
 	var _p43 = _p42;
 	var go = F3(
 		function (_p44, value, acc) {
@@ -7314,74 +8350,88 @@ var _Gizra$elm_dictlist$DictList$maximum = function (_p42) {
 				return _elm_lang$core$Maybe$Just(value);
 			} else {
 				return _elm_lang$core$Maybe$Just(
-					A2(_elm_lang$core$Basics$max, _p45._0, value));
+					A2(_elm_lang$core$Basics$min, _p45._0, value));
 			}
 		});
-	return A3(_elm_lang$core$Dict$foldl, go, _elm_lang$core$Maybe$Nothing, _p43._0);
+	return A3(_eeue56$elm_all_dict$AllDict$foldl, go, _elm_lang$core$Maybe$Nothing, _p43._0);
 };
-var _Gizra$elm_dictlist$DictList$product = function (_p46) {
+var _Gizra$elm_dictlist$AllDictList$maximum = function (_p46) {
 	var _p47 = _p46;
+	var go = F3(
+		function (_p48, value, acc) {
+			var _p49 = acc;
+			if (_p49.ctor === 'Nothing') {
+				return _elm_lang$core$Maybe$Just(value);
+			} else {
+				return _elm_lang$core$Maybe$Just(
+					A2(_elm_lang$core$Basics$max, _p49._0, value));
+			}
+		});
+	return A3(_eeue56$elm_all_dict$AllDict$foldl, go, _elm_lang$core$Maybe$Nothing, _p47._0);
+};
+var _Gizra$elm_dictlist$AllDictList$product = function (_p50) {
+	var _p51 = _p50;
 	return A3(
-		_elm_lang$core$Dict$foldl,
+		_eeue56$elm_all_dict$AllDict$foldl,
 		_elm_lang$core$Basics$always(
 			F2(
 				function (x, y) {
 					return x * y;
 				})),
 		1,
-		_p47._0);
+		_p51._0);
 };
-var _Gizra$elm_dictlist$DictList$sum = function (_p48) {
-	var _p49 = _p48;
+var _Gizra$elm_dictlist$AllDictList$sum = function (_p52) {
+	var _p53 = _p52;
 	return A3(
-		_elm_lang$core$Dict$foldl,
+		_eeue56$elm_all_dict$AllDict$foldl,
 		_elm_lang$core$Basics$always(
 			F2(
 				function (x, y) {
 					return x + y;
 				})),
 		0,
-		_p49._0);
+		_p53._0);
 };
-var _Gizra$elm_dictlist$DictList$any = F2(
-	function (func, _p50) {
-		var _p51 = _p50;
+var _Gizra$elm_dictlist$AllDictList$any = F2(
+	function (func, _p54) {
+		var _p55 = _p54;
 		var go = function (innerList) {
 			go:
 			while (true) {
-				var _p52 = innerList;
-				if (_p52.ctor === '[]') {
+				var _p56 = innerList;
+				if (_p56.ctor === '[]') {
 					return false;
 				} else {
-					var _p53 = _p52._0;
+					var _p57 = _p56._0;
 					if (A2(
 						func,
-						_p53,
-						A2(_Gizra$elm_dictlist$DictList$unsafeGet, _p53, _p51._0))) {
+						_p57,
+						A2(_Gizra$elm_dictlist$AllDictList$unsafeGet, _p57, _p55._0))) {
 						return true;
 					} else {
-						var _v27 = _p52._1;
-						innerList = _v27;
+						var _v29 = _p56._1;
+						innerList = _v29;
 						continue go;
 					}
 				}
 			}
 		};
-		return go(_p51._1);
+		return go(_p55._1);
 	});
-var _Gizra$elm_dictlist$DictList$all = F2(
-	function (func, dictList) {
+var _Gizra$elm_dictlist$AllDictList$all = F2(
+	function (func, dictlist) {
 		return !A2(
-			_Gizra$elm_dictlist$DictList$any,
+			_Gizra$elm_dictlist$AllDictList$any,
 			F2(
 				function (key, value) {
 					return !A2(func, key, value);
 				}),
-			dictList);
+			dictlist);
 	});
-var _Gizra$elm_dictlist$DictList$length = _Gizra$elm_dictlist$DictList$size;
-var _Gizra$elm_dictlist$DictList$head = function (_p54) {
-	var _p55 = _p54;
+var _Gizra$elm_dictlist$AllDictList$length = _Gizra$elm_dictlist$AllDictList$size;
+var _Gizra$elm_dictlist$AllDictList$head = function (_p58) {
+	var _p59 = _p58;
 	return A2(
 		_elm_lang$core$Maybe$andThen,
 		function (key) {
@@ -7390,119 +8440,131 @@ var _Gizra$elm_dictlist$DictList$head = function (_p54) {
 				function (value) {
 					return {ctor: '_Tuple2', _0: key, _1: value};
 				},
-				A2(_elm_lang$core$Dict$get, key, _p55._0));
+				A2(_eeue56$elm_all_dict$AllDict$get, key, _p59._0));
 		},
-		_elm_lang$core$List$head(_p55._1));
+		_elm_lang$core$List$head(_p59._1));
 };
-var _Gizra$elm_dictlist$DictList$DictList = F2(
+var _Gizra$elm_dictlist$AllDictList$AllDictList = F2(
 	function (a, b) {
-		return {ctor: 'DictList', _0: a, _1: b};
+		return {ctor: 'AllDictList', _0: a, _1: b};
 	});
-var _Gizra$elm_dictlist$DictList$cons = F3(
-	function (key, value, _p56) {
-		var _p57 = _p56;
-		var _p59 = _p57._1;
-		var _p58 = _p57._0;
-		var restOfList = A2(_elm_lang$core$Dict$member, key, _p58) ? A2(_elm_community$list_extra$List_Extra$remove, key, _p59) : _p59;
+var _Gizra$elm_dictlist$AllDictList$cons = F3(
+	function (key, value, _p60) {
+		var _p61 = _p60;
+		var _p63 = _p61._1;
+		var _p62 = _p61._0;
+		var restOfList = A2(_eeue56$elm_all_dict$AllDict$member, key, _p62) ? A2(_elm_community$list_extra$List_Extra$remove, key, _p63) : _p63;
 		return A2(
-			_Gizra$elm_dictlist$DictList$DictList,
-			A3(_elm_lang$core$Dict$insert, key, value, _p58),
+			_Gizra$elm_dictlist$AllDictList$AllDictList,
+			A3(_eeue56$elm_all_dict$AllDict$insert, key, value, _p62),
 			{ctor: '::', _0: key, _1: restOfList});
 	});
-var _Gizra$elm_dictlist$DictList$append = F2(
+var _Gizra$elm_dictlist$AllDictList$append = F2(
 	function (t1, t2) {
 		var go = F3(
 			function (key, value, acc) {
-				return A2(_Gizra$elm_dictlist$DictList$member, key, acc) ? acc : A3(_Gizra$elm_dictlist$DictList$cons, key, value, acc);
+				return A2(_Gizra$elm_dictlist$AllDictList$member, key, acc) ? acc : A3(_Gizra$elm_dictlist$AllDictList$cons, key, value, acc);
 			});
-		return A3(_Gizra$elm_dictlist$DictList$foldr, go, t2, t1);
+		return A3(_Gizra$elm_dictlist$AllDictList$foldr, go, t2, t1);
 	});
-var _Gizra$elm_dictlist$DictList$union = F2(
+var _Gizra$elm_dictlist$AllDictList$union = F2(
 	function (t1, t2) {
-		return A3(_Gizra$elm_dictlist$DictList$foldr, _Gizra$elm_dictlist$DictList$cons, t2, t1);
+		return A3(_Gizra$elm_dictlist$AllDictList$foldr, _Gizra$elm_dictlist$AllDictList$cons, t2, t1);
 	});
-var _Gizra$elm_dictlist$DictList$tail = function (_p60) {
-	var _p61 = _p60;
-	var _p62 = _p61._1;
-	if (_p62.ctor === '::') {
+var _Gizra$elm_dictlist$AllDictList$tail = function (_p64) {
+	var _p65 = _p64;
+	var _p66 = _p65._1;
+	if (_p66.ctor === '::') {
 		return _elm_lang$core$Maybe$Just(
 			A2(
-				_Gizra$elm_dictlist$DictList$DictList,
-				A2(_elm_lang$core$Dict$remove, _p62._0, _p61._0),
-				_p62._1));
+				_Gizra$elm_dictlist$AllDictList$AllDictList,
+				A2(_eeue56$elm_all_dict$AllDict$remove, _p66._0, _p65._0),
+				_p66._1));
 	} else {
 		return _elm_lang$core$Maybe$Nothing;
 	}
 };
-var _Gizra$elm_dictlist$DictList$reverse = function (_p63) {
-	var _p64 = _p63;
+var _Gizra$elm_dictlist$AllDictList$reverse = function (_p67) {
+	var _p68 = _p67;
 	return A2(
-		_Gizra$elm_dictlist$DictList$DictList,
-		_p64._0,
-		_elm_lang$core$List$reverse(_p64._1));
+		_Gizra$elm_dictlist$AllDictList$AllDictList,
+		_p68._0,
+		_elm_lang$core$List$reverse(_p68._1));
 };
-var _Gizra$elm_dictlist$DictList$take = F2(
-	function (n, _p65) {
-		var _p66 = _p65;
+var _Gizra$elm_dictlist$AllDictList$take = F2(
+	function (n, _p69) {
+		var _p70 = _p69;
+		var _p71 = _p70._0;
 		var go = function (key) {
 			return A2(
-				_elm_lang$core$Dict$insert,
+				_eeue56$elm_all_dict$AllDict$insert,
 				key,
-				A2(_Gizra$elm_dictlist$DictList$unsafeGet, key, _p66._0));
+				A2(_Gizra$elm_dictlist$AllDictList$unsafeGet, key, _p71));
 		};
-		var newList = A2(_elm_lang$core$List$take, n, _p66._1);
-		var newDict = A3(_elm_lang$core$List$foldl, go, _elm_lang$core$Dict$empty, newList);
-		return A2(_Gizra$elm_dictlist$DictList$DictList, newDict, newList);
+		var newList = A2(_elm_lang$core$List$take, n, _p70._1);
+		var newDict = A3(
+			_elm_lang$core$List$foldl,
+			go,
+			_eeue56$elm_all_dict$AllDict$empty(
+				_eeue56$elm_all_dict$AllDict$getOrd(_p71)),
+			newList);
+		return A2(_Gizra$elm_dictlist$AllDictList$AllDictList, newDict, newList);
 	});
-var _Gizra$elm_dictlist$DictList$drop = F2(
-	function (n, _p67) {
-		var _p68 = _p67;
+var _Gizra$elm_dictlist$AllDictList$drop = F2(
+	function (n, _p72) {
+		var _p73 = _p72;
+		var _p74 = _p73._0;
 		var go = function (key) {
 			return A2(
-				_elm_lang$core$Dict$insert,
+				_eeue56$elm_all_dict$AllDict$insert,
 				key,
-				A2(_Gizra$elm_dictlist$DictList$unsafeGet, key, _p68._0));
+				A2(_Gizra$elm_dictlist$AllDictList$unsafeGet, key, _p74));
 		};
-		var newList = A2(_elm_lang$core$List$drop, n, _p68._1);
-		var newDict = A3(_elm_lang$core$List$foldl, go, _elm_lang$core$Dict$empty, newList);
-		return A2(_Gizra$elm_dictlist$DictList$DictList, newDict, newList);
+		var newList = A2(_elm_lang$core$List$drop, n, _p73._1);
+		var newDict = A3(
+			_elm_lang$core$List$foldl,
+			go,
+			_eeue56$elm_all_dict$AllDict$empty(
+				_eeue56$elm_all_dict$AllDict$getOrd(_p74)),
+			newList);
+		return A2(_Gizra$elm_dictlist$AllDictList$AllDictList, newDict, newList);
 	});
-var _Gizra$elm_dictlist$DictList$sort = function (dictList) {
-	var _p69 = dictList;
+var _Gizra$elm_dictlist$AllDictList$sort = function (dictList) {
+	var _p75 = dictList;
 	return A2(
-		_Gizra$elm_dictlist$DictList$DictList,
-		_p69._0,
+		_Gizra$elm_dictlist$AllDictList$AllDictList,
+		_p75._0,
 		A2(
 			_elm_lang$core$List$map,
 			_elm_lang$core$Tuple$first,
 			A2(
 				_elm_lang$core$List$sortBy,
 				_elm_lang$core$Tuple$second,
-				_Gizra$elm_dictlist$DictList$toList(dictList))));
+				_Gizra$elm_dictlist$AllDictList$toList(dictList))));
 };
-var _Gizra$elm_dictlist$DictList$sortBy = F2(
+var _Gizra$elm_dictlist$AllDictList$sortBy = F2(
 	function (func, dictList) {
-		var _p70 = dictList;
+		var _p76 = dictList;
 		return A2(
-			_Gizra$elm_dictlist$DictList$DictList,
-			_p70._0,
+			_Gizra$elm_dictlist$AllDictList$AllDictList,
+			_p76._0,
 			A2(
 				_elm_lang$core$List$map,
 				_elm_lang$core$Tuple$first,
 				A2(
 					_elm_lang$core$List$sortBy,
-					function (_p71) {
+					function (_p77) {
 						return func(
-							_elm_lang$core$Tuple$second(_p71));
+							_elm_lang$core$Tuple$second(_p77));
 					},
-					_Gizra$elm_dictlist$DictList$toList(dictList))));
+					_Gizra$elm_dictlist$AllDictList$toList(dictList))));
 	});
-var _Gizra$elm_dictlist$DictList$sortWith = F2(
+var _Gizra$elm_dictlist$AllDictList$sortWith = F2(
 	function (func, dictList) {
-		var _p72 = dictList;
+		var _p78 = dictList;
 		return A2(
-			_Gizra$elm_dictlist$DictList$DictList,
-			_p72._0,
+			_Gizra$elm_dictlist$AllDictList$AllDictList,
+			_p78._0,
 			A2(
 				_elm_lang$core$List$map,
 				_elm_lang$core$Tuple$first,
@@ -7515,28 +8577,28 @@ var _Gizra$elm_dictlist$DictList$sortWith = F2(
 								_elm_lang$core$Tuple$second(v1),
 								_elm_lang$core$Tuple$second(v2));
 						}),
-					_Gizra$elm_dictlist$DictList$toList(dictList))));
+					_Gizra$elm_dictlist$AllDictList$toList(dictList))));
 	});
-var _Gizra$elm_dictlist$DictList$insertAfter = F4(
-	function (afterKey, key, value, _p73) {
-		var _p74 = _p73;
-		var _p78 = _p74._1;
-		var _p77 = _p74._0;
+var _Gizra$elm_dictlist$AllDictList$insertAfter = F4(
+	function (afterKey, key, value, _p79) {
+		var _p80 = _p79;
+		var _p84 = _p80._1;
+		var _p83 = _p80._0;
 		var newList = function () {
 			if (_elm_lang$core$Native_Utils.eq(afterKey, key)) {
-				return _p78;
+				return _p84;
 			} else {
-				var listWithoutKey = A2(_elm_lang$core$Dict$member, key, _p77) ? A2(_elm_community$list_extra$List_Extra$remove, key, _p78) : _p78;
-				var _p75 = A2(_elm_community$list_extra$List_Extra$elemIndex, afterKey, listWithoutKey);
-				if (_p75.ctor === 'Just') {
-					var _p76 = _p75._0;
+				var listWithoutKey = A2(_eeue56$elm_all_dict$AllDict$member, key, _p83) ? A2(_elm_community$list_extra$List_Extra$remove, key, _p84) : _p84;
+				var _p81 = A2(_elm_community$list_extra$List_Extra$elemIndex, afterKey, listWithoutKey);
+				if (_p81.ctor === 'Just') {
+					var _p82 = _p81._0;
 					return A2(
 						_elm_lang$core$Basics_ops['++'],
-						A2(_elm_lang$core$List$take, _p76 + 1, listWithoutKey),
+						A2(_elm_lang$core$List$take, _p82 + 1, listWithoutKey),
 						{
 							ctor: '::',
 							_0: key,
-							_1: A2(_elm_lang$core$List$drop, _p76 + 1, listWithoutKey)
+							_1: A2(_elm_lang$core$List$drop, _p82 + 1, listWithoutKey)
 						});
 				} else {
 					return A2(
@@ -7550,117 +8612,136 @@ var _Gizra$elm_dictlist$DictList$insertAfter = F4(
 				}
 			}
 		}();
-		var newDict = A3(_elm_lang$core$Dict$insert, key, value, _p77);
-		return A2(_Gizra$elm_dictlist$DictList$DictList, newDict, newList);
+		var newDict = A3(_eeue56$elm_all_dict$AllDict$insert, key, value, _p83);
+		return A2(_Gizra$elm_dictlist$AllDictList$AllDictList, newDict, newList);
 	});
-var _Gizra$elm_dictlist$DictList$insertBefore = F4(
-	function (beforeKey, key, value, _p79) {
-		var _p80 = _p79;
-		var _p84 = _p80._1;
-		var _p83 = _p80._0;
+var _Gizra$elm_dictlist$AllDictList$insertBefore = F4(
+	function (beforeKey, key, value, _p85) {
+		var _p86 = _p85;
+		var _p90 = _p86._1;
+		var _p89 = _p86._0;
 		var newList = function () {
 			if (_elm_lang$core$Native_Utils.eq(beforeKey, key)) {
-				return _p84;
+				return _p90;
 			} else {
-				var listWithoutKey = A2(_elm_lang$core$Dict$member, key, _p83) ? A2(_elm_community$list_extra$List_Extra$remove, key, _p84) : _p84;
-				var _p81 = A2(_elm_community$list_extra$List_Extra$elemIndex, beforeKey, listWithoutKey);
-				if (_p81.ctor === 'Just') {
-					var _p82 = _p81._0;
+				var listWithoutKey = A2(_eeue56$elm_all_dict$AllDict$member, key, _p89) ? A2(_elm_community$list_extra$List_Extra$remove, key, _p90) : _p90;
+				var _p87 = A2(_elm_community$list_extra$List_Extra$elemIndex, beforeKey, listWithoutKey);
+				if (_p87.ctor === 'Just') {
+					var _p88 = _p87._0;
 					return A2(
 						_elm_lang$core$Basics_ops['++'],
-						A2(_elm_lang$core$List$take, _p82, listWithoutKey),
+						A2(_elm_lang$core$List$take, _p88, listWithoutKey),
 						{
 							ctor: '::',
 							_0: key,
-							_1: A2(_elm_lang$core$List$drop, _p82, listWithoutKey)
+							_1: A2(_elm_lang$core$List$drop, _p88, listWithoutKey)
 						});
 				} else {
 					return {ctor: '::', _0: key, _1: listWithoutKey};
 				}
 			}
 		}();
-		var newDict = A3(_elm_lang$core$Dict$insert, key, value, _p83);
-		return A2(_Gizra$elm_dictlist$DictList$DictList, newDict, newList);
+		var newDict = A3(_eeue56$elm_all_dict$AllDict$insert, key, value, _p89);
+		return A2(_Gizra$elm_dictlist$AllDictList$AllDictList, newDict, newList);
 	});
-var _Gizra$elm_dictlist$DictList$insertRelativeTo = function (position) {
-	var _p85 = position;
-	if (_p85.ctor === 'BeforeKey') {
-		return _Gizra$elm_dictlist$DictList$insertBefore(_p85._0);
+var _Gizra$elm_dictlist$AllDictList$insertRelativeTo = function (position) {
+	var _p91 = position;
+	if (_p91.ctor === 'BeforeKey') {
+		return _Gizra$elm_dictlist$AllDictList$insertBefore(_p91._0);
 	} else {
-		return _Gizra$elm_dictlist$DictList$insertAfter(_p85._0);
+		return _Gizra$elm_dictlist$AllDictList$insertAfter(_p91._0);
 	}
 };
-var _Gizra$elm_dictlist$DictList$empty = A2(
-	_Gizra$elm_dictlist$DictList$DictList,
-	_elm_lang$core$Dict$empty,
-	{ctor: '[]'});
-var _Gizra$elm_dictlist$DictList$indexedMap = function (func) {
-	var go = F3(
-		function (key, value, _p86) {
-			var _p87 = _p86;
-			var _p88 = _p87._0;
-			return {
-				ctor: '_Tuple2',
-				_0: _p88 + 1,
-				_1: A2(
-					_Gizra$elm_dictlist$DictList$DictList,
-					A3(
-						_elm_lang$core$Dict$insert,
-						key,
-						A3(func, _p88, key, value),
-						_p87._1._0),
-					{ctor: '::', _0: key, _1: _p87._1._1})
-			};
-		});
-	return function (_p89) {
-		return _Gizra$elm_dictlist$DictList$reverse(
+var _Gizra$elm_dictlist$AllDictList$empty = function (ord) {
+	return A2(
+		_Gizra$elm_dictlist$AllDictList$AllDictList,
+		_eeue56$elm_all_dict$AllDict$empty(ord),
+		{ctor: '[]'});
+};
+var _Gizra$elm_dictlist$AllDictList$concat = F2(
+	function (ord, lists) {
+		return A3(
+			_elm_lang$core$List$foldr,
+			_Gizra$elm_dictlist$AllDictList$append,
+			_Gizra$elm_dictlist$AllDictList$empty(ord),
+			lists);
+	});
+var _Gizra$elm_dictlist$AllDictList$emptyWithOrdFrom = function (_p92) {
+	return _Gizra$elm_dictlist$AllDictList$empty(
+		_Gizra$elm_dictlist$AllDictList$getOrd(_p92));
+};
+var _Gizra$elm_dictlist$AllDictList$indexedMap = F2(
+	function (func, dictlist) {
+		var go = F3(
+			function (key, value, _p93) {
+				var _p94 = _p93;
+				var _p95 = _p94._0;
+				return {
+					ctor: '_Tuple2',
+					_0: _p95 + 1,
+					_1: A2(
+						_Gizra$elm_dictlist$AllDictList$AllDictList,
+						A3(
+							_eeue56$elm_all_dict$AllDict$insert,
+							key,
+							A3(func, _p95, key, value),
+							_p94._1._0),
+						{ctor: '::', _0: key, _1: _p94._1._1})
+				};
+			});
+		return _Gizra$elm_dictlist$AllDictList$reverse(
 			_elm_lang$core$Tuple$second(
 				A3(
-					_Gizra$elm_dictlist$DictList$foldl,
+					_Gizra$elm_dictlist$AllDictList$foldl,
 					go,
-					{ctor: '_Tuple2', _0: 0, _1: _Gizra$elm_dictlist$DictList$empty},
-					_p89)));
-	};
-};
-var _Gizra$elm_dictlist$DictList$filterMap = function (func) {
-	var go = F3(
-		function (key, value, acc) {
-			return A2(
-				_elm_lang$core$Maybe$withDefault,
-				acc,
-				A2(
-					_elm_lang$core$Maybe$map,
-					function (result) {
-						return A3(_Gizra$elm_dictlist$DictList$cons, key, result, acc);
+					{
+						ctor: '_Tuple2',
+						_0: 0,
+						_1: _Gizra$elm_dictlist$AllDictList$emptyWithOrdFrom(dictlist)
 					},
-					A2(func, key, value)));
-		});
-	return A2(_Gizra$elm_dictlist$DictList$foldr, go, _Gizra$elm_dictlist$DictList$empty);
-};
-var _Gizra$elm_dictlist$DictList$concat = function (lists) {
-	return A3(_elm_lang$core$List$foldr, _Gizra$elm_dictlist$DictList$append, _Gizra$elm_dictlist$DictList$empty, lists);
-};
-var _Gizra$elm_dictlist$DictList$insert = F3(
-	function (key, value, _p90) {
-		var _p91 = _p90;
-		var _p93 = _p91._1;
-		var _p92 = _p91._0;
-		var newList = A2(_elm_lang$core$Dict$member, key, _p92) ? _p93 : A2(
+					dictlist)));
+	});
+var _Gizra$elm_dictlist$AllDictList$filterMap = F2(
+	function (func, dictlist) {
+		var go = F3(
+			function (key, value, acc) {
+				return A2(
+					_elm_lang$core$Maybe$withDefault,
+					acc,
+					A2(
+						_elm_lang$core$Maybe$map,
+						function (result) {
+							return A3(_Gizra$elm_dictlist$AllDictList$cons, key, result, acc);
+						},
+						A2(func, key, value)));
+			});
+		return A3(
+			_Gizra$elm_dictlist$AllDictList$foldr,
+			go,
+			_Gizra$elm_dictlist$AllDictList$emptyWithOrdFrom(dictlist),
+			dictlist);
+	});
+var _Gizra$elm_dictlist$AllDictList$insert = F3(
+	function (key, value, _p96) {
+		var _p97 = _p96;
+		var _p99 = _p97._1;
+		var _p98 = _p97._0;
+		var newList = A2(_eeue56$elm_all_dict$AllDict$member, key, _p98) ? _p99 : A2(
 			_elm_lang$core$Basics_ops['++'],
-			_p93,
+			_p99,
 			{
 				ctor: '::',
 				_0: key,
 				_1: {ctor: '[]'}
 			});
-		var newDict = A3(_elm_lang$core$Dict$insert, key, value, _p92);
-		return A2(_Gizra$elm_dictlist$DictList$DictList, newDict, newList);
+		var newDict = A3(_eeue56$elm_all_dict$AllDict$insert, key, value, _p98);
+		return A2(_Gizra$elm_dictlist$AllDictList$AllDictList, newDict, newList);
 	});
-var _Gizra$elm_dictlist$DictList$decodeWithKeys = F2(
-	function (keys, func) {
+var _Gizra$elm_dictlist$AllDictList$decodeWithKeys = F3(
+	function (ord, keys, func) {
 		var go = F3(
 			function (jsonValue, key, accum) {
-				var _p94 = {
+				var _p100 = {
 					ctor: '_Tuple2',
 					_0: accum,
 					_1: A2(
@@ -7668,124 +8749,133 @@ var _Gizra$elm_dictlist$DictList$decodeWithKeys = F2(
 						func(key),
 						jsonValue)
 				};
-				if (_p94._0.ctor === 'Ok') {
-					if (_p94._1.ctor === 'Ok') {
+				if (_p100._0.ctor === 'Ok') {
+					if (_p100._1.ctor === 'Ok') {
 						return _elm_lang$core$Result$Ok(
-							A3(_Gizra$elm_dictlist$DictList$insert, key, _p94._1._0, _p94._0._0));
+							A3(_Gizra$elm_dictlist$AllDictList$insert, key, _p100._1._0, _p100._0._0));
 					} else {
-						return _elm_lang$core$Result$Err(_p94._1._0);
+						return _elm_lang$core$Result$Err(_p100._1._0);
 					}
 				} else {
-					if (_p94._1.ctor === 'Ok') {
+					if (_p100._1.ctor === 'Ok') {
 						return accum;
 					} else {
 						return _elm_lang$core$Result$Err(
 							A2(
 								_elm_lang$core$Basics_ops['++'],
-								_p94._0._0,
-								A2(_elm_lang$core$Basics_ops['++'], '\n', _p94._1._0)));
+								_p100._0._0,
+								A2(_elm_lang$core$Basics_ops['++'], '\n', _p100._1._0)));
 					}
 				}
 			});
 		return A2(
 			_elm_lang$core$Json_Decode$andThen,
 			function (jsonValue) {
-				var _p95 = A3(
+				var _p101 = A3(
 					_elm_lang$core$List$foldl,
 					go(jsonValue),
-					_elm_lang$core$Result$Ok(_Gizra$elm_dictlist$DictList$empty),
+					_elm_lang$core$Result$Ok(
+						_Gizra$elm_dictlist$AllDictList$empty(ord)),
 					keys);
-				if (_p95.ctor === 'Ok') {
-					return _elm_lang$core$Json_Decode$succeed(_p95._0);
+				if (_p101.ctor === 'Ok') {
+					return _elm_lang$core$Json_Decode$succeed(_p101._0);
 				} else {
-					return _elm_lang$core$Json_Decode$fail(_p95._0);
+					return _elm_lang$core$Json_Decode$fail(_p101._0);
 				}
 			},
 			_elm_lang$core$Json_Decode$value);
 	});
-var _Gizra$elm_dictlist$DictList$decodeKeysAndValues = F2(
-	function (keyDecoder, func) {
+var _Gizra$elm_dictlist$AllDictList$decodeKeysAndValues = F3(
+	function (ord, keyDecoder, func) {
 		return A2(
 			_elm_lang$core$Json_Decode$andThen,
 			function (keys) {
-				return A2(_Gizra$elm_dictlist$DictList$decodeWithKeys, keys, func);
+				return A3(_Gizra$elm_dictlist$AllDictList$decodeWithKeys, ord, keys, func);
 			},
 			keyDecoder);
 	});
-var _Gizra$elm_dictlist$DictList$filter = F2(
+var _Gizra$elm_dictlist$AllDictList$filter = F2(
 	function (predicate, dictList) {
 		var add = F3(
 			function (key, value, dict) {
-				return A2(predicate, key, value) ? A3(_Gizra$elm_dictlist$DictList$insert, key, value, dict) : dict;
+				return A2(predicate, key, value) ? A3(_Gizra$elm_dictlist$AllDictList$insert, key, value, dict) : dict;
 			});
-		return A3(_Gizra$elm_dictlist$DictList$foldl, add, _Gizra$elm_dictlist$DictList$empty, dictList);
+		return A3(
+			_Gizra$elm_dictlist$AllDictList$foldl,
+			add,
+			_Gizra$elm_dictlist$AllDictList$emptyWithOrdFrom(dictList),
+			dictList);
 	});
-var _Gizra$elm_dictlist$DictList$intersect = F2(
+var _Gizra$elm_dictlist$AllDictList$intersect = F2(
 	function (t1, t2) {
 		return A2(
-			_Gizra$elm_dictlist$DictList$filter,
+			_Gizra$elm_dictlist$AllDictList$filter,
 			F2(
-				function (k, _p96) {
-					return A2(_Gizra$elm_dictlist$DictList$member, k, t2);
+				function (k, _p102) {
+					return A2(_Gizra$elm_dictlist$AllDictList$member, k, t2);
 				}),
 			t1);
 	});
-var _Gizra$elm_dictlist$DictList$removeWhen = F2(
+var _Gizra$elm_dictlist$AllDictList$removeWhen = F2(
 	function (pred, dict) {
 		return A2(
-			_Gizra$elm_dictlist$DictList$filter,
+			_Gizra$elm_dictlist$AllDictList$filter,
 			F2(
 				function (k, v) {
 					return !A2(pred, k, v);
 				}),
 			dict);
 	});
-var _Gizra$elm_dictlist$DictList$partition = F2(
+var _Gizra$elm_dictlist$AllDictList$partition = F2(
 	function (predicate, dict) {
+		var emptyLikeDict = _Gizra$elm_dictlist$AllDictList$emptyWithOrdFrom(dict);
 		var add = F3(
-			function (key, value, _p97) {
-				var _p98 = _p97;
-				var _p100 = _p98._1;
-				var _p99 = _p98._0;
+			function (key, value, _p103) {
+				var _p104 = _p103;
+				var _p106 = _p104._1;
+				var _p105 = _p104._0;
 				return A2(predicate, key, value) ? {
 					ctor: '_Tuple2',
-					_0: A3(_Gizra$elm_dictlist$DictList$insert, key, value, _p99),
-					_1: _p100
+					_0: A3(_Gizra$elm_dictlist$AllDictList$insert, key, value, _p105),
+					_1: _p106
 				} : {
 					ctor: '_Tuple2',
-					_0: _p99,
-					_1: A3(_Gizra$elm_dictlist$DictList$insert, key, value, _p100)
+					_0: _p105,
+					_1: A3(_Gizra$elm_dictlist$AllDictList$insert, key, value, _p106)
 				};
 			});
 		return A3(
-			_Gizra$elm_dictlist$DictList$foldl,
+			_Gizra$elm_dictlist$AllDictList$foldl,
 			add,
-			{ctor: '_Tuple2', _0: _Gizra$elm_dictlist$DictList$empty, _1: _Gizra$elm_dictlist$DictList$empty},
+			{ctor: '_Tuple2', _0: emptyLikeDict, _1: emptyLikeDict},
 			dict);
 	});
-var _Gizra$elm_dictlist$DictList$fromList = function (assocs) {
-	return A3(
-		_elm_lang$core$List$foldl,
-		F2(
-			function (_p101, dict) {
-				var _p102 = _p101;
-				return A3(_Gizra$elm_dictlist$DictList$insert, _p102._0, _p102._1, dict);
-			}),
-		_Gizra$elm_dictlist$DictList$empty,
-		assocs);
-};
-var _Gizra$elm_dictlist$DictList$decodeObject = function (decoder) {
+var _Gizra$elm_dictlist$AllDictList$fromList = F2(
+	function (ord, assocs) {
+		return A3(
+			_elm_lang$core$List$foldl,
+			F2(
+				function (_p107, dict) {
+					var _p108 = _p107;
+					return A3(_Gizra$elm_dictlist$AllDictList$insert, _p108._0, _p108._1, dict);
+				}),
+			_Gizra$elm_dictlist$AllDictList$empty(ord),
+			assocs);
+	});
+var _Gizra$elm_dictlist$AllDictList$decodeObject = function (decoder) {
 	return A2(
 		_elm_lang$core$Json_Decode$map,
-		_Gizra$elm_dictlist$DictList$fromList,
+		_Gizra$elm_dictlist$AllDictList$fromList(_elm_lang$core$Basics$identity),
 		_elm_lang$core$Json_Decode$keyValuePairs(decoder));
 };
-var _Gizra$elm_dictlist$DictList$decodeArray = F2(
-	function (keyMapper, valueDecoder) {
+var _Gizra$elm_dictlist$AllDictList$decodeArray = F3(
+	function (ord, keyMapper, valueDecoder) {
 		return A2(
 			_elm_lang$core$Json_Decode$map,
-			function (_p103) {
-				return _Gizra$elm_dictlist$DictList$fromList(
+			function (_p109) {
+				return A2(
+					_Gizra$elm_dictlist$AllDictList$fromList,
+					ord,
 					A2(
 						_elm_lang$core$List$map,
 						function (value) {
@@ -7795,15 +8885,15 @@ var _Gizra$elm_dictlist$DictList$decodeArray = F2(
 								_1: value
 							};
 						},
-						_p103));
+						_p109));
 			},
 			_elm_lang$core$Json_Decode$list(valueDecoder));
 	});
-var _Gizra$elm_dictlist$DictList$decodeArray2 = F2(
-	function (keyDecoder, valueDecoder) {
+var _Gizra$elm_dictlist$AllDictList$decodeArray2 = F3(
+	function (ord, keyDecoder, valueDecoder) {
 		return A2(
 			_elm_lang$core$Json_Decode$map,
-			_Gizra$elm_dictlist$DictList$fromList,
+			_Gizra$elm_dictlist$AllDictList$fromList(ord),
 			_elm_lang$core$Json_Decode$list(
 				A3(
 					_elm_lang$core$Json_Decode$map2,
@@ -7814,22 +8904,22 @@ var _Gizra$elm_dictlist$DictList$decodeArray2 = F2(
 					keyDecoder,
 					valueDecoder)));
 	});
-var _Gizra$elm_dictlist$DictList$fromListBy = F2(
-	function (keyfn, xs) {
+var _Gizra$elm_dictlist$AllDictList$fromListBy = F3(
+	function (ord, keyfn, xs) {
 		return A3(
 			_elm_lang$core$List$foldl,
 			F2(
 				function (x, acc) {
 					return A3(
-						_Gizra$elm_dictlist$DictList$insert,
+						_Gizra$elm_dictlist$AllDictList$insert,
 						keyfn(x),
 						x,
 						acc);
 				}),
-			_Gizra$elm_dictlist$DictList$empty,
+			_Gizra$elm_dictlist$AllDictList$empty(ord),
 			xs);
 	});
-var _Gizra$elm_dictlist$DictList$keepOnly = F2(
+var _Gizra$elm_dictlist$AllDictList$keepOnly = F2(
 	function (set, dict) {
 		return A3(
 			_elm_lang$core$Set$foldl,
@@ -7841,54 +8931,58 @@ var _Gizra$elm_dictlist$DictList$keepOnly = F2(
 						A2(
 							_elm_lang$core$Maybe$map,
 							function (v) {
-								return A3(_Gizra$elm_dictlist$DictList$insert, k, v, acc);
+								return A3(_Gizra$elm_dictlist$AllDictList$insert, k, v, acc);
 							},
-							A2(_Gizra$elm_dictlist$DictList$get, k, dict)));
+							A2(_Gizra$elm_dictlist$AllDictList$get, k, dict)));
 				}),
-			_Gizra$elm_dictlist$DictList$empty,
+			_Gizra$elm_dictlist$AllDictList$emptyWithOrdFrom(dict),
 			set);
 	});
-var _Gizra$elm_dictlist$DictList$mapKeys = F2(
-	function (keyMapper, dict) {
+var _Gizra$elm_dictlist$AllDictList$mapKeys = F3(
+	function (ord, keyMapper, dict) {
 		var addKey = F3(
 			function (key, value, d) {
 				return A3(
-					_Gizra$elm_dictlist$DictList$insert,
+					_Gizra$elm_dictlist$AllDictList$insert,
 					keyMapper(key),
 					value,
 					d);
 			});
-		return A3(_Gizra$elm_dictlist$DictList$foldl, addKey, _Gizra$elm_dictlist$DictList$empty, dict);
+		return A3(
+			_Gizra$elm_dictlist$AllDictList$foldl,
+			addKey,
+			_Gizra$elm_dictlist$AllDictList$empty(ord),
+			dict);
 	});
-var _Gizra$elm_dictlist$DictList$remove = F2(
+var _Gizra$elm_dictlist$AllDictList$remove = F2(
 	function (key, dictList) {
-		var _p104 = dictList;
-		var _p105 = _p104._0;
-		return A2(_elm_lang$core$Dict$member, key, _p105) ? A2(
-			_Gizra$elm_dictlist$DictList$DictList,
-			A2(_elm_lang$core$Dict$remove, key, _p105),
-			A2(_elm_community$list_extra$List_Extra$remove, key, _p104._1)) : dictList;
+		var _p110 = dictList;
+		var _p111 = _p110._0;
+		return A2(_eeue56$elm_all_dict$AllDict$member, key, _p111) ? A2(
+			_Gizra$elm_dictlist$AllDictList$AllDictList,
+			A2(_eeue56$elm_all_dict$AllDict$remove, key, _p111),
+			A2(_elm_community$list_extra$List_Extra$remove, key, _p110._1)) : dictList;
 	});
-var _Gizra$elm_dictlist$DictList$update = F3(
+var _Gizra$elm_dictlist$AllDictList$update = F3(
 	function (key, alter, dictList) {
-		var _p106 = alter(
-			A2(_Gizra$elm_dictlist$DictList$get, key, dictList));
-		if (_p106.ctor === 'Nothing') {
-			return A2(_Gizra$elm_dictlist$DictList$remove, key, dictList);
+		var _p112 = alter(
+			A2(_Gizra$elm_dictlist$AllDictList$get, key, dictList));
+		if (_p112.ctor === 'Nothing') {
+			return A2(_Gizra$elm_dictlist$AllDictList$remove, key, dictList);
 		} else {
-			return A3(_Gizra$elm_dictlist$DictList$insert, key, _p106._0, dictList);
+			return A3(_Gizra$elm_dictlist$AllDictList$insert, key, _p112._0, dictList);
 		}
 	});
-var _Gizra$elm_dictlist$DictList$groupBy = F2(
-	function (keyfn, list) {
+var _Gizra$elm_dictlist$AllDictList$groupBy = F3(
+	function (ord, keyfn, list) {
 		return A3(
 			_elm_lang$core$List$foldr,
 			F2(
 				function (x, acc) {
 					return A3(
-						_Gizra$elm_dictlist$DictList$update,
+						_Gizra$elm_dictlist$AllDictList$update,
 						keyfn(x),
-						function (_p107) {
+						function (_p113) {
 							return _elm_lang$core$Maybe$Just(
 								A2(
 									_elm_lang$core$Maybe$withDefault,
@@ -7903,82 +8997,231 @@ var _Gizra$elm_dictlist$DictList$groupBy = F2(
 											function (x, y) {
 												return {ctor: '::', _0: x, _1: y};
 											})(x),
-										_p107)));
+										_p113)));
 						},
 						acc);
 				}),
-			_Gizra$elm_dictlist$DictList$empty,
+			_Gizra$elm_dictlist$AllDictList$empty(ord),
 			list);
 	});
-var _Gizra$elm_dictlist$DictList$diff = F2(
+var _Gizra$elm_dictlist$AllDictList$diff = F2(
 	function (t1, t2) {
 		return A3(
-			_Gizra$elm_dictlist$DictList$foldl,
+			_Gizra$elm_dictlist$AllDictList$foldl,
 			F3(
 				function (k, v, t) {
-					return A2(_Gizra$elm_dictlist$DictList$remove, k, t);
+					return A2(_Gizra$elm_dictlist$AllDictList$remove, k, t);
 				}),
 			t1,
 			t2);
 	});
-var _Gizra$elm_dictlist$DictList$removeMany = F2(
+var _Gizra$elm_dictlist$AllDictList$removeMany = F2(
 	function (set, dict) {
 		return A3(
 			_elm_lang$core$Set$foldl,
 			F2(
 				function (k, acc) {
-					return A2(_Gizra$elm_dictlist$DictList$remove, k, acc);
+					return A2(_Gizra$elm_dictlist$AllDictList$remove, k, acc);
 				}),
 			dict,
 			set);
 	});
-var _Gizra$elm_dictlist$DictList$singleton = F2(
-	function (key, value) {
+var _Gizra$elm_dictlist$AllDictList$singleton = F3(
+	function (ord, key, value) {
 		return A2(
-			_Gizra$elm_dictlist$DictList$DictList,
-			A2(_elm_lang$core$Dict$singleton, key, value),
+			_Gizra$elm_dictlist$AllDictList$AllDictList,
+			A3(_eeue56$elm_all_dict$AllDict$singleton, ord, key, value),
 			{
 				ctor: '::',
 				_0: key,
 				_1: {ctor: '[]'}
 			});
 	});
-var _Gizra$elm_dictlist$DictList$map = F2(
-	function (func, _p108) {
-		var _p109 = _p108;
+var _Gizra$elm_dictlist$AllDictList$map = F2(
+	function (func, _p114) {
+		var _p115 = _p114;
 		return A2(
-			_Gizra$elm_dictlist$DictList$DictList,
-			A2(_elm_lang$core$Dict$map, func, _p109._0),
-			_p109._1);
+			_Gizra$elm_dictlist$AllDictList$AllDictList,
+			A2(_eeue56$elm_all_dict$AllDict$map, func, _p115._0),
+			_p115._1);
 	});
-var _Gizra$elm_dictlist$DictList$fromDict = function (dict) {
+var _Gizra$elm_dictlist$AllDictList$fromAllDict = function (dict) {
 	return A2(
-		_Gizra$elm_dictlist$DictList$DictList,
+		_Gizra$elm_dictlist$AllDictList$AllDictList,
 		dict,
+		_eeue56$elm_all_dict$AllDict$keys(dict));
+};
+var _Gizra$elm_dictlist$AllDictList$fromDict = function (dict) {
+	var allDict = A3(
+		_elm_lang$core$Dict$foldl,
+		_eeue56$elm_all_dict$AllDict$insert,
+		_eeue56$elm_all_dict$AllDict$empty(_elm_lang$core$Basics$identity),
+		dict);
+	return A2(
+		_Gizra$elm_dictlist$AllDictList$AllDictList,
+		allDict,
 		_elm_lang$core$Dict$keys(dict));
 };
-var _Gizra$elm_dictlist$DictList$AfterKey = function (a) {
+var _Gizra$elm_dictlist$AllDictList$AfterKey = function (a) {
 	return {ctor: 'AfterKey', _0: a};
 };
-var _Gizra$elm_dictlist$DictList$BeforeKey = function (a) {
+var _Gizra$elm_dictlist$AllDictList$BeforeKey = function (a) {
 	return {ctor: 'BeforeKey', _0: a};
 };
-var _Gizra$elm_dictlist$DictList$relativePosition = F2(
+var _Gizra$elm_dictlist$AllDictList$relativePosition = F2(
 	function (key, dictlist) {
-		var _p110 = A2(_Gizra$elm_dictlist$DictList$previous, key, dictlist);
-		if (_p110.ctor === 'Just') {
+		var _p116 = A2(_Gizra$elm_dictlist$AllDictList$previous, key, dictlist);
+		if (_p116.ctor === 'Just') {
 			return _elm_lang$core$Maybe$Just(
-				_Gizra$elm_dictlist$DictList$AfterKey(_p110._0._0));
+				_Gizra$elm_dictlist$AllDictList$AfterKey(_p116._0._0));
 		} else {
-			var _p111 = A2(_Gizra$elm_dictlist$DictList$next, key, dictlist);
-			if (_p111.ctor === 'Just') {
+			var _p117 = A2(_Gizra$elm_dictlist$AllDictList$next, key, dictlist);
+			if (_p117.ctor === 'Just') {
 				return _elm_lang$core$Maybe$Just(
-					_Gizra$elm_dictlist$DictList$BeforeKey(_p111._0._0));
+					_Gizra$elm_dictlist$AllDictList$BeforeKey(_p117._0._0));
 			} else {
 				return _elm_lang$core$Maybe$Nothing;
 			}
 		}
 	});
+
+var _Gizra$elm_dictlist$DictList$mapKeys = _Gizra$elm_dictlist$AllDictList$mapKeys(_elm_lang$core$Basics$identity);
+var _Gizra$elm_dictlist$DictList$keepOnly = _Gizra$elm_dictlist$AllDictList$keepOnly;
+var _Gizra$elm_dictlist$DictList$removeMany = _Gizra$elm_dictlist$AllDictList$removeMany;
+var _Gizra$elm_dictlist$DictList$removeWhen = _Gizra$elm_dictlist$AllDictList$removeWhen;
+var _Gizra$elm_dictlist$DictList$fromListBy = _Gizra$elm_dictlist$AllDictList$fromListBy(_elm_lang$core$Basics$identity);
+var _Gizra$elm_dictlist$DictList$groupBy = _Gizra$elm_dictlist$AllDictList$groupBy(_elm_lang$core$Basics$identity);
+var _Gizra$elm_dictlist$DictList$fromAllDictList = _elm_lang$core$Basics$identity;
+var _Gizra$elm_dictlist$DictList$toAllDictList = _elm_lang$core$Basics$identity;
+var _Gizra$elm_dictlist$DictList$fromDict = _Gizra$elm_dictlist$AllDictList$fromDict;
+var _Gizra$elm_dictlist$DictList$toDict = _Gizra$elm_dictlist$AllDictList$toDict;
+var _Gizra$elm_dictlist$DictList$fromList = _Gizra$elm_dictlist$AllDictList$fromList(_elm_lang$core$Basics$identity);
+var _Gizra$elm_dictlist$DictList$toList = _Gizra$elm_dictlist$AllDictList$toList;
+var _Gizra$elm_dictlist$DictList$values = _Gizra$elm_dictlist$AllDictList$values;
+var _Gizra$elm_dictlist$DictList$keys = _Gizra$elm_dictlist$AllDictList$keys;
+var _Gizra$elm_dictlist$DictList$partition = _Gizra$elm_dictlist$AllDictList$partition;
+var _Gizra$elm_dictlist$DictList$filter = _Gizra$elm_dictlist$AllDictList$filter;
+var _Gizra$elm_dictlist$DictList$foldr = _Gizra$elm_dictlist$AllDictList$foldr;
+var _Gizra$elm_dictlist$DictList$foldl = _Gizra$elm_dictlist$AllDictList$foldl;
+var _Gizra$elm_dictlist$DictList$map = _Gizra$elm_dictlist$AllDictList$map;
+var _Gizra$elm_dictlist$DictList$merge = _Gizra$elm_dictlist$AllDictList$merge;
+var _Gizra$elm_dictlist$DictList$diff = _Gizra$elm_dictlist$AllDictList$diff;
+var _Gizra$elm_dictlist$DictList$intersect = _Gizra$elm_dictlist$AllDictList$intersect;
+var _Gizra$elm_dictlist$DictList$union = _Gizra$elm_dictlist$AllDictList$union;
+var _Gizra$elm_dictlist$DictList$singleton = _Gizra$elm_dictlist$AllDictList$singleton(_elm_lang$core$Basics$identity);
+var _Gizra$elm_dictlist$DictList$update = _Gizra$elm_dictlist$AllDictList$update;
+var _Gizra$elm_dictlist$DictList$remove = _Gizra$elm_dictlist$AllDictList$remove;
+var _Gizra$elm_dictlist$DictList$insert = _Gizra$elm_dictlist$AllDictList$insert;
+var _Gizra$elm_dictlist$DictList$isEmpty = _Gizra$elm_dictlist$AllDictList$isEmpty;
+var _Gizra$elm_dictlist$DictList$size = _Gizra$elm_dictlist$AllDictList$size;
+var _Gizra$elm_dictlist$DictList$member = _Gizra$elm_dictlist$AllDictList$member;
+var _Gizra$elm_dictlist$DictList$get = _Gizra$elm_dictlist$AllDictList$get;
+var _Gizra$elm_dictlist$DictList$eq = _Gizra$elm_dictlist$AllDictList$eq;
+var _Gizra$elm_dictlist$DictList$empty = _Gizra$elm_dictlist$AllDictList$empty(_elm_lang$core$Basics$identity);
+var _Gizra$elm_dictlist$DictList$insertRelativeTo = _Gizra$elm_dictlist$AllDictList$insertRelativeTo;
+var _Gizra$elm_dictlist$DictList$atRelativePosition = _Gizra$elm_dictlist$AllDictList$atRelativePosition;
+var _Gizra$elm_dictlist$DictList$relativePosition = _Gizra$elm_dictlist$AllDictList$relativePosition;
+var _Gizra$elm_dictlist$DictList$insertBefore = _Gizra$elm_dictlist$AllDictList$insertBefore;
+var _Gizra$elm_dictlist$DictList$insertAfter = _Gizra$elm_dictlist$AllDictList$insertAfter;
+var _Gizra$elm_dictlist$DictList$getAt = _Gizra$elm_dictlist$AllDictList$getAt;
+var _Gizra$elm_dictlist$DictList$getKeyAt = _Gizra$elm_dictlist$AllDictList$getKeyAt;
+var _Gizra$elm_dictlist$DictList$previous = _Gizra$elm_dictlist$AllDictList$previous;
+var _Gizra$elm_dictlist$DictList$next = _Gizra$elm_dictlist$AllDictList$next;
+var _Gizra$elm_dictlist$DictList$indexOfKey = _Gizra$elm_dictlist$AllDictList$indexOfKey;
+var _Gizra$elm_dictlist$DictList$sortWith = _Gizra$elm_dictlist$AllDictList$sortWith;
+var _Gizra$elm_dictlist$DictList$sortBy = _Gizra$elm_dictlist$AllDictList$sortBy;
+var _Gizra$elm_dictlist$DictList$sort = _Gizra$elm_dictlist$AllDictList$sort;
+var _Gizra$elm_dictlist$DictList$drop = _Gizra$elm_dictlist$AllDictList$drop;
+var _Gizra$elm_dictlist$DictList$take = _Gizra$elm_dictlist$AllDictList$take;
+var _Gizra$elm_dictlist$DictList$minimum = _Gizra$elm_dictlist$AllDictList$minimum;
+var _Gizra$elm_dictlist$DictList$maximum = _Gizra$elm_dictlist$AllDictList$maximum;
+var _Gizra$elm_dictlist$DictList$product = _Gizra$elm_dictlist$AllDictList$product;
+var _Gizra$elm_dictlist$DictList$sum = _Gizra$elm_dictlist$AllDictList$sum;
+var _Gizra$elm_dictlist$DictList$concat = _Gizra$elm_dictlist$AllDictList$concat(_elm_lang$core$Basics$identity);
+var _Gizra$elm_dictlist$DictList$append = _Gizra$elm_dictlist$AllDictList$append;
+var _Gizra$elm_dictlist$DictList$any = _Gizra$elm_dictlist$AllDictList$any;
+var _Gizra$elm_dictlist$DictList$all = _Gizra$elm_dictlist$AllDictList$all;
+var _Gizra$elm_dictlist$DictList$reverse = _Gizra$elm_dictlist$AllDictList$reverse;
+var _Gizra$elm_dictlist$DictList$length = _Gizra$elm_dictlist$AllDictList$length;
+var _Gizra$elm_dictlist$DictList$filterMap = _Gizra$elm_dictlist$AllDictList$filterMap;
+var _Gizra$elm_dictlist$DictList$indexedMap = _Gizra$elm_dictlist$AllDictList$indexedMap;
+var _Gizra$elm_dictlist$DictList$tail = _Gizra$elm_dictlist$AllDictList$tail;
+var _Gizra$elm_dictlist$DictList$head = _Gizra$elm_dictlist$AllDictList$head;
+var _Gizra$elm_dictlist$DictList$cons = _Gizra$elm_dictlist$AllDictList$cons;
+var _Gizra$elm_dictlist$DictList$decodeArray2 = _Gizra$elm_dictlist$AllDictList$decodeArray2(_elm_lang$core$Basics$identity);
+var _Gizra$elm_dictlist$DictList$decodeArray = _Gizra$elm_dictlist$AllDictList$decodeArray(_elm_lang$core$Basics$identity);
+var _Gizra$elm_dictlist$DictList$decodeKeysAndValues = _Gizra$elm_dictlist$AllDictList$decodeKeysAndValues(_elm_lang$core$Basics$identity);
+var _Gizra$elm_dictlist$DictList$decodeWithKeys = _Gizra$elm_dictlist$AllDictList$decodeWithKeys(_elm_lang$core$Basics$identity);
+var _Gizra$elm_dictlist$DictList$decodeObject = _Gizra$elm_dictlist$AllDictList$decodeObject;
+
+var _Gizra$elm_dictlist$EveryDictList$mapKeys = _Gizra$elm_dictlist$AllDictList$mapKeys(_elm_lang$core$Basics$toString);
+var _Gizra$elm_dictlist$EveryDictList$keepOnly = _Gizra$elm_dictlist$AllDictList$keepOnly;
+var _Gizra$elm_dictlist$EveryDictList$removeMany = _Gizra$elm_dictlist$AllDictList$removeMany;
+var _Gizra$elm_dictlist$EveryDictList$removeWhen = _Gizra$elm_dictlist$AllDictList$removeWhen;
+var _Gizra$elm_dictlist$EveryDictList$fromListBy = _Gizra$elm_dictlist$AllDictList$fromListBy(_elm_lang$core$Basics$toString);
+var _Gizra$elm_dictlist$EveryDictList$groupBy = _Gizra$elm_dictlist$AllDictList$groupBy(_elm_lang$core$Basics$toString);
+var _Gizra$elm_dictlist$EveryDictList$fromAllDictList = _elm_lang$core$Basics$identity;
+var _Gizra$elm_dictlist$EveryDictList$toAllDictList = _elm_lang$core$Basics$identity;
+var _Gizra$elm_dictlist$EveryDictList$fromDict = _Gizra$elm_dictlist$AllDictList$fromDict;
+var _Gizra$elm_dictlist$EveryDictList$toDict = _Gizra$elm_dictlist$AllDictList$toDict;
+var _Gizra$elm_dictlist$EveryDictList$fromList = _Gizra$elm_dictlist$AllDictList$fromList(_elm_lang$core$Basics$toString);
+var _Gizra$elm_dictlist$EveryDictList$toList = _Gizra$elm_dictlist$AllDictList$toList;
+var _Gizra$elm_dictlist$EveryDictList$values = _Gizra$elm_dictlist$AllDictList$values;
+var _Gizra$elm_dictlist$EveryDictList$keys = _Gizra$elm_dictlist$AllDictList$keys;
+var _Gizra$elm_dictlist$EveryDictList$partition = _Gizra$elm_dictlist$AllDictList$partition;
+var _Gizra$elm_dictlist$EveryDictList$filter = _Gizra$elm_dictlist$AllDictList$filter;
+var _Gizra$elm_dictlist$EveryDictList$foldr = _Gizra$elm_dictlist$AllDictList$foldr;
+var _Gizra$elm_dictlist$EveryDictList$foldl = _Gizra$elm_dictlist$AllDictList$foldl;
+var _Gizra$elm_dictlist$EveryDictList$map = _Gizra$elm_dictlist$AllDictList$map;
+var _Gizra$elm_dictlist$EveryDictList$merge = _Gizra$elm_dictlist$AllDictList$merge;
+var _Gizra$elm_dictlist$EveryDictList$diff = _Gizra$elm_dictlist$AllDictList$diff;
+var _Gizra$elm_dictlist$EveryDictList$intersect = _Gizra$elm_dictlist$AllDictList$intersect;
+var _Gizra$elm_dictlist$EveryDictList$union = _Gizra$elm_dictlist$AllDictList$union;
+var _Gizra$elm_dictlist$EveryDictList$singleton = _Gizra$elm_dictlist$AllDictList$singleton(_elm_lang$core$Basics$toString);
+var _Gizra$elm_dictlist$EveryDictList$update = _Gizra$elm_dictlist$AllDictList$update;
+var _Gizra$elm_dictlist$EveryDictList$remove = _Gizra$elm_dictlist$AllDictList$remove;
+var _Gizra$elm_dictlist$EveryDictList$insert = _Gizra$elm_dictlist$AllDictList$insert;
+var _Gizra$elm_dictlist$EveryDictList$isEmpty = _Gizra$elm_dictlist$AllDictList$isEmpty;
+var _Gizra$elm_dictlist$EveryDictList$size = _Gizra$elm_dictlist$AllDictList$size;
+var _Gizra$elm_dictlist$EveryDictList$member = _Gizra$elm_dictlist$AllDictList$member;
+var _Gizra$elm_dictlist$EveryDictList$get = _Gizra$elm_dictlist$AllDictList$get;
+var _Gizra$elm_dictlist$EveryDictList$eq = _Gizra$elm_dictlist$AllDictList$eq;
+var _Gizra$elm_dictlist$EveryDictList$empty = _Gizra$elm_dictlist$AllDictList$empty(_elm_lang$core$Basics$toString);
+var _Gizra$elm_dictlist$EveryDictList$insertRelativeTo = _Gizra$elm_dictlist$AllDictList$insertRelativeTo;
+var _Gizra$elm_dictlist$EveryDictList$atRelativePosition = _Gizra$elm_dictlist$AllDictList$atRelativePosition;
+var _Gizra$elm_dictlist$EveryDictList$relativePosition = _Gizra$elm_dictlist$AllDictList$relativePosition;
+var _Gizra$elm_dictlist$EveryDictList$insertBefore = _Gizra$elm_dictlist$AllDictList$insertBefore;
+var _Gizra$elm_dictlist$EveryDictList$insertAfter = _Gizra$elm_dictlist$AllDictList$insertAfter;
+var _Gizra$elm_dictlist$EveryDictList$getAt = _Gizra$elm_dictlist$AllDictList$getAt;
+var _Gizra$elm_dictlist$EveryDictList$getKeyAt = _Gizra$elm_dictlist$AllDictList$getKeyAt;
+var _Gizra$elm_dictlist$EveryDictList$previous = _Gizra$elm_dictlist$AllDictList$previous;
+var _Gizra$elm_dictlist$EveryDictList$next = _Gizra$elm_dictlist$AllDictList$next;
+var _Gizra$elm_dictlist$EveryDictList$indexOfKey = _Gizra$elm_dictlist$AllDictList$indexOfKey;
+var _Gizra$elm_dictlist$EveryDictList$sortWith = _Gizra$elm_dictlist$AllDictList$sortWith;
+var _Gizra$elm_dictlist$EveryDictList$sortBy = _Gizra$elm_dictlist$AllDictList$sortBy;
+var _Gizra$elm_dictlist$EveryDictList$sort = _Gizra$elm_dictlist$AllDictList$sort;
+var _Gizra$elm_dictlist$EveryDictList$drop = _Gizra$elm_dictlist$AllDictList$drop;
+var _Gizra$elm_dictlist$EveryDictList$take = _Gizra$elm_dictlist$AllDictList$take;
+var _Gizra$elm_dictlist$EveryDictList$minimum = _Gizra$elm_dictlist$AllDictList$minimum;
+var _Gizra$elm_dictlist$EveryDictList$maximum = _Gizra$elm_dictlist$AllDictList$maximum;
+var _Gizra$elm_dictlist$EveryDictList$product = _Gizra$elm_dictlist$AllDictList$product;
+var _Gizra$elm_dictlist$EveryDictList$sum = _Gizra$elm_dictlist$AllDictList$sum;
+var _Gizra$elm_dictlist$EveryDictList$concat = _Gizra$elm_dictlist$AllDictList$concat(_elm_lang$core$Basics$toString);
+var _Gizra$elm_dictlist$EveryDictList$append = _Gizra$elm_dictlist$AllDictList$append;
+var _Gizra$elm_dictlist$EveryDictList$any = _Gizra$elm_dictlist$AllDictList$any;
+var _Gizra$elm_dictlist$EveryDictList$all = _Gizra$elm_dictlist$AllDictList$all;
+var _Gizra$elm_dictlist$EveryDictList$reverse = _Gizra$elm_dictlist$AllDictList$reverse;
+var _Gizra$elm_dictlist$EveryDictList$length = _Gizra$elm_dictlist$AllDictList$length;
+var _Gizra$elm_dictlist$EveryDictList$filterMap = _Gizra$elm_dictlist$AllDictList$filterMap;
+var _Gizra$elm_dictlist$EveryDictList$indexedMap = _Gizra$elm_dictlist$AllDictList$indexedMap;
+var _Gizra$elm_dictlist$EveryDictList$tail = _Gizra$elm_dictlist$AllDictList$tail;
+var _Gizra$elm_dictlist$EveryDictList$head = _Gizra$elm_dictlist$AllDictList$head;
+var _Gizra$elm_dictlist$EveryDictList$cons = _Gizra$elm_dictlist$AllDictList$cons;
+var _Gizra$elm_dictlist$EveryDictList$decodeArray2 = _Gizra$elm_dictlist$AllDictList$decodeArray2(_elm_lang$core$Basics$toString);
+var _Gizra$elm_dictlist$EveryDictList$decodeArray = _Gizra$elm_dictlist$AllDictList$decodeArray(_elm_lang$core$Basics$toString);
+var _Gizra$elm_dictlist$EveryDictList$decodeKeysAndValues = _Gizra$elm_dictlist$AllDictList$decodeKeysAndValues(_elm_lang$core$Basics$toString);
+var _Gizra$elm_dictlist$EveryDictList$decodeWithKeys = _Gizra$elm_dictlist$AllDictList$decodeWithKeys(_elm_lang$core$Basics$toString);
+var _Gizra$elm_dictlist$EveryDictList$decodeObject = _Gizra$elm_dictlist$AllDictList$decodeObject;
 
 var _Gizra$elm_spa_exmple$App_Types$NotFound = {ctor: 'NotFound'};
 var _Gizra$elm_spa_exmple$App_Types$HomePage = {ctor: 'HomePage'};
@@ -8997,6 +10240,9 @@ var _Gizra$elm_spa_exmple$ItemComment_Model$ItemComment = F2(
 	function (a, b) {
 		return {userId: a, comment: b};
 	});
+var _Gizra$elm_spa_exmple$ItemComment_Model$ItemCommentId = function (a) {
+	return {ctor: 'ItemCommentId', _0: a};
+};
 var _Gizra$elm_spa_exmple$ItemComment_Model$Preview = {ctor: 'Preview'};
 var _Gizra$elm_spa_exmple$ItemComment_Model$Edit = {ctor: 'Edit'};
 var _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel = {itemId: 1, comment: '## Some Markdown text\n\nWith _italic_, __bold__ and a [link](https://example.com)!\n', status: _krisajenkins$remotedata$RemoteData$NotAsked, selectedTab: _Gizra$elm_spa_exmple$ItemComment_Model$Edit};

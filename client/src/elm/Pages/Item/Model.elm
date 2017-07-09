@@ -1,11 +1,13 @@
 module Pages.Item.Model exposing (..)
 
+import EveryDictList
 import Item.Model exposing (ItemId)
-import ItemComment.Model
+import ItemComment.Model exposing (EveryDictListItemComments)
 
 
 type alias Model =
     { itemId : ItemId
+    , comments : EveryDictListItemComments
     , itemComment : ItemComment.Model.Model
     }
 
@@ -13,5 +15,6 @@ type alias Model =
 emptyModel : Model
 emptyModel =
     { itemId = 0
+    , comments = EveryDictList.empty
     , itemComment = ItemComment.Model.emptyModel
     }

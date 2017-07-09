@@ -1,6 +1,6 @@
 module ItemComment.Model exposing (..)
 
-import DictList exposing (EveryDictList)
+import EveryDictList exposing (EveryDictList)
 import Http
 import Item.Model exposing (ItemId)
 import RemoteData exposing (..)
