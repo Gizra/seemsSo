@@ -64,7 +64,7 @@ viewItemComment muser ( ItemComment.Model.ItemCommentId itemCommentId, itemComme
                 [ text "#{userIdent}" ]
             , div
                 [ class "text" ]
-                [ text "#{comment}" ]
+                [ text itemComment.comment ]
             ]
         ]
 

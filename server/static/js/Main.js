@@ -21368,7 +21368,7 @@ var _Gizra$elm_spa_exmple$ItemComment_View$viewItemComment = F2(
 									},
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html$text('#{comment}'),
+										_0: _elm_lang$html$Html$text(_p1._1.comment),
 										_1: {ctor: '[]'}
 									}),
 								_1: {ctor: '[]'}
