@@ -1,4 +1,8 @@
-module ItemComment.View exposing (view)
+module ItemComment.View
+    exposing
+        ( view
+        , viewItemComments
+        )
 
 import EveryDictList exposing (EveryDictList)
 import Html exposing (..)
@@ -31,16 +35,16 @@ view baseUrl muser model =
             ]
 
 
-viewItemcomments : Maybe User -> EveryDictListItemComments -> Html Msg
-viewItemcomments muser commentsDictList =
+viewItemComments : Maybe User -> EveryDictListItemComments -> Html msg
+viewItemComments muser commentsDictList =
     showIf (not (EveryDictList.isEmpty commentsDictList)) <|
         div
             [ class "ui comments" ]
             []
 
 
-viewItemcomment : Maybe User -> ( ItemCommentId, ItemComment ) -> Html Msg
-viewItemcomment muser ( ItemComment.Model.ItemCommentId itemCommentId, itemComment ) =
+viewItemComment : Maybe User -> ( ItemCommentId, ItemComment ) -> Html msg
+viewItemComment muser ( ItemComment.Model.ItemCommentId itemCommentId, itemComment ) =
     div
         [ id <| "comment-" ++ toString itemCommentId
         , class "comment"
