@@ -40,7 +40,9 @@ viewItemComments muser commentsDictList =
     showIf (not (EveryDictList.isEmpty commentsDictList)) <|
         div
             [ class "ui comments" ]
-            []
+            (EveryDictList.toList commentsDictList
+                |> List.map (viewItemComment muser)
+            )
 
 
 viewItemComment : Maybe User -> ( ItemCommentId, ItemComment ) -> Html msg

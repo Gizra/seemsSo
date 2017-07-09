@@ -10257,7 +10257,28 @@ var _Gizra$elm_spa_exmple$ItemComment_Model$HandleSaveComment = function (a) {
 	return {ctor: 'HandleSaveComment', _0: a};
 };
 
-var _Gizra$elm_spa_exmple$Pages_Item_Model$emptyModel = {itemId: 0, comments: _Gizra$elm_dictlist$EveryDictList$empty, itemComment: _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel};
+var _Gizra$elm_spa_exmple$Pages_Item_Model$emptyModel = {
+	itemId: 0,
+	comments: _Gizra$elm_dictlist$EveryDictList$fromList(
+		{
+			ctor: '::',
+			_0: {
+				ctor: '_Tuple2',
+				_0: _Gizra$elm_spa_exmple$ItemComment_Model$ItemCommentId(1),
+				_1: {userId: 100, comment: 'Comment #1'}
+			},
+			_1: {
+				ctor: '::',
+				_0: {
+					ctor: '_Tuple2',
+					_0: _Gizra$elm_spa_exmple$ItemComment_Model$ItemCommentId(2),
+					_1: {userId: 200, comment: 'Comment #2'}
+				},
+				_1: {ctor: '[]'}
+			}
+		}),
+	itemComment: _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel
+};
 var _Gizra$elm_spa_exmple$Pages_Item_Model$Model = F3(
 	function (a, b, c) {
 		return {itemId: a, comments: b, itemComment: c};
@@ -21369,7 +21390,10 @@ var _Gizra$elm_spa_exmple$ItemComment_View$viewItemComments = F2(
 					_0: _elm_lang$html$Html_Attributes$class('ui comments'),
 					_1: {ctor: '[]'}
 				},
-				{ctor: '[]'}));
+				A2(
+					_elm_lang$core$List$map,
+					_Gizra$elm_spa_exmple$ItemComment_View$viewItemComment(muser),
+					_Gizra$elm_dictlist$EveryDictList$toList(commentsDictList))));
 	});
 var _Gizra$elm_spa_exmple$ItemComment_View$view = F3(
 	function (baseUrl, muser, model) {
