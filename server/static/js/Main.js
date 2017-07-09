@@ -10283,7 +10283,9 @@ var _Gizra$elm_spa_exmple$Pages_Item_Model$Model = F3(
 	function (a, b, c) {
 		return {itemId: a, comments: b, itemComment: c};
 	});
-var _Gizra$elm_spa_exmple$Pages_Item_Model$NoOp = {ctor: 'NoOp'};
+var _Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment = function (a) {
+	return {ctor: 'MsgItemComment', _0: a};
+};
 
 var _Gizra$elm_spa_exmple$App_Model$emptyModel = {widget: _Gizra$elm_spa_exmple$App_Types$NotFound, pageHomepage: _Gizra$elm_spa_exmple$Pages_Homepage_Model$emptyModel, pageItem: _Gizra$elm_spa_exmple$Pages_Item_Model$emptyModel, user: _elm_lang$core$Maybe$Nothing, baseUrl: 'http://localhost:3000/'};
 var _Gizra$elm_spa_exmple$App_Model$Flags = function (a) {
@@ -21441,11 +21443,18 @@ var _Gizra$elm_spa_exmple$Pages_Item_View$view = F3(
 			{ctor: '[]'},
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html$text('Pages.Item.View'),
+				_0: _elm_lang$html$Html$text('Pages.Item.View ss'),
 				_1: {
 					ctor: '::',
 					_0: A2(_Gizra$elm_spa_exmple$ItemComment_View$viewItemComments, muser, model.comments),
-					_1: {ctor: '[]'}
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$map,
+							_Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment,
+							A3(_Gizra$elm_spa_exmple$ItemComment_View$view, baseUrl, muser, model.itemComment)),
+						_1: {ctor: '[]'}
+					}
 				}
 			});
 	});

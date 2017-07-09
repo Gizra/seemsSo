@@ -34,4 +34,4 @@ emptyModel =
 
 
 type Msg
-    = NoOp
+    = MsgItemComment ItemComment.Model.Msg
