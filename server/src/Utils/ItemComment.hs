@@ -5,7 +5,8 @@
 {-# LANGUAGE TypeFamilies #-}
 
 module Utils.ItemComment
-    ( getEncodedItemCommentsByItemId
+    ( getEncodedItemComment
+    , getEncodedItemCommentsByItemId
     , getItemComment
     , getItemCommentsByItemId
     ) where
@@ -35,14 +36,14 @@ instance ToJSON CommentWithUserInfo where
             , "name" .= commentWithUserInfoUserIdent commentWithUserInfo
             ]
 
-getEncodedItemCommentsByItemId :: ItemId -> Handler TL.Text
-getEncodedItemCommentsByItemId itemId = do
-    commentsRaw <- getItemCommentsByItemId itemId
-    encodeItemComments commentsRaw
-
 getEncodedItemComment :: ItemCommentId -> Handler TL.Text
 getEncodedItemComment itemCommentId = do
     commentsRaw <- getItemComment itemCommentId
+    encodeItemComments commentsRaw
+
+getEncodedItemCommentsByItemId :: ItemId -> Handler TL.Text
+getEncodedItemCommentsByItemId itemId = do
+    commentsRaw <- getItemCommentsByItemId itemId
     encodeItemComments commentsRaw
 
 getItemCommentsByItemId ::
