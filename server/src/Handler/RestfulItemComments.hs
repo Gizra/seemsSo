@@ -6,6 +6,7 @@
 module Handler.RestfulItemComments where
 
 import Data.Aeson.Text (encodeToLazyText)
+import Database.Persist.Sql (fromSqlKey)
 import Handler.RestfulItemComment (getRestfulItemCommentR)
 import Import
 import Network.Pusher (Channel(..), ChannelType(..), trigger)
@@ -50,7 +51,9 @@ postRestfulItemCommentsR itemId = do
             _ <-
                 trigger
                     pusher
-                    [Channel Public "my-channel"]
+                    [ Channel Public $
+                      "item-" ++ (pack $ show $ fromSqlKey itemId)
+                    ]
                     "comment__insert"
                     (pack $ show $ encodeToLazyText $ restfulItemComment)
                     Nothing
