@@ -13179,24 +13179,29 @@ var _Gizra$elm_spa_exmple$Pages_Item_Update$update = F2(
 		var _p0 = msg;
 		if (_p0.ctor === 'HandleItemIdAndComments') {
 			if (_p0._0.ctor === 'Ok') {
+				var _p1 = _p0._0._0._0;
+				var itemComment = model.itemComment;
+				var itemCommentUpdated = _elm_lang$core$Native_Utils.update(
+					itemComment,
+					{itemId: _p1});
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{itemId: _p0._0._0._0, comments: _p0._0._0._1}),
+						{itemId: _p1, comments: _p0._0._0._1, itemComment: itemCommentUpdated}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			} else {
-				var _p1 = A2(_elm_lang$core$Debug$log, 'HandleItemIdAndComments', _p0._0._0);
+				var _p2 = A2(_elm_lang$core$Debug$log, 'HandleItemIdAndComments', _p0._0._0);
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					model,
 					{ctor: '[]'});
 			}
 		} else {
-			var _p2 = A2(_Gizra$elm_spa_exmple$ItemComment_Update$update, _p0._0, model.itemComment);
-			var val = _p2._0;
-			var cmds = _p2._1;
+			var _p3 = A2(_Gizra$elm_spa_exmple$ItemComment_Update$update, _p0._0, model.itemComment);
+			var val = _p3._0;
+			var cmds = _p3._1;
 			return {
 				ctor: '_Tuple2',
 				_0: _elm_lang$core$Native_Utils.update(
@@ -13208,9 +13213,9 @@ var _Gizra$elm_spa_exmple$Pages_Item_Update$update = F2(
 	});
 var _Gizra$elm_spa_exmple$Pages_Item_Update$itemIdAndComments = _elm_lang$core$Native_Platform.incomingPort('itemIdAndComments', _elm_lang$core$Json_Decode$value);
 var _Gizra$elm_spa_exmple$Pages_Item_Update$subscriptions = _Gizra$elm_spa_exmple$Pages_Item_Update$itemIdAndComments(
-	function (_p3) {
+	function (_p4) {
 		return _Gizra$elm_spa_exmple$Pages_Item_Model$HandleItemIdAndComments(
-			A2(_elm_lang$core$Json_Decode$decodeValue, _Gizra$elm_spa_exmple$Pages_Item_Decoder$deocdeItemIdAndComments, _p3));
+			A2(_elm_lang$core$Json_Decode$decodeValue, _Gizra$elm_spa_exmple$Pages_Item_Decoder$deocdeItemIdAndComments, _p4));
 	});
 
 var _Gizra$elm_spa_exmple$App_Update$update = F2(

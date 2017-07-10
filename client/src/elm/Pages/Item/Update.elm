@@ -16,12 +16,20 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         HandleItemIdAndComments (Ok ( itemId, everyDictListItemComments )) ->
-            ( { model
-                | itemId = itemId
-                , comments = everyDictListItemComments
-              }
-            , Cmd.none
-            )
+            let
+                itemComment =
+                    model.itemComment
+
+                itemCommentUpdated =
+                    { itemComment | itemId = itemId }
+            in
+                ( { model
+                    | itemId = itemId
+                    , comments = everyDictListItemComments
+                    , itemComment = itemCommentUpdated
+                  }
+                , Cmd.none
+                )
 
         HandleItemIdAndComments (Err err) ->
             let
