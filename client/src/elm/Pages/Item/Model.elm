@@ -40,4 +40,5 @@ emptyModel =
 
 
 type Msg
-    = MsgItemComment ItemComment.Model.Msg
+    = HandleItemIdAndComments (Result String ( ItemId, EveryDictListItemComments ))
+    | MsgItemComment ItemComment.Model.Msg

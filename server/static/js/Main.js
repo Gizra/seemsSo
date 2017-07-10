@@ -10304,7 +10304,7 @@ var _Gizra$elm_spa_exmple$ItemComment_Model$Model = F4(
 	});
 var _Gizra$elm_spa_exmple$ItemComment_Model$ItemComment = F4(
 	function (a, b, c, d) {
-		return {userId: a, userName: b, comment: c, created: d};
+		return {userId: a, user: b, comment: c, created: d};
 	});
 var _Gizra$elm_spa_exmple$ItemComment_Model$ItemCommentId = function (a) {
 	return {ctor: 'ItemCommentId', _0: a};
@@ -10333,7 +10333,7 @@ var _Gizra$elm_spa_exmple$Pages_Item_Model$emptyModel = {
 				_0: _Gizra$elm_spa_exmple$ItemComment_Model$ItemCommentId(1),
 				_1: {
 					userId: 100,
-					userName: 'alice',
+					user: _Gizra$elm_spa_exmple$User_Model$User('alice'),
 					comment: 'Comment #1',
 					created: _elm_lang$core$Date$fromTime(28347887)
 				}
@@ -10345,7 +10345,7 @@ var _Gizra$elm_spa_exmple$Pages_Item_Model$emptyModel = {
 					_0: _Gizra$elm_spa_exmple$ItemComment_Model$ItemCommentId(2),
 					_1: {
 						userId: 200,
-						userName: 'bob',
+						user: _Gizra$elm_spa_exmple$User_Model$User('bob'),
 						comment: 'Comment #2',
 						created: _elm_lang$core$Date$fromTime(28347897)
 					}
@@ -10361,6 +10361,9 @@ var _Gizra$elm_spa_exmple$Pages_Item_Model$Model = F3(
 	});
 var _Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment = function (a) {
 	return {ctor: 'MsgItemComment', _0: a};
+};
+var _Gizra$elm_spa_exmple$Pages_Item_Model$HandleItemIdAndComments = function (a) {
+	return {ctor: 'HandleItemIdAndComments', _0: a};
 };
 
 var _Gizra$elm_spa_exmple$App_Model$emptyModel = {widget: _Gizra$elm_spa_exmple$App_Types$NotFound, pageHomepage: _Gizra$elm_spa_exmple$Pages_Homepage_Model$emptyModel, pageItem: _Gizra$elm_spa_exmple$Pages_Item_Model$emptyModel, user: _elm_lang$core$Maybe$Nothing, baseUrl: 'http://localhost:3000/'};
@@ -13134,23 +13137,13 @@ var _Gizra$elm_spa_exmple$ItemComment_Update$update = F2(
 		}
 	});
 
-var _Gizra$elm_spa_exmple$Pages_Item_Update$update = F2(
-	function (msg, model) {
-		var _p0 = msg;
-		var _p1 = A2(_Gizra$elm_spa_exmple$ItemComment_Update$update, _p0._0, model.itemComment);
-		var val = _p1._0;
-		var cmds = _p1._1;
-		return {
-			ctor: '_Tuple2',
-			_0: _elm_lang$core$Native_Utils.update(
-				model,
-				{itemComment: val}),
-			_1: A2(_elm_lang$core$Platform_Cmd$map, _Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment, cmds)
-		};
-	});
-var _Gizra$elm_spa_exmple$Pages_Item_Update$itemIdAndComments = _elm_lang$core$Native_Platform.incomingPort('itemIdAndComments', _elm_lang$core$Json_Decode$value);
-
-var _Gizra$elm_spa_exmple$User_Decoder$decodeUser = _elm_lang$core$Json_Decode$oneOf(
+var _Gizra$elm_spa_exmple$User_Decoder$decoderUserId = _Gizra$elm_spa_exmple$Utils_Json$decodeInt;
+var _Gizra$elm_spa_exmple$User_Decoder$decodeUser = A3(
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+	'name',
+	_elm_lang$core$Json_Decode$string,
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$User_Model$User));
+var _Gizra$elm_spa_exmple$User_Decoder$decodeMaybeUser = _elm_lang$core$Json_Decode$oneOf(
 	{
 		ctor: '::',
 		_0: _elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
@@ -13162,13 +13155,91 @@ var _Gizra$elm_spa_exmple$User_Decoder$decodeUser = _elm_lang$core$Json_Decode$o
 					return _elm_lang$core$Json_Decode$succeed(
 						_elm_lang$core$Maybe$Just(user));
 				},
-				A3(
-					_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-					'name',
-					_elm_lang$core$Json_Decode$string,
-					_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$User_Model$User))),
+				_Gizra$elm_spa_exmple$User_Decoder$decodeUser),
 			_1: {ctor: '[]'}
 		}
+	});
+
+var _Gizra$elm_spa_exmple$ItemComment_Decoder$decodeItemCommentId = A2(_elm_lang$core$Json_Decode$map, _Gizra$elm_spa_exmple$ItemComment_Model$ItemCommentId, _Gizra$elm_spa_exmple$Utils_Json$decodeInt);
+var _Gizra$elm_spa_exmple$ItemComment_Decoder$decodeItemComment = A3(
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+	'created',
+	_Gizra$elm_spa_exmple$Utils_Json$decodeDate,
+	A3(
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+		'comment',
+		_elm_lang$core$Json_Decode$string,
+		A2(
+			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
+			_Gizra$elm_spa_exmple$User_Decoder$decodeUser,
+			A3(
+				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+				'userId',
+				_Gizra$elm_spa_exmple$User_Decoder$decoderUserId,
+				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$ItemComment_Model$ItemComment)))));
+var _Gizra$elm_spa_exmple$ItemComment_Decoder$decodeEveryDictListItemComments = _elm_lang$core$Json_Decode$oneOf(
+	{
+		ctor: '::',
+		_0: A2(
+			_Gizra$elm_dictlist$EveryDictList$decodeArray2,
+			A2(_elm_lang$core$Json_Decode$field, 'id', _Gizra$elm_spa_exmple$ItemComment_Decoder$decodeItemCommentId),
+			_Gizra$elm_spa_exmple$ItemComment_Decoder$decodeItemComment),
+		_1: {
+			ctor: '::',
+			_0: _Gizra$elm_spa_exmple$Utils_Json$decodeEmptyArrayAs(_Gizra$elm_dictlist$EveryDictList$empty),
+			_1: {ctor: '[]'}
+		}
+	});
+
+var _Gizra$elm_spa_exmple$Pages_Item_Decoder$deocdeItemIdAndComments = A2(
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
+	_Gizra$elm_spa_exmple$ItemComment_Decoder$decodeEveryDictListItemComments,
+	A2(
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
+		_Gizra$elm_spa_exmple$Item_Decoder$decodeItemId,
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(
+			F2(
+				function (v0, v1) {
+					return {ctor: '_Tuple2', _0: v0, _1: v1};
+				}))));
+
+var _Gizra$elm_spa_exmple$Pages_Item_Update$update = F2(
+	function (msg, model) {
+		var _p0 = msg;
+		if (_p0.ctor === 'HandleItemIdAndComments') {
+			if (_p0._0.ctor === 'Ok') {
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{itemId: _p0._0._0._0, comments: _p0._0._0._1}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			} else {
+				var _p1 = A2(_elm_lang$core$Debug$log, 'HandleItemIdAndComments', _p0._0._0);
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					{ctor: '[]'});
+			}
+		} else {
+			var _p2 = A2(_Gizra$elm_spa_exmple$ItemComment_Update$update, _p0._0, model.itemComment);
+			var val = _p2._0;
+			var cmds = _p2._1;
+			return {
+				ctor: '_Tuple2',
+				_0: _elm_lang$core$Native_Utils.update(
+					model,
+					{itemComment: val}),
+				_1: A2(_elm_lang$core$Platform_Cmd$map, _Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment, cmds)
+			};
+		}
+	});
+var _Gizra$elm_spa_exmple$Pages_Item_Update$itemIdAndComments = _elm_lang$core$Native_Platform.incomingPort('itemIdAndComments', _elm_lang$core$Json_Decode$value);
+var _Gizra$elm_spa_exmple$Pages_Item_Update$subscriptions = _Gizra$elm_spa_exmple$Pages_Item_Update$itemIdAndComments(
+	function (_p3) {
+		return _Gizra$elm_spa_exmple$Pages_Item_Model$HandleItemIdAndComments(
+			A2(_elm_lang$core$Json_Decode$decodeValue, _Gizra$elm_spa_exmple$Pages_Item_Decoder$deocdeItemIdAndComments, _p3));
 	});
 
 var _Gizra$elm_spa_exmple$App_Update$update = F2(
@@ -13253,7 +13324,7 @@ var _Gizra$elm_spa_exmple$App_Update$subscriptions = function (model) {
 			_0: _Gizra$elm_spa_exmple$App_Update$user(
 				function (_p6) {
 					return _Gizra$elm_spa_exmple$App_Model$HandleUser(
-						A2(_elm_lang$core$Json_Decode$decodeValue, _Gizra$elm_spa_exmple$User_Decoder$decodeUser, _p6));
+						A2(_elm_lang$core$Json_Decode$decodeValue, _Gizra$elm_spa_exmple$User_Decoder$decodeMaybeUser, _p6));
 				}),
 			_1: {
 				ctor: '::',
@@ -21771,7 +21842,7 @@ var _Gizra$elm_spa_exmple$ItemComment_View$viewItemComment = F2(
 								},
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html$text(_p2.userName),
+									_0: _elm_lang$html$Html$text(_p2.user.name),
 									_1: {ctor: '[]'}
 								}),
 							_1: {

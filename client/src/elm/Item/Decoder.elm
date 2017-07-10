@@ -1,6 +1,7 @@
 module Item.Decoder
     exposing
-        ( decodeItems
+        ( decodeItemId
+        , decodeItems
         )
 
 import Item.Model exposing (Item, ItemId, EveryDictListItems)

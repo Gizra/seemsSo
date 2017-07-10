@@ -14,6 +14,21 @@ import Pages.Item.Model exposing (Model, Msg(..))
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        HandleItemIdAndComments (Ok ( itemId, everyDictListItemComments )) ->
+            ( { model
+                | itemId = itemId
+                , comments = everyDictListItemComments
+              }
+            , Cmd.none
+            )
+
+        HandleItemIdAndComments (Err err) ->
+            let
+                _ =
+                    Debug.log "HandleItemIdAndComments" err
+            in
+                model ! []
+
         MsgItemComment subMsg ->
             let
                 ( val, cmds ) =
@@ -26,7 +41,7 @@ update msg model =
 
 subscriptions : Sub Msg
 subscriptions =
-    items (decodeValue deocdeItemIdAndComments >> HandleItems)
+    itemIdAndComments (decodeValue deocdeItemIdAndComments >> HandleItemIdAndComments)
 
 
 
