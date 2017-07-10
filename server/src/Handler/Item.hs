@@ -16,11 +16,29 @@ import Import
 import Text.Julius (rawJS)
 import Utils.Form (renderSematnicUiDivs)
 
+data PartialComment = PartialComment
+    { partialCommentCommentId :: ItemCommentId
+    , partialCommentComment :: Text
+    , partialCommentCommentCreated :: UTCTime
+    , partialCommentUserId :: UserId
+    , partialCommentUserIdent :: Text
+    }
+
+instance ToJSON PartialComment where
+    toJSON partialComment =
+        object
+            [ "commentId" .= partialCommentCommentId partialComment
+            , "comment" .= partialCommentComment partialComment
+            , "created" .= partialCommentComment partialComment
+            , "userId" .= partialCommentUserId partialComment
+            , "name" .= partialCommentUserIdent partialComment
+            ]
+
 getItemR :: ItemId -> Handler Html
 getItemR itemId = do
     item <- runDB $ get404 itemId
     company <- runDB $ get404 $ itemCompany item
-    comments <-
+    commentsRaw <-
         runDB . E.select . E.from $ \(itemComment `E.InnerJoin` item `E.InnerJoin` user) -> do
             E.on $ user ^. UserId E.==. itemComment ^. ItemCommentUser
             E.on $ item ^. ItemId E.==. itemComment ^. ItemCommentItem
@@ -30,8 +48,21 @@ getItemR itemId = do
             return
                 ( itemComment ^. ItemCommentId
                 , itemComment ^. ItemCommentComment
+                , itemComment ^. ItemCommentCreated
                 , user ^. UserId
                 , user ^. UserIdent)
+    let partialComments =
+            [ PartialComment
+            { partialCommentCommentId = commentId
+            , partialCommentComment = comment
+            , partialCommentCommentCreated = commentCreated
+            , partialCommentUserId = userId
+            , partialCommentUserIdent = userIdent
+            }
+            | (E.Value commentId, E.Value comment, E.Value commentCreated, E.Value userId, E.Value userIdent) <-
+                  commentsRaw
+            ]
+    let comments = encodeToLazyText partialComments
     mpdf <-
         maybe
             (return Nothing)

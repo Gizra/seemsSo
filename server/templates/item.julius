@@ -1,0 +1,3 @@
+// Send the values via Elm's ports.
+
+elmApp.ports.itemIdAndComments.send([#{rawJS comments}]);
