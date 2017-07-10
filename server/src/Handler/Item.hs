@@ -29,7 +29,7 @@ instance ToJSON PartialComment where
         object
             [ "commentId" .= partialCommentCommentId partialComment
             , "comment" .= partialCommentComment partialComment
-            , "created" .= partialCommentComment partialComment
+            , "created" .= partialCommentCommentCreated partialComment
             , "userId" .= partialCommentUserId partialComment
             , "name" .= partialCommentUserIdent partialComment
             ]
