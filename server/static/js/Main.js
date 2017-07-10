@@ -10236,9 +10236,9 @@ var _Gizra$elm_spa_exmple$ItemComment_Model$Model = F4(
 	function (a, b, c, d) {
 		return {itemId: a, comment: b, status: c, selectedTab: d};
 	});
-var _Gizra$elm_spa_exmple$ItemComment_Model$ItemComment = F2(
-	function (a, b) {
-		return {userId: a, comment: b};
+var _Gizra$elm_spa_exmple$ItemComment_Model$ItemComment = F3(
+	function (a, b, c) {
+		return {userId: a, userName: b, comment: c};
 	});
 var _Gizra$elm_spa_exmple$ItemComment_Model$ItemCommentId = function (a) {
 	return {ctor: 'ItemCommentId', _0: a};
@@ -10265,14 +10265,14 @@ var _Gizra$elm_spa_exmple$Pages_Item_Model$emptyModel = {
 			_0: {
 				ctor: '_Tuple2',
 				_0: _Gizra$elm_spa_exmple$ItemComment_Model$ItemCommentId(1),
-				_1: {userId: 100, comment: 'Comment #1'}
+				_1: {userId: 100, userName: 'alice', comment: 'Comment #1'}
 			},
 			_1: {
 				ctor: '::',
 				_0: {
 					ctor: '_Tuple2',
 					_0: _Gizra$elm_spa_exmple$ItemComment_Model$ItemCommentId(2),
-					_1: {userId: 200, comment: 'Comment #2'}
+					_1: {userId: 200, userName: 'bob', comment: 'Comment #2'}
 				},
 				_1: {ctor: '[]'}
 			}
@@ -21703,6 +21703,7 @@ var _Gizra$elm_spa_exmple$ItemComment_View$viewTabs = function (selectedTab) {
 var _Gizra$elm_spa_exmple$ItemComment_View$viewItemComment = F2(
 	function (muser, _p0) {
 		var _p1 = _p0;
+		var _p2 = _p1._1;
 		return A2(
 			_elm_lang$html$Html$div,
 			{
@@ -21759,7 +21760,7 @@ var _Gizra$elm_spa_exmple$ItemComment_View$viewItemComment = F2(
 								},
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html$text('#{userIdent}'),
+									_0: _elm_lang$html$Html$text(_p2.userName),
 									_1: {ctor: '[]'}
 								}),
 							_1: {
@@ -21773,7 +21774,7 @@ var _Gizra$elm_spa_exmple$ItemComment_View$viewItemComment = F2(
 									},
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html$text(_p1._1.comment),
+										_0: _elm_lang$html$Html$text(_p2.comment),
 										_1: {ctor: '[]'}
 									}),
 								_1: {ctor: '[]'}
@@ -21803,8 +21804,8 @@ var _Gizra$elm_spa_exmple$ItemComment_View$viewItemComments = F2(
 var _Gizra$elm_spa_exmple$ItemComment_View$view = F3(
 	function (baseUrl, muser, model) {
 		var mainArea = function () {
-			var _p2 = model.selectedTab;
-			if (_p2.ctor === 'Edit') {
+			var _p3 = model.selectedTab;
+			if (_p3.ctor === 'Edit') {
 				return _Gizra$elm_spa_exmple$ItemComment_View$viewEdit(model.comment);
 			} else {
 				return _Gizra$elm_spa_exmple$ItemComment_View$viewPreview(model.comment);
@@ -21846,18 +21847,14 @@ var _Gizra$elm_spa_exmple$Pages_Item_View$view = F3(
 			{ctor: '[]'},
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html$text('Pages.Item.View'),
+				_0: A2(_Gizra$elm_spa_exmple$ItemComment_View$viewItemComments, muser, model.comments),
 				_1: {
 					ctor: '::',
-					_0: A2(_Gizra$elm_spa_exmple$ItemComment_View$viewItemComments, muser, model.comments),
-					_1: {
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$map,
-							_Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment,
-							A3(_Gizra$elm_spa_exmple$ItemComment_View$view, baseUrl, muser, model.itemComment)),
-						_1: {ctor: '[]'}
-					}
+					_0: A2(
+						_elm_lang$html$Html$map,
+						_Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment,
+						A3(_Gizra$elm_spa_exmple$ItemComment_View$view, baseUrl, muser, model.itemComment)),
+					_1: {ctor: '[]'}
 				}
 			});
 	});

@@ -13,7 +13,6 @@ import Utils.Html exposing (divider, sectionDivider, showIf, showMaybe)
 view : String -> Maybe User -> Model -> Html Msg
 view baseUrl muser model =
     div []
-        [ text "Pages.Item.View"
-        , viewItemComments muser model.comments
+        [ viewItemComments muser model.comments
         , Html.map MsgItemComment <| ItemComment.View.view baseUrl muser model.itemComment
         ]

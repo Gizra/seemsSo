@@ -19,11 +19,13 @@ emptyModel =
         EveryDictList.fromList
             ([ ( ItemComment.Model.ItemCommentId 1
                , { userId = 100
+                 , userName = "alice"
                  , comment = "Comment #1"
                  }
                )
              , ( ItemComment.Model.ItemCommentId 2
                , { userId = 200
+                 , userName = "bob"
                  , comment = "Comment #2"
                  }
                )

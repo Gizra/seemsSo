@@ -21,6 +21,7 @@ type alias Model =
 
 type alias ItemComment =
     { userId : UserId
+    , userName : String
     , comment : String
     }
 
