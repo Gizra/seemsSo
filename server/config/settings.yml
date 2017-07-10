@@ -32,5 +32,11 @@ database:
   database: "_env:PGDATABASE:seemsso"
   poolsize: "_env:PGPOOLSIZE:10"
 
+pusher:
+  id:      "_env:PUSHER_ID:id"
+  key:     "_env:PUSHER_KEY:key"
+  secret:  "_env:PUSHER_SECRET:secret"
+  cluster: "_env:PUSHER_CLUSTER:eu"
+
 copyright: Insert copyright statement here
 #analytics: UA-YOURCODE

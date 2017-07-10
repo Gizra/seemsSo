@@ -19,6 +19,7 @@ import Yesod.Auth.Dummy
 
 import qualified Data.CaseInsensitive as CI
 import qualified Data.Text.Encoding as TE
+import Network.Pusher (Pusher)
 import Utils.AccessToken
 import Yesod.Core.Types (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
@@ -36,6 +37,7 @@ data App = App
     , appConnPool :: ConnectionPool -- ^ Database connection pool.
     , appHttpManager :: Manager
     , appLogger :: Logger
+    , appPusher :: Pusher
     }
 
 data MenuItem = MenuItem

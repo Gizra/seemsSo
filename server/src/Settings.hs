@@ -19,6 +19,7 @@ import           Data.Yaml                   (decodeEither')
 import           Database.Persist.Postgresql (PostgresConf)
 import           Language.Haskell.TH.Syntax  (Exp, Name, Q)
 import           Network.Wai.Handler.Warp    (HostPreference)
+import qualified Network.Pusher as Pusher    (Credentials)
 import           Yesod.Default.Config2       (applyEnvValue, configSettingsYml)
 import           Yesod.Default.Util          (WidgetFileSettings,
                                               widgetFileNoReload,
@@ -62,6 +63,9 @@ data AppSettings = AppSettings
 
     , appAuthDummyLogin         :: Bool
     -- ^ Indicate if auth dummy login should be enabled.
+
+    , appPusherCredentials :: Pusher.Credentials
+    -- ^ Pusher credentials.
     }
 
 instance FromJSON AppSettings where
