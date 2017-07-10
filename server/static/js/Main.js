@@ -21829,11 +21829,7 @@ var _Gizra$elm_spa_exmple$ItemComment_View$viewItemComment = F2(
 										_0: _elm_lang$html$Html_Attributes$class('text'),
 										_1: {ctor: '[]'}
 									},
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html$text(_p2.comment),
-										_1: {ctor: '[]'}
-									}),
+									A2(_pablohirafuji$elm_markdown$Markdown$toHtml, _elm_lang$core$Maybe$Nothing, _p2.comment)),
 								_1: {ctor: '[]'}
 							}
 						}),

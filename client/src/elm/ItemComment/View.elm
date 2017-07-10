@@ -64,7 +64,7 @@ viewItemComment muser ( ItemComment.Model.ItemCommentId itemCommentId, itemComme
                 [ text itemComment.user.name ]
             , div
                 [ class "text" ]
-                [ text itemComment.comment ]
+                (Markdown.toHtml Nothing itemComment.comment)
             ]
         ]
 
