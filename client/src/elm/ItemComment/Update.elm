@@ -20,11 +20,7 @@ update msg model =
             )
 
         HandleSaveComment (Ok ()) ->
-            let
-                _ =
-                    Debug.log "HandleSaveComment (OK)" True
-            in
-                { model | comment = "", status = NotAsked } ! []
+            { model | comment = "", status = NotAsked } ! []
 
         HandleSaveComment (Err err) ->
             let

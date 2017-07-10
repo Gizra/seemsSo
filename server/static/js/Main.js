@@ -13071,7 +13071,6 @@ var _Gizra$elm_spa_exmple$ItemComment_Update$update = F2(
 				};
 			case 'HandleSaveComment':
 				if (_p0._0.ctor === 'Ok') {
-					var _p1 = A2(_elm_lang$core$Debug$log, 'HandleSaveComment (OK)', true);
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						_elm_lang$core$Native_Utils.update(
@@ -13079,7 +13078,7 @@ var _Gizra$elm_spa_exmple$ItemComment_Update$update = F2(
 							{comment: '', status: _krisajenkins$remotedata$RemoteData$NotAsked}),
 						{ctor: '[]'});
 				} else {
-					var _p2 = A2(_elm_lang$core$Debug$log, 'HandleSaveComment (Err)', false);
+					var _p1 = A2(_elm_lang$core$Debug$log, 'HandleSaveComment (Err)', false);
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						_elm_lang$core$Native_Utils.update(
