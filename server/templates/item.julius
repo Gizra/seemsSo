@@ -4,8 +4,3 @@ elmApp.ports.itemIdAndComments.send({
   "itemId" : #{rawJS $ show $ fromSqlKey itemId},
   "comments" : #{rawJS comments}
 });
-
-console.log({
-  "itemId" : #{rawJS $ show $ fromSqlKey itemId},
-  "comments" : #{rawJS comments}
-});
