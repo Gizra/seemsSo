@@ -37,6 +37,10 @@ resolver: lts-8.17
 # will not be run. This is useful for tweaking upstream packages.
 packages:
 - '.'
+# Pusher integration, until https://github.com/pusher-community/pusher-http-haskell/pull/52 is merged
+- location:
+    git: git@github.com:syallop/pusher-http-haskell.git
+    commit: 651658e4e48b434108c54febc7b5521bafffc62f
 # Dependency packages to be pulled from upstream that are not in the resolver
 # (e.g., acme-missiles-0.3)
 extra-deps:
