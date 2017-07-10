@@ -5,6 +5,7 @@
 
 module Handler.RestfulItemComments where
 
+import Data.Aeson.Text (encodeToLazyText)
 import Handler.RestfulItemComment (getRestfulItemCommentR)
 import Import
 import Network.Pusher (Channel(..), ChannelType(..), trigger)
@@ -43,14 +44,15 @@ postRestfulItemCommentsR itemId = do
                     , itemCommentCreated = currentTime
                     }
             itemCommentId <- runDB $ insert itemComment
+            restfulItemComment <- getRestfulItemCommentR itemId itemCommentId
             pusher <- fmap appPusher getYesod
             -- We don't care about the Pusher result.
             _ <-
                 trigger
                     pusher
                     [Channel Public "my-channel"]
-                    "my-event"
-                    "my-data"
+                    "comment__insert"
+                    (pack $ show $ encodeToLazyText $ restfulItemComment)
                     Nothing
             returnVal <- getRestfulItemCommentR itemId itemCommentId
             sendResponseStatus status201 returnVal
