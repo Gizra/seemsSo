@@ -16,7 +16,7 @@ import Utils.Json exposing (decodeDate, decodeEmptyArrayAs, decodeInt)
 decodeEveryDictListItemComments : Decoder EveryDictListItemComments
 decodeEveryDictListItemComments =
     oneOf
-        [ decodeArray2 (field "id" decodeItemCommentId) decodeItemComment
+        [ decodeArray2 (field "commentId" decodeItemCommentId) decodeItemComment
         , decodeEmptyArrayAs EveryDictList.empty
         ]
 

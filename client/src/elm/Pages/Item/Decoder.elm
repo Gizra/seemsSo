@@ -15,5 +15,5 @@ import Utils.Json exposing (decodeEmptyArrayAs, decodeInt)
 deocdeItemIdAndComments : Decoder ( ItemId, EveryDictListItemComments )
 deocdeItemIdAndComments =
     decode (,)
-        |> custom decodeItemId
-        |> custom decodeEveryDictListItemComments
+        |> required "itemId" decodeItemId
+        |> required "comments" decodeEveryDictListItemComments

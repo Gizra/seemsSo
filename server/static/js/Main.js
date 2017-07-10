@@ -13151,7 +13151,7 @@ var _Gizra$elm_spa_exmple$ItemComment_Decoder$decodeEveryDictListItemComments = 
 		ctor: '::',
 		_0: A2(
 			_Gizra$elm_dictlist$EveryDictList$decodeArray2,
-			A2(_elm_lang$core$Json_Decode$field, 'id', _Gizra$elm_spa_exmple$ItemComment_Decoder$decodeItemCommentId),
+			A2(_elm_lang$core$Json_Decode$field, 'commentId', _Gizra$elm_spa_exmple$ItemComment_Decoder$decodeItemCommentId),
 			_Gizra$elm_spa_exmple$ItemComment_Decoder$decodeItemComment),
 		_1: {
 			ctor: '::',
@@ -13160,11 +13160,13 @@ var _Gizra$elm_spa_exmple$ItemComment_Decoder$decodeEveryDictListItemComments = 
 		}
 	});
 
-var _Gizra$elm_spa_exmple$Pages_Item_Decoder$deocdeItemIdAndComments = A2(
-	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
+var _Gizra$elm_spa_exmple$Pages_Item_Decoder$deocdeItemIdAndComments = A3(
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+	'comments',
 	_Gizra$elm_spa_exmple$ItemComment_Decoder$decodeEveryDictListItemComments,
-	A2(
-		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
+	A3(
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+		'itemId',
 		_Gizra$elm_spa_exmple$Item_Decoder$decodeItemId,
 		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(
 			F2(
