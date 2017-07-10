@@ -39,7 +39,7 @@ packages:
   - '.'
   # Pusher integration, until https://github.com/pusher-community/pusher-http-haskell/pull/52 is merged
   - location:
-      git: git@github.com:syallop/pusher-http-haskell.git
+      git: https://github.com/syallop/pusher-http-haskell
       commit: 651658e4e48b434108c54febc7b5521bafffc62f
 # Dependency packages to be pulled from upstream that are not in the resolver
 # (e.g., acme-missiles-0.3)
