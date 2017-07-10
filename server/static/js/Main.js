@@ -10323,38 +10323,7 @@ var _Gizra$elm_spa_exmple$ItemComment_Model$HandleSaveComment = function (a) {
 	return {ctor: 'HandleSaveComment', _0: a};
 };
 
-var _Gizra$elm_spa_exmple$Pages_Item_Model$emptyModel = {
-	itemId: 0,
-	comments: _Gizra$elm_dictlist$EveryDictList$fromList(
-		{
-			ctor: '::',
-			_0: {
-				ctor: '_Tuple2',
-				_0: _Gizra$elm_spa_exmple$ItemComment_Model$ItemCommentId(1),
-				_1: {
-					userId: 100,
-					user: _Gizra$elm_spa_exmple$User_Model$User('alice'),
-					comment: 'Comment #1',
-					created: _elm_lang$core$Date$fromTime(28347887)
-				}
-			},
-			_1: {
-				ctor: '::',
-				_0: {
-					ctor: '_Tuple2',
-					_0: _Gizra$elm_spa_exmple$ItemComment_Model$ItemCommentId(2),
-					_1: {
-						userId: 200,
-						user: _Gizra$elm_spa_exmple$User_Model$User('bob'),
-						comment: 'Comment #2',
-						created: _elm_lang$core$Date$fromTime(28347897)
-					}
-				},
-				_1: {ctor: '[]'}
-			}
-		}),
-	itemComment: _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel
-};
+var _Gizra$elm_spa_exmple$Pages_Item_Model$emptyModel = {itemId: 0, comments: _Gizra$elm_dictlist$EveryDictList$empty, itemComment: _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel};
 var _Gizra$elm_spa_exmple$Pages_Item_Model$Model = F3(
 	function (a, b, c) {
 		return {itemId: a, comments: b, itemComment: c};
@@ -13311,7 +13280,7 @@ var _Gizra$elm_spa_exmple$App_Update$subscriptions = function (model) {
 		var _p5 = model.widget;
 		switch (_p5.ctor) {
 			case 'Item':
-				return _elm_lang$core$Platform_Sub$none;
+				return A2(_elm_lang$core$Platform_Sub$map, _Gizra$elm_spa_exmple$App_Model$MsgPagesItem, _Gizra$elm_spa_exmple$Pages_Item_Update$subscriptions);
 			case 'HomePage':
 				return A2(_elm_lang$core$Platform_Sub$map, _Gizra$elm_spa_exmple$App_Model$MsgPagesHomepage, _Gizra$elm_spa_exmple$Pages_Homepage_Update$subscriptions);
 			default:

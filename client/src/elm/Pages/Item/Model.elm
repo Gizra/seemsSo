@@ -17,24 +17,7 @@ type alias Model =
 emptyModel : Model
 emptyModel =
     { itemId = 0
-    , comments =
-        EveryDictList.fromList
-            ([ ( ItemComment.Model.ItemCommentId 1
-               , { userId = 100
-                 , user = User "alice"
-                 , comment = "Comment #1"
-                 , created = Date.fromTime 28347887
-                 }
-               )
-             , ( ItemComment.Model.ItemCommentId 2
-               , { userId = 200
-                 , user = User "bob"
-                 , comment = "Comment #2"
-                 , created = Date.fromTime 28347897
-                 }
-               )
-             ]
-            )
+    , comments = EveryDictList.empty
     , itemComment = ItemComment.Model.emptyModel
     }
 

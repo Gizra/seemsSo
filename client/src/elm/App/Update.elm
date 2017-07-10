@@ -71,8 +71,7 @@ subscriptions model =
         subs =
             case model.widget of
                 Item ->
-                    -- @todo: Subscribe to get items and comments.
-                    Sub.none
+                    Sub.map MsgPagesItem <| Pages.Item.Update.subscriptions
 
                 HomePage ->
                     Sub.map MsgPagesHomepage <| Pages.Homepage.Update.subscriptions

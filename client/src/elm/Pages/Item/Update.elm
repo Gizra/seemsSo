@@ -1,6 +1,7 @@
 port module Pages.Item.Update
     exposing
-        ( update
+        ( subscriptions
+        , update
         )
 
 import Item.Decoder exposing (decodeItems)
