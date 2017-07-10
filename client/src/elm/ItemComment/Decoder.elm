@@ -1,14 +1,16 @@
 module ItemComment.Decoder
     exposing
         ( decodeEveryDictListItemComments
+        , decodeItemComment
+        , decodeItemCommentId
         )
 
 import EveryDictList exposing (decodeArray2, empty)
 import ItemComment.Model exposing (EveryDictListItemComments, ItemComment, ItemCommentId)
-import ItemComment.Model exposing (ItemCommentId)
 import Json.Decode exposing (Decoder, andThen, at, dict, fail, field, float, index, int, keyValuePairs, list, map, map2, nullable, oneOf, string, succeed)
 import Json.Decode.Pipeline exposing (custom, decode, optional, optionalAt, required, requiredAt)
-import Utils.Json exposing (decodeEmptyArrayAs, decodeInt)
+import User.Decoder exposing (decodeUser, decoderUserId)
+import Utils.Json exposing (decodeDate, decodeEmptyArrayAs, decodeInt)
 
 
 decodeEveryDictListItemComments : Decoder EveryDictListItemComments
@@ -22,18 +24,13 @@ decodeEveryDictListItemComments =
 decodeItemComment : Decoder ItemComment
 decodeItemComment =
     decode ItemComment
-        |> required "userId" decodeUs
-
-
-
--- { userId : UserId
--- , userName : String
--- , comment : String
--- , created : Date
--- }
+        |> required "userId" decoderUserId
+        |> custom decodeUser
+        |> required "comment" string
+        |> required "created" decodeDate
 
 
 decodeItemCommentId : Decoder ItemCommentId
 decodeItemCommentId =
     decodeInt
-        |> map ItemCommentId
+        |> map ItemComment.Model.ItemCommentId

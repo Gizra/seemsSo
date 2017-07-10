@@ -4,6 +4,7 @@ import Date
 import EveryDictList
 import Item.Model exposing (ItemId)
 import ItemComment.Model exposing (EveryDictListItemComments, ItemCommentId)
+import User.Model exposing (User)
 
 
 type alias Model =
@@ -20,14 +21,14 @@ emptyModel =
         EveryDictList.fromList
             ([ ( ItemComment.Model.ItemCommentId 1
                , { userId = 100
-                 , userName = "alice"
+                 , user = User "alice"
                  , comment = "Comment #1"
                  , created = Date.fromTime 28347887
                  }
                )
              , ( ItemComment.Model.ItemCommentId 2
                , { userId = 200
-                 , userName = "bob"
+                 , user = User "bob"
                  , comment = "Comment #2"
                  , created = Date.fromTime 28347897
                  }

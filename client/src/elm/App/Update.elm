@@ -10,7 +10,7 @@ import App.Types exposing (Widget(..))
 import Pages.Homepage.Update
 import Pages.Item.Update
 import Json.Decode exposing (Value, decodeValue)
-import User.Decoder exposing (decodeUser)
+import User.Decoder exposing (decodeMaybeUser)
 
 
 init : Flags -> ( Model, Cmd Msg )
@@ -81,7 +81,7 @@ subscriptions model =
                     Sub.none
     in
         Sub.batch
-            [ user (decodeValue decodeUser >> HandleUser)
+            [ user (decodeValue decodeMaybeUser >> HandleUser)
             , subs
             ]
 

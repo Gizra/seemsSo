@@ -5,7 +5,7 @@ import EveryDictList exposing (EveryDictList)
 import Http
 import Item.Model exposing (ItemId)
 import RemoteData exposing (..)
-import User.Model exposing (UserId)
+import User.Model exposing (User, UserId)
 
 
 type ItemCommentId
@@ -22,7 +22,7 @@ type alias Model =
 
 type alias ItemComment =
     { userId : UserId
-    , userName : String
+    , user : User
     , comment : String
     , created : Date
     }

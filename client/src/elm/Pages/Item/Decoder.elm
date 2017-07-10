@@ -3,34 +3,16 @@ module Pages.Item.Decoder
         ( deocdeItemIdAndComments
         )
 
-import DictList exposing (DictList, decodeArray2, empty)
-import Item.Decoder exposing (decodeItemId)
 import Item.Model exposing (EveryDictListItems, Item, ItemId)
+import ItemComment.Decoder exposing (decodeEveryDictListItemComments, decodeItemCommentId)
+import ItemComment.Model exposing (EveryDictListItemComments, ItemComment, ItemCommentId)
 import Json.Decode exposing (Decoder, andThen, at, dict, fail, field, float, index, int, keyValuePairs, list, map, map2, nullable, oneOf, string, succeed)
 import Json.Decode.Pipeline exposing (custom, decode, optional, optionalAt, required, requiredAt)
 import Utils.Json exposing (decodeEmptyArrayAs, decodeInt)
 
 
-deocdeItemIdAndComments : Decoder ( ItemCommentId, List ItemComment )
+deocdeItemIdAndComments : Decoder ( ItemCommentId, EveryDictListItemComments )
 deocdeItemIdAndComments =
-    oneOf
-        [ decodeArray2 (field "id" decodeItemId) decodeItem
-        , decodeEmptyArrayAs DictList.empty
-        ]
-
-
-
--- decodeItemId : Decoder ItemId
--- decodeItemId =
---     decodeInt |> Decode.map ItemId
-
-
-decodeItemId : Decoder ItemId
-decodeItemId =
-    decodeInt
-
-
-decodeItem : Decoder Item
-decodeItem =
-    decode Item
-        |> required "name" string
+    decode (,)
+        |> custom decodeItemCommentId
+        |> custom decodeEveryDictListItemComments
