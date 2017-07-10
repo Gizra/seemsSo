@@ -34,13 +34,8 @@ type alias EveryDictListItemComments =
 
 emptyModel : Model
 emptyModel =
-    -- @todo: Get real item ID.
-    { itemId = 1
-    , comment =
-        """## Some Markdown text
-
-With _italic_, __bold__ and a [link](https://example.com)!
-"""
+    { itemId = 0
+    , comment = ""
     , status = NotAsked
     , selectedTab = Edit
     }

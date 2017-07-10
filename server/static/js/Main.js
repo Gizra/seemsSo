@@ -10311,7 +10311,7 @@ var _Gizra$elm_spa_exmple$ItemComment_Model$ItemCommentId = function (a) {
 };
 var _Gizra$elm_spa_exmple$ItemComment_Model$Preview = {ctor: 'Preview'};
 var _Gizra$elm_spa_exmple$ItemComment_Model$Edit = {ctor: 'Edit'};
-var _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel = {itemId: 1, comment: '## Some Markdown text\n\nWith _italic_, __bold__ and a [link](https://example.com)!\n', status: _krisajenkins$remotedata$RemoteData$NotAsked, selectedTab: _Gizra$elm_spa_exmple$ItemComment_Model$Edit};
+var _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel = {itemId: 0, comment: '', status: _krisajenkins$remotedata$RemoteData$NotAsked, selectedTab: _Gizra$elm_spa_exmple$ItemComment_Model$Edit};
 var _Gizra$elm_spa_exmple$ItemComment_Model$SetTab = function (a) {
 	return {ctor: 'SetTab', _0: a};
 };
