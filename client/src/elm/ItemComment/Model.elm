@@ -1,5 +1,6 @@
 module ItemComment.Model exposing (..)
 
+import Date exposing (Date)
 import EveryDictList exposing (EveryDictList)
 import Http
 import Item.Model exposing (ItemId)
@@ -23,6 +24,7 @@ type alias ItemComment =
     { userId : UserId
     , userName : String
     , comment : String
+    , created : Date
     }
 
 

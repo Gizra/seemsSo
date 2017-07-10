@@ -1,5 +1,6 @@
 module Pages.Item.Model exposing (..)
 
+import Date
 import EveryDictList
 import Item.Model exposing (ItemId)
 import ItemComment.Model exposing (EveryDictListItemComments, ItemCommentId)
@@ -21,12 +22,14 @@ emptyModel =
                , { userId = 100
                  , userName = "alice"
                  , comment = "Comment #1"
+                 , created = Date.fromTime 28347887
                  }
                )
              , ( ItemComment.Model.ItemCommentId 2
                , { userId = 200
                  , userName = "bob"
                  , comment = "Comment #2"
+                 , created = Date.fromTime 28347897
                  }
                )
              ]
