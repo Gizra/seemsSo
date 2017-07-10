@@ -7,6 +7,7 @@ module Handler.RestfulItemComments where
 
 import Handler.RestfulItemComment (getRestfulItemCommentR)
 import Import
+import Network.Pusher (Channel(..), ChannelType(..), trigger)
 import Utils.Restful (getEntityList)
 
 -- A Bid type that represents the data we will get from JSON.
@@ -42,5 +43,14 @@ postRestfulItemCommentsR itemId = do
                     , itemCommentCreated = currentTime
                     }
             itemCommentId <- runDB $ insert itemComment
+            -- We don't care about the Pusher result.
+            pusher <- fmap appPusher getYesod
+            _ <-
+                trigger
+                    pusher
+                    [Channel Public "my-channel"]
+                    "my-event"
+                    "my-data"
+                    Nothing
             returnVal <- getRestfulItemCommentR itemId itemCommentId
             sendResponseStatus status201 returnVal
