@@ -7,6 +7,7 @@ import Item.Decoder exposing (decodeItems)
 import ItemComment.Model exposing (ItemComment)
 import ItemComment.Update
 import Json.Decode exposing (Value, decodeValue)
+import Pages.Item.Decoder exposing (deocdeItemIdAndComments)
 import Pages.Item.Model exposing (Model, Msg(..))
 
 
@@ -23,11 +24,13 @@ update msg model =
                 )
 
 
+subscriptions : Sub Msg
+subscriptions =
+    items (decodeValue deocdeItemIdAndComments >> HandleItems)
 
---
--- subscriptions : Sub Msg
--- subscriptions =
---     items (decodeValue decodeItems >> HandleItems)
---
+
+
 -- PORTS
--- port items : (Value -> msg) -> Sub msg
+
+
+port itemIdAndComments : (Value -> msg) -> Sub msg

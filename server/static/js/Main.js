@@ -13148,6 +13148,7 @@ var _Gizra$elm_spa_exmple$Pages_Item_Update$update = F2(
 			_1: A2(_elm_lang$core$Platform_Cmd$map, _Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment, cmds)
 		};
 	});
+var _Gizra$elm_spa_exmple$Pages_Item_Update$itemIdAndComments = _elm_lang$core$Native_Platform.incomingPort('itemIdAndComments', _elm_lang$core$Json_Decode$value);
 
 var _Gizra$elm_spa_exmple$User_Decoder$decodeUser = _elm_lang$core$Json_Decode$oneOf(
 	{
