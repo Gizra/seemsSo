@@ -32,7 +32,7 @@ spec = do
             it "should show the item's name" $ do
                 (_, _, _, itemId) <- prepareScenario
                 get $ ItemR itemId
-                htmlAnyContain ".ui.segment > .name" "Item1"
+                htmlAnyContain "h2" "Item1"
             it "should show the item's company" $ do
                 (_, _, _, itemId) <- prepareScenario
                 get $ ItemR itemId

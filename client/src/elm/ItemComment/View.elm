@@ -1,17 +1,22 @@
-module ItemComment.View exposing (view)
+module ItemComment.View
+    exposing
+        ( view
+        , viewItemComments
+        )
 
+import EveryDictList exposing (EveryDictList)
 import Html exposing (..)
-import Html.Attributes exposing (alt, class, classList, cols, disabled, href, placeholder, required, rows, src, style, target, type_, value)
+import Html.Attributes exposing (alt, class, classList, cols, disabled, href, id, placeholder, required, rows, src, style, target, type_, value)
 import Html.Events exposing (onClick, onInput)
-import ItemComment.Model exposing (Model, Msg(..), Tab(..))
+import ItemComment.Model exposing (EveryDictListItemComments, ItemComment, ItemCommentId, Model, Msg(..), Tab(..))
 import Markdown
 import RemoteData exposing (..)
 import User.Model exposing (User)
 import Utils.Html exposing (divider, sectionDivider, showIf, showMaybe)
 
 
-view : Maybe User -> Model -> Html Msg
-view muser model =
+view : String -> Maybe User -> Model -> Html Msg
+view baseUrl muser model =
     let
         mainArea =
             case model.selectedTab of
@@ -28,6 +33,40 @@ view muser model =
                 , viewActions model
                 ]
             ]
+
+
+viewItemComments : Maybe User -> EveryDictListItemComments -> Html msg
+viewItemComments muser commentsDictList =
+    showIf (not (EveryDictList.isEmpty commentsDictList)) <|
+        div
+            [ class "ui comments" ]
+            (EveryDictList.toList commentsDictList
+                |> List.map (viewItemComment muser)
+            )
+
+
+viewItemComment : Maybe User -> ( ItemCommentId, ItemComment ) -> Html msg
+viewItemComment muser ( ItemComment.Model.ItemCommentId itemCommentId, itemComment ) =
+    div
+        [ id <| "comment-" ++ toString itemCommentId
+        , class "comment"
+        ]
+        [ a
+            [ class "avatar" ]
+            [ img
+                [ src "https://dummyimage.com/80x80/000/fff&text=Avatar" ]
+                []
+            ]
+        , div
+            [ class "content" ]
+            [ div
+                [ class "author" ]
+                [ text itemComment.user.name ]
+            , div
+                [ class "text" ]
+                (Markdown.toHtml Nothing itemComment.comment)
+            ]
+        ]
 
 
 viewTabs : Tab -> Html Msg

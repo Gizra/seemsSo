@@ -1,4 +1,4 @@
-module Homepage.Model exposing (..)
+module Pages.Homepage.Model exposing (..)
 
 import DictList exposing (DictList)
 import Item.Model exposing (EveryDictListItems)

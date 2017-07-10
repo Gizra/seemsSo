@@ -1,4 +1,7 @@
 <div class="ui container">
+
+    <h2>#{itemName item}
+
     <div class="ui tabular menu">
         <a class="item active" href="@{ItemR itemId}">
             View
@@ -7,9 +10,6 @@
 
 
     <div class="ui segment">
-        <div class="name">
-            <strong>Name:</strong> <span class="name">#{itemName item}</span>
-
         <div class="company">
             <strong>Company:</strong> <span class="company">#{companyName company}</span>
 
@@ -25,20 +25,6 @@
         <section class="comments">
           <h2>Comments
 
-          $if null comments
-              <div>No comments
-          $else
-
-              <div class="ui comments">
-                $forall (E.Value commentId, E.Value comment, E.Value userId, E.Value userIdent) <- comments
-                   <div id="comment-#{show $ fromSqlKey commentId}" class="comment">
-                      <a class="avatar">
-                          <img src="https://dummyimage.com/80x80/000/fff&text=Avatar">
-                      <div class="content">
-                          <div class="author">#{userIdent}
-                          <div class="text">#{comment}
-                          <div class="actions">
-                              <a class="reply">Reply
 
           $# Comment form
           ^{elmAppWidget}

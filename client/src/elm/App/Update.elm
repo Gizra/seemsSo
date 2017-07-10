@@ -7,10 +7,10 @@ port module App.Update
 
 import App.Model exposing (..)
 import App.Types exposing (Widget(..))
-import Homepage.Update
-import ItemComment.Update
+import Pages.Homepage.Update
+import Pages.Item.Update
 import Json.Decode exposing (Value, decodeValue)
-import User.Decoder exposing (decodeUser)
+import User.Decoder exposing (decodeMaybeUser)
 
 
 init : Flags -> ( Model, Cmd Msg )
@@ -18,8 +18,8 @@ init flags =
     let
         widget =
             case flags.widget of
-                "itemComment" ->
-                    ItemComment
+                "item" ->
+                    Item
 
                 "homepage" ->
                     HomePage
@@ -49,19 +49,19 @@ update msg model =
         MsgPagesHomepage subMsg ->
             let
                 ( val, cmds ) =
-                    Homepage.Update.update subMsg model.pageHomepage
+                    Pages.Homepage.Update.update subMsg model.pageHomepage
             in
                 ( { model | pageHomepage = val }
                 , Cmd.map MsgPagesHomepage cmds
                 )
 
-        MsgPagesItemComment subMsg ->
+        MsgPagesItem subMsg ->
             let
                 ( val, cmds ) =
-                    ItemComment.Update.update subMsg model.pageItemComment
+                    Pages.Item.Update.update subMsg model.pageItem
             in
-                ( { model | pageItemComment = val }
-                , Cmd.map MsgPagesItemComment cmds
+                ( { model | pageItem = val }
+                , Cmd.map MsgPagesItem cmds
                 )
 
 
@@ -70,17 +70,17 @@ subscriptions model =
     let
         subs =
             case model.widget of
-                ItemComment ->
-                    Sub.none
+                Item ->
+                    Sub.map MsgPagesItem <| Pages.Item.Update.subscriptions
 
                 HomePage ->
-                    Sub.map MsgPagesHomepage <| Homepage.Update.subscriptions
+                    Sub.map MsgPagesHomepage <| Pages.Homepage.Update.subscriptions
 
                 NotFound ->
                     Sub.none
     in
         Sub.batch
-            [ user (decodeValue decodeUser >> HandleUser)
+            [ user (decodeValue decodeMaybeUser >> HandleUser)
             , subs
             ]
 
