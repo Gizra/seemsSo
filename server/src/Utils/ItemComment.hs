@@ -11,6 +11,7 @@ module Utils.ItemComment
     ) where
 
 import Data.Aeson.Text (encodeToLazyText)
+import qualified Data.Text.Internal.Lazy as TL
 import qualified Database.Esqueleto as E
 import Database.Esqueleto ((^.))
 import Database.Persist.Sql (fromSqlKey)
@@ -34,21 +35,15 @@ instance ToJSON CommentWithUserInfo where
             , "name" .= commentWithUserInfoUserIdent commentWithUserInfo
             ]
 
-getEncodedItemCommentsByItemId :: ItemId -> Handler Text
+getEncodedItemCommentsByItemId :: ItemId -> Handler TL.Text
 getEncodedItemCommentsByItemId itemId = do
     commentsRaw <- getItemCommentsByItemId itemId
-    let commentWithUserInfos =
-            [ CommentWithUserInfo
-            { commentWithUserInfoCommentId = commentId
-            , commentWithUserInfoComment = comment
-            , commentWithUserInfoCommentCreated = commentCreated
-            , commentWithUserInfoUserId = userId
-            , commentWithUserInfoUserIdent = userIdent
-            }
-            | (E.Value commentId, E.Value comment, E.Value commentCreated, E.Value userId, E.Value userIdent) <-
-                  commentsRaw
-            ]
-    return $ encodeToLazyText commentWithUserInfos
+    encodeItemComments commentsRaw
+
+getEncodedItemComment :: ItemCommentId -> Handler TL.Text
+getEncodedItemComment itemCommentId = do
+    commentsRaw <- getItemComment itemCommentId
+    encodeItemComments commentsRaw
 
 getItemCommentsByItemId ::
        ItemId
@@ -90,3 +85,24 @@ getItemComment itemCommentId =
             , itemComment ^. ItemCommentCreated
             , user ^. UserId
             , user ^. UserIdent)
+
+encodeItemComments ::
+       [( E.Value ItemCommentId
+        , E.Value Text
+        , E.Value UTCTime
+        , E.Value UserId
+        , E.Value Text)]
+    -> Handler TL.Text
+encodeItemComments commentsRaw = do
+    let commentWithUserInfos =
+            [ CommentWithUserInfo
+            { commentWithUserInfoCommentId = commentId
+            , commentWithUserInfoComment = comment
+            , commentWithUserInfoCommentCreated = commentCreated
+            , commentWithUserInfoUserId = userId
+            , commentWithUserInfoUserIdent = userIdent
+            }
+            | (E.Value commentId, E.Value comment, E.Value commentCreated, E.Value userId, E.Value userIdent) <-
+                  commentsRaw
+            ]
+    return $ encodeToLazyText commentWithUserInfos
