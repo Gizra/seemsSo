@@ -33,10 +33,10 @@ database:
   poolsize: "_env:PGPOOLSIZE:10"
 
 pusher:
-  id:      "_env:PUSHER_ID:id"
-  key:     "_env:PUSHER_KEY:key"
-  secret:  "_env:PUSHER_SECRET:secret"
-  cluster: "_env:PUSHER_CLUSTER:eu"
+  app-id:      "_env:PUSHER_ID:1234"
+  app-key:     "_env:PUSHER_KEY:app-key"
+  app-secret:  "_env:PUSHER_SECRET:app-secret"
+  app-cluster: "_env:PUSHER_CLUSTER:app-eu"
 
 copyright: Insert copyright statement here
 #analytics: UA-YOURCODE

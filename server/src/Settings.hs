@@ -94,6 +94,8 @@ instance FromJSON AppSettings where
 
         appAuthDummyLogin         <- o .:? "auth-dummy-login"      .!= defaultDev
 
+        appPusherCredentials      <- o .: "pusher"
+
         return AppSettings {..}
 
 -- | Settings for 'widgetFile', such as which template languages to support and

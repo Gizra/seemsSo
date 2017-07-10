@@ -68,7 +68,7 @@ makeFoundation appSettings
     -- Some basic initializations: HTTP connection manager, logger, and static
     -- subsite.
  = do
-    appHttpManager <- newManager
+    order <- newManager
     appLogger <- newStdoutLoggerSet defaultBufSize >>= makeYesodLogger
     appStatic <-
         (if appMutableStatic appSettings
