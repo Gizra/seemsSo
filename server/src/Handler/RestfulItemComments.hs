@@ -43,8 +43,8 @@ postRestfulItemCommentsR itemId = do
                     , itemCommentCreated = currentTime
                     }
             itemCommentId <- runDB $ insert itemComment
-            -- We don't care about the Pusher result.
             pusher <- fmap appPusher getYesod
+            -- We don't care about the Pusher result.
             _ <-
                 trigger
                     pusher
