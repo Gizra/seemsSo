@@ -7,15 +7,12 @@
 module Utils.ItemComment
     ( getEncodedItemComment
     , getEncodedItemCommentsByItemId
-    , getItemComment
-    , getItemCommentsByItemId
     ) where
 
 import Data.Aeson.Text (encodeToLazyText)
 import qualified Data.Text.Internal.Lazy as TL
 import qualified Database.Esqueleto as E
 import Database.Esqueleto ((^.))
-import Database.Persist.Sql (fromSqlKey)
 import Import
 
 data CommentWithUserInfo = CommentWithUserInfo
@@ -36,50 +33,41 @@ instance ToJSON CommentWithUserInfo where
             , "name" .= commentWithUserInfoUserIdent commentWithUserInfo
             ]
 
+data QueryType
+    = ByItemCommentId ItemCommentId
+    | ByItemId ItemId
+    deriving (Show)
+
 getEncodedItemComment :: ItemCommentId -> Handler TL.Text
 getEncodedItemComment itemCommentId = do
-    commentsRaw <- getItemComment itemCommentId
+    commentsRaw <- getQuery (ByItemCommentId itemCommentId)
     encodeItemComments commentsRaw
 
 getEncodedItemCommentsByItemId :: ItemId -> Handler TL.Text
 getEncodedItemCommentsByItemId itemId = do
-    commentsRaw <- getItemCommentsByItemId itemId
+    commentsRaw <- getQuery (ByItemId itemId)
     encodeItemComments commentsRaw
 
-getItemCommentsByItemId ::
-       ItemId
-    -> Handler [( E.Value (ItemCommentId)
+getQuery ::
+       QueryType
+    -> Handler [( E.Value ItemCommentId
                 , E.Value Text
                 , E.Value UTCTime
-                , E.Value (UserId)
+                , E.Value UserId
                 , E.Value Text)]
-getItemCommentsByItemId itemId =
+getQuery queryType =
     runDB . E.select . E.from $ \(itemComment `E.InnerJoin` item `E.InnerJoin` user) -> do
         E.on $ user ^. UserId E.==. itemComment ^. ItemCommentUser
         E.on $ item ^. ItemId E.==. itemComment ^. ItemCommentItem
-        E.where_ $ itemComment ^. ItemCommentItem E.==. E.val itemId
-        E.orderBy [E.asc (itemComment ^. ItemCommentId)]
-        E.limit 200
-        return
-            ( itemComment ^. ItemCommentId
-            , itemComment ^. ItemCommentComment
-            , itemComment ^. ItemCommentCreated
-            , user ^. UserId
-            , user ^. UserIdent)
-
-getItemComment ::
-       ItemCommentId
-    -> Handler [( E.Value (ItemCommentId)
-                , E.Value Text
-                , E.Value UTCTime
-                , E.Value (UserId)
-                , E.Value Text)]
-getItemComment itemCommentId =
-    runDB . E.select . E.from $ \(itemComment `E.InnerJoin` item `E.InnerJoin` user) -> do
-        E.on $ user ^. UserId E.==. itemComment ^. ItemCommentUser
-        E.on $ item ^. ItemId E.==. itemComment ^. ItemCommentItem
-        E.where_ $ itemComment ^. ItemCommentId E.==. E.val itemCommentId
-        E.limit 1
+        let (whereClause, range) =
+                case queryType of
+                    (ByItemId itemId) ->
+                        (itemComment ^. ItemCommentItem E.==. E.val itemId, 200)
+                    (ByItemCommentId itemCommentId) ->
+                        ( itemComment ^. ItemCommentId E.==. E.val itemCommentId
+                        , 1)
+        E.where_ $ whereClause
+        E.limit range
         return
             ( itemComment ^. ItemCommentId
             , itemComment ^. ItemCommentComment
