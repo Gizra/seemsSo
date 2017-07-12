@@ -15,7 +15,7 @@ type ItemCommentId
 type alias Model =
     { itemId : ItemId
     , comment : String
-    , status : WebData ()
+    , status : WebData ItemComment
     , selectedTab : Tab
     }
 
@@ -47,7 +47,7 @@ type Tab
 
 
 type Msg
-    = HandleSaveComment (Result Http.Error ())
+    = HandleSaveComment (Result Http.Error EveryDictListItemComments)
     | SaveComment
     | SetComment String
     | SetTab Tab
