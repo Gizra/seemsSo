@@ -46,7 +46,7 @@ postRestfulItemCommentsR itemId = do
                     , itemCommentCreated = currentTime
                     }
             itemCommentId <- runDB $ insert itemComment
-            encodedPusherText <- getEncodedItemComment itemCommentId
+            encodedItemComment <- getEncodedItemComment itemCommentId
             pusher <- fmap appPusher getYesod
             -- We don't care about the Pusher result.
             _ <-
@@ -56,7 +56,6 @@ postRestfulItemCommentsR itemId = do
                       "item-" ++ (pack $ show $ fromSqlKey itemId)
                     ]
                     "comment__insert"
-                    (pack . show $ encodedPusherText)
+                    (pack . show $ encodedItemComment)
                     Nothing
-            returnVal <- getRestfulItemCommentR itemId itemCommentId
-            sendResponseStatus status201 returnVal
+            sendResponseStatus status201 encodedItemComment
