@@ -10,3 +10,7 @@
 .ui.menu > .item > a.instructions {
   border-bottom: 1px dotted @secondaryColor;
 }
+
+footer.ui.vertical.segment .column.icons > a {
+  color: @white;
+}
