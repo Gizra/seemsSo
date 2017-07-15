@@ -1,0 +1,8 @@
+/*******************************
+         Site Overrides
+*******************************/
+
+.ui.fluid.bordered.image + p.caption {
+  margin-top: @10px;
+  font-style: italic;
+}
