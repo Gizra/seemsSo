@@ -5,8 +5,12 @@
 
 module Handler.RestfulItemComments where
 
+import Data.Aeson.Text (encodeToLazyText)
+import Database.Persist.Sql (fromSqlKey)
 import Handler.RestfulItemComment (getRestfulItemCommentR)
 import Import
+import Network.Pusher (Channel(..), ChannelType(..), trigger)
+import Utils.ItemComment (getEncodedItemComment)
 import Utils.Restful (getEntityList)
 
 -- A Bid type that represents the data we will get from JSON.
@@ -42,5 +46,16 @@ postRestfulItemCommentsR itemId = do
                     , itemCommentCreated = currentTime
                     }
             itemCommentId <- runDB $ insert itemComment
-            returnVal <- getRestfulItemCommentR itemId itemCommentId
-            sendResponseStatus status201 returnVal
+            encodedItemComment <- getEncodedItemComment itemCommentId
+            pusher <- fmap appPusher getYesod
+            -- We don't care about the Pusher result.
+            _ <-
+                trigger
+                    pusher
+                    [ Channel Public $
+                      "item-" ++ (pack $ show $ fromSqlKey itemId)
+                    ]
+                    "comment__insert"
+                    (pack . show $ encodedItemComment)
+                    Nothing
+            sendResponseStatus status201 encodedItemComment

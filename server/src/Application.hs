@@ -26,6 +26,7 @@ import Database.Persist.Postgresql
        (createPostgresqlPool, pgConnStr, pgPoolSize, runSqlPool)
 import Import
 import Language.Haskell.TH.Syntax (qLocation)
+import Network.Pusher (getPusher)
 import Network.Wai (Middleware)
 import Network.Wai.Handler.Warp
        (Settings, defaultSettings, defaultShouldDisplayException, getPort,
@@ -74,6 +75,7 @@ makeFoundation appSettings
              then staticDevel
              else static)
             (appStaticDir appSettings)
+    appPusher <- getPusher (appPusherCredentials appSettings)
     -- We need a log function to create a connection pool. We need a connection
     -- pool to create our foundation. And we need our foundation to get a
     -- logging function. To get out of this loop, we initially create a

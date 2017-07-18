@@ -11,6 +11,7 @@ import Utils.Restful
 getRestfulItemCommentR :: ItemId -> ItemCommentId -> Handler Value
 getRestfulItemCommentR itemId itemCommentId = do
     itemComment <- runDB $ get404 itemCommentId
+    user <- runDB $ get404 (itemCommentUser itemComment)
     urlRender <- getUrlRender
     let itemWithMetaData =
             addEntityMetaData
