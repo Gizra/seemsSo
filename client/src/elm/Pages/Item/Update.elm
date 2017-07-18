@@ -4,6 +4,7 @@ port module Pages.Item.Update
         , update
         )
 
+import EveryDictList
 import Item.Decoder exposing (decodeItems)
 import ItemComment.Model exposing (ItemComment)
 import ItemComment.Update
@@ -40,10 +41,17 @@ update msg model =
 
         MsgItemComment subMsg ->
             let
-                ( val, cmds ) =
+                ( val, cmds, maybeEveryDictListItemComments ) =
                     ItemComment.Update.update subMsg model.itemComment
+
+                commentsUpdated =
+                    Maybe.map (\newItemComments -> EveryDictList.union model.comments newItemComments) maybeEveryDictListItemComments
+                        |> Maybe.withDefault model.comments
             in
-                ( { model | itemComment = val }
+                ( { model
+                    | itemComment = val
+                    , comments = commentsUpdated
+                  }
                 , Cmd.map MsgItemComment cmds
                 )
 

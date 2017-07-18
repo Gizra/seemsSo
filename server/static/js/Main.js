@@ -10871,6 +10871,60 @@ var _lukewestby$elm_http_builder$HttpBuilder$RequestBuilder = F9(
 		return {method: a, headers: b, url: c, body: d, expect: e, timeout: f, withCredentials: g, queryParams: h, cacheBuster: i};
 	});
 
+var _Gizra$elm_spa_exmple$User_Decoder$decoderUserId = _Gizra$elm_spa_exmple$Utils_Json$decodeInt;
+var _Gizra$elm_spa_exmple$User_Decoder$decodeUser = A3(
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+	'name',
+	_elm_lang$core$Json_Decode$string,
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$User_Model$User));
+var _Gizra$elm_spa_exmple$User_Decoder$decodeMaybeUser = _elm_lang$core$Json_Decode$oneOf(
+	{
+		ctor: '::',
+		_0: _elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
+		_1: {
+			ctor: '::',
+			_0: A2(
+				_elm_lang$core$Json_Decode$andThen,
+				function (user) {
+					return _elm_lang$core$Json_Decode$succeed(
+						_elm_lang$core$Maybe$Just(user));
+				},
+				_Gizra$elm_spa_exmple$User_Decoder$decodeUser),
+			_1: {ctor: '[]'}
+		}
+	});
+
+var _Gizra$elm_spa_exmple$ItemComment_Decoder$decodeItemCommentId = A2(_elm_lang$core$Json_Decode$map, _Gizra$elm_spa_exmple$ItemComment_Model$ItemCommentId, _Gizra$elm_spa_exmple$Utils_Json$decodeInt);
+var _Gizra$elm_spa_exmple$ItemComment_Decoder$decodeItemComment = A3(
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+	'created',
+	_Gizra$elm_spa_exmple$Utils_Json$decodeDate,
+	A3(
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+		'comment',
+		_elm_lang$core$Json_Decode$string,
+		A2(
+			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
+			_Gizra$elm_spa_exmple$User_Decoder$decodeUser,
+			A3(
+				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+				'userId',
+				_Gizra$elm_spa_exmple$User_Decoder$decoderUserId,
+				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$ItemComment_Model$ItemComment)))));
+var _Gizra$elm_spa_exmple$ItemComment_Decoder$decodeEveryDictListItemComments = _elm_lang$core$Json_Decode$oneOf(
+	{
+		ctor: '::',
+		_0: A2(
+			_Gizra$elm_dictlist$EveryDictList$decodeArray2,
+			A2(_elm_lang$core$Json_Decode$field, 'commentId', _Gizra$elm_spa_exmple$ItemComment_Decoder$decodeItemCommentId),
+			_Gizra$elm_spa_exmple$ItemComment_Decoder$decodeItemComment),
+		_1: {
+			ctor: '::',
+			_0: _Gizra$elm_spa_exmple$Utils_Json$decodeEmptyArrayAs(_Gizra$elm_dictlist$EveryDictList$empty),
+			_1: {ctor: '[]'}
+		}
+	});
+
 var _elm_lang$virtual_dom$VirtualDom_Debug$wrap;
 var _elm_lang$virtual_dom$VirtualDom_Debug$wrapWithFlags;
 
@@ -13025,8 +13079,9 @@ var _Gizra$elm_spa_exmple$Utils_WebData$viewError = function (error) {
 
 var _Gizra$elm_spa_exmple$ItemComment_Update$saveComment = function (model) {
 	var backendUrl = 'http://localhost:3000';
-	return A2(
-		_lukewestby$elm_http_builder$HttpBuilder$send,
+	return A3(
+		_Gizra$elm_spa_exmple$Utils_WebData$sendWithHandler,
+		_Gizra$elm_spa_exmple$ItemComment_Decoder$decodeEveryDictListItemComments,
 		_Gizra$elm_spa_exmple$ItemComment_Model$HandleSaveComment,
 		A2(
 			_lukewestby$elm_http_builder$HttpBuilder$withJsonBody,
@@ -13063,99 +13118,54 @@ var _Gizra$elm_spa_exmple$ItemComment_Update$update = F2(
 		switch (_p0.ctor) {
 			case 'SaveComment':
 				return {
-					ctor: '_Tuple2',
+					ctor: '_Tuple3',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{status: _krisajenkins$remotedata$RemoteData$Loading}),
-					_1: _Gizra$elm_spa_exmple$ItemComment_Update$saveComment(model)
+					_1: _Gizra$elm_spa_exmple$ItemComment_Update$saveComment(model),
+					_2: _elm_lang$core$Maybe$Nothing
 				};
 			case 'HandleSaveComment':
 				if (_p0._0.ctor === 'Ok') {
-					return A2(
-						_elm_lang$core$Platform_Cmd_ops['!'],
-						_elm_lang$core$Native_Utils.update(
+					return {
+						ctor: '_Tuple3',
+						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{comment: '', status: _krisajenkins$remotedata$RemoteData$NotAsked}),
-						{ctor: '[]'});
+						_1: _elm_lang$core$Platform_Cmd$none,
+						_2: _elm_lang$core$Maybe$Just(_p0._0._0)
+					};
 				} else {
 					var _p1 = A2(_elm_lang$core$Debug$log, 'HandleSaveComment (Err)', false);
-					return A2(
-						_elm_lang$core$Platform_Cmd_ops['!'],
-						_elm_lang$core$Native_Utils.update(
+					return {
+						ctor: '_Tuple3',
+						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
 								status: _krisajenkins$remotedata$RemoteData$Failure(_p0._0._0)
 							}),
-						{ctor: '[]'});
+						_1: _elm_lang$core$Platform_Cmd$none,
+						_2: _elm_lang$core$Maybe$Nothing
+					};
 				}
 			case 'SetComment':
-				return A2(
-					_elm_lang$core$Platform_Cmd_ops['!'],
-					_elm_lang$core$Native_Utils.update(
+				return {
+					ctor: '_Tuple3',
+					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{comment: _p0._0}),
-					{ctor: '[]'});
+					_1: _elm_lang$core$Platform_Cmd$none,
+					_2: _elm_lang$core$Maybe$Nothing
+				};
 			default:
-				return A2(
-					_elm_lang$core$Platform_Cmd_ops['!'],
-					_elm_lang$core$Native_Utils.update(
+				return {
+					ctor: '_Tuple3',
+					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{selectedTab: _p0._0}),
-					{ctor: '[]'});
-		}
-	});
-
-var _Gizra$elm_spa_exmple$User_Decoder$decoderUserId = _Gizra$elm_spa_exmple$Utils_Json$decodeInt;
-var _Gizra$elm_spa_exmple$User_Decoder$decodeUser = A3(
-	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-	'name',
-	_elm_lang$core$Json_Decode$string,
-	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$User_Model$User));
-var _Gizra$elm_spa_exmple$User_Decoder$decodeMaybeUser = _elm_lang$core$Json_Decode$oneOf(
-	{
-		ctor: '::',
-		_0: _elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
-		_1: {
-			ctor: '::',
-			_0: A2(
-				_elm_lang$core$Json_Decode$andThen,
-				function (user) {
-					return _elm_lang$core$Json_Decode$succeed(
-						_elm_lang$core$Maybe$Just(user));
-				},
-				_Gizra$elm_spa_exmple$User_Decoder$decodeUser),
-			_1: {ctor: '[]'}
-		}
-	});
-
-var _Gizra$elm_spa_exmple$ItemComment_Decoder$decodeItemCommentId = A2(_elm_lang$core$Json_Decode$map, _Gizra$elm_spa_exmple$ItemComment_Model$ItemCommentId, _Gizra$elm_spa_exmple$Utils_Json$decodeInt);
-var _Gizra$elm_spa_exmple$ItemComment_Decoder$decodeItemComment = A3(
-	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-	'created',
-	_Gizra$elm_spa_exmple$Utils_Json$decodeDate,
-	A3(
-		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-		'comment',
-		_elm_lang$core$Json_Decode$string,
-		A2(
-			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
-			_Gizra$elm_spa_exmple$User_Decoder$decodeUser,
-			A3(
-				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-				'userId',
-				_Gizra$elm_spa_exmple$User_Decoder$decoderUserId,
-				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$ItemComment_Model$ItemComment)))));
-var _Gizra$elm_spa_exmple$ItemComment_Decoder$decodeEveryDictListItemComments = _elm_lang$core$Json_Decode$oneOf(
-	{
-		ctor: '::',
-		_0: A2(
-			_Gizra$elm_dictlist$EveryDictList$decodeArray2,
-			A2(_elm_lang$core$Json_Decode$field, 'commentId', _Gizra$elm_spa_exmple$ItemComment_Decoder$decodeItemCommentId),
-			_Gizra$elm_spa_exmple$ItemComment_Decoder$decodeItemComment),
-		_1: {
-			ctor: '::',
-			_0: _Gizra$elm_spa_exmple$Utils_Json$decodeEmptyArrayAs(_Gizra$elm_dictlist$EveryDictList$empty),
-			_1: {ctor: '[]'}
+					_1: _elm_lang$core$Platform_Cmd$none,
+					_2: _elm_lang$core$Maybe$Nothing
+				};
 		}
 	});
 
@@ -13201,11 +13211,21 @@ var _Gizra$elm_spa_exmple$Pages_Item_Update$update = F2(
 			var _p3 = A2(_Gizra$elm_spa_exmple$ItemComment_Update$update, _p0._0, model.itemComment);
 			var val = _p3._0;
 			var cmds = _p3._1;
+			var maybeEveryDictListItemComments = _p3._2;
+			var commentsUpdated = A2(
+				_elm_lang$core$Maybe$withDefault,
+				model.comments,
+				A2(
+					_elm_lang$core$Maybe$map,
+					function (newItemComments) {
+						return A2(_Gizra$elm_dictlist$EveryDictList$union, model.comments, newItemComments);
+					},
+					maybeEveryDictListItemComments));
 			return {
 				ctor: '_Tuple2',
 				_0: _elm_lang$core$Native_Utils.update(
 					model,
-					{itemComment: val}),
+					{itemComment: val, comments: commentsUpdated}),
 				_1: A2(_elm_lang$core$Platform_Cmd$map, _Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment, cmds)
 			};
 		}
