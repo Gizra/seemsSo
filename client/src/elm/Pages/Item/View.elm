@@ -15,5 +15,5 @@ view : String -> Maybe User -> Model -> Html Msg
 view baseUrl muser model =
     div []
         [ viewItemComments muser model.comments
-        , showIf (isJust muser) <| Html.map MsgItemComment <| ItemComment.View.view baseUrl muser model.itemComment
+        , Html.map MsgItemComment <| ItemComment.View.view baseUrl muser model.itemComment
         ]

@@ -21876,41 +21876,46 @@ var _Gizra$elm_spa_exmple$ItemComment_View$viewItemComments = F2(
 	});
 var _Gizra$elm_spa_exmple$ItemComment_View$view = F3(
 	function (baseUrl, muser, model) {
-		var mainArea = function () {
-			var _p3 = model.selectedTab;
-			if (_p3.ctor === 'Edit') {
-				return _Gizra$elm_spa_exmple$ItemComment_View$viewEdit(model.comment);
-			} else {
-				return _Gizra$elm_spa_exmple$ItemComment_View$viewPreview(model.comment);
-			}
-		}();
-		return A2(
-			_elm_lang$html$Html$div,
-			{ctor: '[]'},
-			{
-				ctor: '::',
-				_0: _Gizra$elm_spa_exmple$ItemComment_View$viewTabs(model.selectedTab),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$form,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('ui form'),
-							_1: {ctor: '[]'}
-						},
-						{
-							ctor: '::',
-							_0: mainArea,
-							_1: {
-								ctor: '::',
-								_0: _Gizra$elm_spa_exmple$ItemComment_View$viewActions(model),
-								_1: {ctor: '[]'}
-							}
-						}),
-					_1: {ctor: '[]'}
+		var _p3 = muser;
+		if (_p3.ctor === 'Nothing') {
+			return _Gizra$elm_spa_exmple$Utils_Html$emptyNode;
+		} else {
+			var mainArea = function () {
+				var _p4 = model.selectedTab;
+				if (_p4.ctor === 'Edit') {
+					return _Gizra$elm_spa_exmple$ItemComment_View$viewEdit(model.comment);
+				} else {
+					return _Gizra$elm_spa_exmple$ItemComment_View$viewPreview(model.comment);
 				}
-			});
+			}();
+			return A2(
+				_elm_lang$html$Html$div,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _Gizra$elm_spa_exmple$ItemComment_View$viewTabs(model.selectedTab),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$form,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('ui form comment'),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: mainArea,
+								_1: {
+									ctor: '::',
+									_0: _Gizra$elm_spa_exmple$ItemComment_View$viewActions(model),
+									_1: {ctor: '[]'}
+								}
+							}),
+						_1: {ctor: '[]'}
+					}
+				});
+		}
 	});
 
 var _elm_community$maybe_extra$Maybe_Extra$foldrValues = F2(
@@ -22103,12 +22108,9 @@ var _Gizra$elm_spa_exmple$Pages_Item_View$view = F3(
 				_1: {
 					ctor: '::',
 					_0: A2(
-						_Gizra$elm_spa_exmple$Utils_Html$showIf,
-						_elm_community$maybe_extra$Maybe_Extra$isJust(muser),
-						A2(
-							_elm_lang$html$Html$map,
-							_Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment,
-							A3(_Gizra$elm_spa_exmple$ItemComment_View$view, baseUrl, muser, model.itemComment))),
+						_elm_lang$html$Html$map,
+						_Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment,
+						A3(_Gizra$elm_spa_exmple$ItemComment_View$view, baseUrl, muser, model.itemComment)),
 					_1: {ctor: '[]'}
 				}
 			});

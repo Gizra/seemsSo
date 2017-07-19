@@ -12,27 +12,32 @@ import ItemComment.Model exposing (EveryDictListItemComments, ItemComment, ItemC
 import Markdown
 import RemoteData exposing (..)
 import User.Model exposing (User)
-import Utils.Html exposing (divider, sectionDivider, showIf, showMaybe)
+import Utils.Html exposing (divider, emptyNode, sectionDivider, showIf, showMaybe)
 
 
 view : String -> Maybe User -> Model -> Html Msg
 view baseUrl muser model =
-    let
-        mainArea =
-            case model.selectedTab of
-                Edit ->
-                    viewEdit model.comment
+    case muser of
+        Nothing ->
+            emptyNode
 
-                Preview ->
-                    viewPreview model.comment
-    in
-        div []
-            [ viewTabs model.selectedTab
-            , form [ class "ui form" ]
-                [ mainArea
-                , viewActions model
-                ]
-            ]
+        Just user ->
+            let
+                mainArea =
+                    case model.selectedTab of
+                        Edit ->
+                            viewEdit model.comment
+
+                        Preview ->
+                            viewPreview model.comment
+            in
+                div []
+                    [ viewTabs model.selectedTab
+                    , form [ class "ui form comment" ]
+                        [ mainArea
+                        , viewActions model
+                        ]
+                    ]
 
 
 viewItemComments : Maybe User -> EveryDictListItemComments -> Html msg
