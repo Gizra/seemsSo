@@ -19,10 +19,12 @@ init flags =
         page =
             case flags.page of
                 "item" ->
+                    -- @todo: Get the item id.
                     Item (toEntityId 1)
 
-                -- "homepage" ->
-                --     HomePage
+                "homepage" ->
+                    HomePage
+
                 -- Fallback to page not found.
                 _ ->
                     NotFound
@@ -82,8 +84,9 @@ subscriptions model =
                 Item itemId ->
                     Sub.map MsgBackend <| Backend.Update.subscriptions
 
-                -- HomePage ->
-                --     Sub.map MsgPagesHomepage <| Pages.Homepage.Update.subscriptions
+                HomePage ->
+                    Sub.map MsgBackend <| Backend.Update.subscriptions
+
                 NotFound ->
                     Sub.none
     in

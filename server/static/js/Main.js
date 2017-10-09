@@ -11093,6 +11093,7 @@ var _Gizra$elm_spa_exmple$Backend_Entities$ItemIdType = {ctor: 'ItemIdType'};
 var _Gizra$elm_spa_exmple$Backend_Entities$ItemCommentIdType = {ctor: 'ItemCommentIdType'};
 
 var _Gizra$elm_spa_exmple$App_Types$NotFound = {ctor: 'NotFound'};
+var _Gizra$elm_spa_exmple$App_Types$HomePage = {ctor: 'HomePage'};
 var _Gizra$elm_spa_exmple$App_Types$Item = function (a) {
 	return {ctor: 'Item', _0: a};
 };
@@ -13607,11 +13608,14 @@ var _Gizra$elm_spa_exmple$App_Update$update = F2(
 var _Gizra$elm_spa_exmple$App_Update$init = function (flags) {
 	var page = function () {
 		var _p3 = flags.page;
-		if (_p3 === 'item') {
-			return _Gizra$elm_spa_exmple$App_Types$Item(
-				_Gizra$elm_spa_exmple$Backend_Restful$toEntityId(1));
-		} else {
-			return _Gizra$elm_spa_exmple$App_Types$NotFound;
+		switch (_p3) {
+			case 'item':
+				return _Gizra$elm_spa_exmple$App_Types$Item(
+					_Gizra$elm_spa_exmple$Backend_Restful$toEntityId(1));
+			case 'homepage':
+				return _Gizra$elm_spa_exmple$App_Types$HomePage;
+			default:
+				return _Gizra$elm_spa_exmple$App_Types$NotFound;
 		}
 	}();
 	return {
@@ -13626,10 +13630,13 @@ var _Gizra$elm_spa_exmple$App_Update$user = _elm_lang$core$Native_Platform.incom
 var _Gizra$elm_spa_exmple$App_Update$subscriptions = function (model) {
 	var subs = function () {
 		var _p4 = model.activePage;
-		if (_p4.ctor === 'Item') {
-			return A2(_elm_lang$core$Platform_Sub$map, _Gizra$elm_spa_exmple$App_Model$MsgBackend, _Gizra$elm_spa_exmple$Backend_Update$subscriptions);
-		} else {
-			return _elm_lang$core$Platform_Sub$none;
+		switch (_p4.ctor) {
+			case 'Item':
+				return A2(_elm_lang$core$Platform_Sub$map, _Gizra$elm_spa_exmple$App_Model$MsgBackend, _Gizra$elm_spa_exmple$Backend_Update$subscriptions);
+			case 'HomePage':
+				return A2(_elm_lang$core$Platform_Sub$map, _Gizra$elm_spa_exmple$App_Model$MsgBackend, _Gizra$elm_spa_exmple$Backend_Update$subscriptions);
+			default:
+				return _elm_lang$core$Platform_Sub$none;
 		}
 	}();
 	return _elm_lang$core$Platform_Sub$batch(
@@ -14113,6 +14120,58 @@ var _elm_lang$html$Html_Events$Options = F2(
 		return {stopPropagation: a, preventDefault: b};
 	});
 
+var _Gizra$elm_spa_exmple$Pages_Homepage_View$viewItemsTeaser = F2(
+	function (_p0, items) {
+		var _p1 = _p0;
+		return A2(
+			_elm_lang$html$Html$ul,
+			{ctor: '[]'},
+			_Gizra$elm_dictlist$EveryDictList$values(
+				A2(
+					_Gizra$elm_dictlist$EveryDictList$map,
+					F2(
+						function (itemId, item) {
+							return A2(
+								_elm_lang$html$Html$li,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$a,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$href(
+												A2(
+													_elm_lang$core$Basics_ops['++'],
+													_p1._0,
+													A2(
+														_elm_lang$core$Basics_ops['++'],
+														'item/',
+														_elm_lang$core$Basics$toString(itemId)))),
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text(item.name),
+											_1: {ctor: '[]'}
+										}),
+									_1: {ctor: '[]'}
+								});
+						}),
+					items)));
+	});
+var _Gizra$elm_spa_exmple$Pages_Homepage_View$view = F3(
+	function (backendUrl, currentUser, items) {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: A2(_Gizra$elm_spa_exmple$Pages_Homepage_View$viewItemsTeaser, backendUrl, items),
+				_1: {ctor: '[]'}
+			});
+	});
+
 var _Gizra$elm_spa_exmple$Utils_Html$sectionDivider = A2(
 	_elm_lang$html$Html$div,
 	{
@@ -14150,28 +14209,42 @@ var _Gizra$elm_spa_exmple$Pages_Item_View$view = F2(
 
 var _Gizra$elm_spa_exmple$App_View$view = function (model) {
 	var _p0 = model.activePage;
-	if (_p0.ctor === 'Item') {
-		return A2(
-			_elm_lang$html$Html$div,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class('ui container'),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
-				_0: A2(_Gizra$elm_spa_exmple$Pages_Item_View$view, model.backendUrl, model.user),
-				_1: {ctor: '[]'}
-			});
-	} else {
-		return A2(
-			_elm_lang$html$Html$div,
-			{ctor: '[]'},
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html$text('Wrong page defined'),
-				_1: {ctor: '[]'}
-			});
+	switch (_p0.ctor) {
+		case 'HomePage':
+			return A2(
+				_elm_lang$html$Html$div,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('ui container'),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: A3(_Gizra$elm_spa_exmple$Pages_Homepage_View$view, model.backendUrl, model.user, model.backend.items),
+					_1: {ctor: '[]'}
+				});
+		case 'Item':
+			return A2(
+				_elm_lang$html$Html$div,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('ui container'),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: A2(_Gizra$elm_spa_exmple$Pages_Item_View$view, model.backendUrl, model.user),
+					_1: {ctor: '[]'}
+				});
+		default:
+			return A2(
+				_elm_lang$html$Html$div,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Wrong page defined'),
+					_1: {ctor: '[]'}
+				});
 	}
 };
 

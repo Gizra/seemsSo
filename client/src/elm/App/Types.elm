@@ -1,7 +1,7 @@
 module App.Types
     exposing
-        ( Page(..)
-        , BackendUrl(..)
+        ( BackendUrl(..)
+        , Page(..)
         )
 
 import Backend.Entities exposing (ItemId)
@@ -9,7 +9,7 @@ import Backend.Entities exposing (ItemId)
 
 type Page
     = Item ItemId
-      -- | HomePage
+    | HomePage
     | NotFound
 
 
