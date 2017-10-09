@@ -20,7 +20,7 @@ import Utils.ItemComment (getEncodedItemCommentsByItemId)
 getItemR :: ItemId -> Handler Html
 getItemR itemId = do
     item <- runDB $ get404 itemId
-    let itemJson = encodeToLazyText item
+    let itemJson = encodeToLazyText $ Entity itemId item
     company <- runDB $ get404 $ itemCompany item
     comments <- getEncodedItemCommentsByItemId itemId
     mpdf <-

@@ -1,7 +1,6 @@
 // Send the values via Elm's ports.
 
-console.log([#{rawJS itemJson}]);
-
+// Elm is expecting to get a list of items.
 elmApp.ports.items.send([#{rawJS itemJson}]);
 
 elmApp.ports.itemIdAndCommentsTuple.send({

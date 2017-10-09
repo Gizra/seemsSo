@@ -25,7 +25,7 @@ Company
     created         UTCTime
     user            UserId
     deriving        Show Generic
-Item json
+Item
     name            Text
     company         CompanyId
     price           Int

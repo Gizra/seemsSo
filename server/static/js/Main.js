@@ -11322,7 +11322,14 @@ var _Gizra$elm_spa_exmple$Backend_Item_Decoder$deocdeItemIdAndComments = A3(
 	A3(
 		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
 		'itemId',
-		_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeStorageKeyAsEntityId,
+		A2(
+			_elm_lang$core$Json_Decode$andThen,
+			function (val) {
+				return _elm_lang$core$Json_Decode$succeed(
+					_Gizra$elm_storage_key$StorageKey$Existing(
+						_Gizra$elm_spa_exmple$Backend_Restful$toEntityId(val)));
+			},
+			_Gizra$elm_spa_exmple$Utils_Json$decodeInt),
 		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(
 			F2(
 				function (v0, v1) {
