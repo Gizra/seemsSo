@@ -7,9 +7,11 @@ module App.Model
         )
 
 import App.Types exposing (Widget(..))
+import Backend.Item.Model exposing (Item)
+import Backend.Restful exposing (EntityDictList)
 import Pages.Homepage.Model exposing (Model, Msg)
 import Pages.Item.Model exposing (Model, Msg)
-import User.Model exposing (User)
+import User.Model exposing (CurrentUser(Anonymous), User)
 
 
 type Msg
@@ -19,25 +21,23 @@ type Msg
 
 
 type alias Flags =
-    { widget : String
+    { page : String
     }
 
 
 type alias Model =
-    { widget : Widget
-    , pageHomepage : Pages.Homepage.Model.Model
-    , pageItem : Pages.Item.Model.Model
-    , user : Maybe User
+    { activePage : Page
+    , items : EntityDictList ItemId Item
+    , user : CurrentUser
     , baseUrl : String
     }
 
 
 emptyModel : Model
 emptyModel =
-    { widget = NotFound
-    , pageHomepage = Pages.Homepage.Model.emptyModel
-    , pageItem = Pages.Item.Model.emptyModel
-    , user = Nothing
+    { activePage = NotFound
+    , items = EveryDictList.empty
+    , user = Anonymous
 
     -- @todo: Get dynamically.
     , baseUrl =

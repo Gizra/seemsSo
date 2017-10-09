@@ -10,14 +10,14 @@ import App.Types exposing (Widget(..))
 import Pages.Homepage.Update
 import Pages.Item.Update
 import Json.Decode exposing (Value, decodeValue)
-import User.Decoder exposing (decodeMaybeUser)
+import User.Decoder exposing (decodeCurrentUser)
 
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     let
         widget =
-            case flags.widget of
+            case flags.page of
                 "item" ->
                     Item
 
@@ -28,7 +28,7 @@ init flags =
                 _ ->
                     NotFound
     in
-        ( { emptyModel | widget = widget }
+        ( { emptyModel | activePage = page }
         , Cmd.none
         )
 
@@ -36,8 +36,8 @@ init flags =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        HandleUser (Ok muser) ->
-            { model | user = muser } ! []
+        HandleUser (Ok user) ->
+            { model | user = user } ! []
 
         HandleUser (Err err) ->
             let
@@ -80,7 +80,7 @@ subscriptions model =
                     Sub.none
     in
         Sub.batch
-            [ user (decodeValue decodeMaybeUser >> HandleUser)
+            [ user (decodeValue decodeCurrentUser >> HandleUser)
             , subs
             ]
 

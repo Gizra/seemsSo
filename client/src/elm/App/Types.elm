@@ -1,7 +1,7 @@
-module App.Types exposing (..)
+module App.Types exposing (Page)
 
 
-type Widget
+type Page
     = Item
     | HomePage
     | NotFound

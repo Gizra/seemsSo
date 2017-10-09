@@ -1,30 +1,32 @@
 module User.Decoder
     exposing
-        ( decodeMaybeUser
-        , decodeUser
-        , decoderUserId
+        ( decodeCurrentUser
         )
 
+import Backend.Entities exposing (UserId)
+import Backend.Restful exposing (decodeId)
 import Json.Decode exposing (Decoder, andThen, at, dict, fail, field, float, index, int, keyValuePairs, list, map, map2, null, nullable, oneOf, string, succeed)
 import Json.Decode.Pipeline exposing (custom, decode, optional, optionalAt, required, requiredAt)
-import User.Model exposing (User, UserId)
+import User.Model exposing (CurrentUser(..), User, UserTuple)
 import Utils.Json exposing (decodeInt)
 
 
-decodeMaybeUser : Decoder (Maybe User)
-decodeMaybeUser =
+decodeCurrentUser : Decoder CurrentUser
+decodeCurrentUser =
     oneOf
-        [ null Nothing
-        , decodeUser |> andThen (\user -> succeed <| Just user)
+        [ null Anonymous
+        , decodeUserTuple |> andThen (\userTuple -> succeed <| Authenticated userTuple)
         ]
+
+
+decodeUserTuple : Decoder UserTuple
+decodeUserTuple =
+    decode (,)
+        |> custom (decodeId UserId)
+        |> custom decodeUser
 
 
 decodeUser : Decoder User
 decodeUser =
     decode User
         |> required "name" string
-
-
-decoderUserId : Decoder UserId
-decoderUserId =
-    decodeInt
