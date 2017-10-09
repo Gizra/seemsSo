@@ -18,7 +18,7 @@ view model =
 
         Item itemId ->
             div [ class "ui container" ]
-                [ Pages.Item.View.view model.backendUrl model.user
+                [ Pages.Item.View.view model.backendUrl model.user model.backend.items
 
                 -- Html.map MsgPagesItem <| Pages.Item.View.view model.baseUrl model.user model.pageItem
                 ]

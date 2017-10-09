@@ -14273,15 +14273,27 @@ var _Gizra$elm_spa_exmple$Utils_Html$showIf = F2(
 	});
 var _Gizra$elm_spa_exmple$Utils_Html$showMaybe = _elm_lang$core$Maybe$withDefault(_Gizra$elm_spa_exmple$Utils_Html$emptyNode);
 
-var _Gizra$elm_spa_exmple$Pages_Item_View$view = F2(
-	function (backendUrl, currentUser) {
+var _Gizra$elm_spa_exmple$Pages_Item_View$view = F3(
+	function (backendUrl, currentUser, items) {
 		return A2(
 			_elm_lang$html$Html$div,
 			{ctor: '[]'},
 			{
 				ctor: '::',
 				_0: _elm_lang$html$Html$text('Item page'),
-				_1: {ctor: '[]'}
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$pre,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text(
+								_elm_lang$core$Basics$toString(items)),
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				}
 			});
 	});
 
@@ -14311,7 +14323,7 @@ var _Gizra$elm_spa_exmple$App_View$view = function (model) {
 				},
 				{
 					ctor: '::',
-					_0: A2(_Gizra$elm_spa_exmple$Pages_Item_View$view, model.backendUrl, model.user),
+					_0: A3(_Gizra$elm_spa_exmple$Pages_Item_View$view, model.backendUrl, model.user, model.backend.items),
 					_1: {ctor: '[]'}
 				});
 		default:

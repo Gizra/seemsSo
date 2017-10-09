@@ -1,5 +1,9 @@
 // Send the values via Elm's ports.
 
+console.log([#{rawJS itemJson}]);
+
+elmApp.ports.items.send([#{rawJS itemJson}]);
+
 elmApp.ports.itemIdAndCommentsTuple.send({
   "itemId" : #{rawJS $ show $ fromSqlKey itemId},
   "comments" : #{rawJS comments}
