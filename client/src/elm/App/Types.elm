@@ -1,7 +1,13 @@
 module App.Types exposing (Page)
 
+import Backend.Entities exposing (ItemId)
+
 
 type Page
-    = Item
-    | HomePage
+    = Item ItemId
+      -- | HomePage
     | NotFound
+
+
+type BackendUrl
+    = BackendUrl String

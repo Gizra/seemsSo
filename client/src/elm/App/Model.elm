@@ -8,16 +8,18 @@ module App.Model
 
 import App.Types exposing (Widget(..))
 import Backend.Item.Model exposing (Item)
+import Backend.Model
 import Backend.Restful exposing (EntityDictList)
-import Pages.Homepage.Model exposing (Model, Msg)
-import Pages.Item.Model exposing (Model, Msg)
 import User.Model exposing (CurrentUser(Anonymous), User)
 
 
 type Msg
-    = HandleUser (Result String (Maybe User))
-    | MsgPagesHomepage Pages.Homepage.Model.Msg
-    | MsgPagesItem Pages.Item.Model.Msg
+    = HandleUser (Result String CurrentUser)
+
+
+
+-- | MsgPagesHomepage
+-- | MsgPagesItem
 
 
 type alias Flags =
@@ -27,7 +29,7 @@ type alias Flags =
 
 type alias Model =
     { activePage : Page
-    , items : EntityDictList ItemId Item
+    , backend : Backend.Model.Model
     , user : CurrentUser
     , baseUrl : String
     }
@@ -36,7 +38,7 @@ type alias Model =
 emptyModel : Model
 emptyModel =
     { activePage = NotFound
-    , items = EveryDictList.empty
+    , backend = Backend.Model.emptyModel
     , user = Anonymous
 
     -- @todo: Get dynamically.

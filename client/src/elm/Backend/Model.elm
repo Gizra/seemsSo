@@ -18,9 +18,9 @@ in the UI.
 -}
 
 import Backend.Entities exposing (..)
-import Backend.Restful exposing (EntityDictList)
 import Backend.Item.Model exposing (Item)
-import RemoteData exposing (RemoteData(..), WebData)
+import Backend.Restful exposing (EntityDictList)
+import EveryDictList
 
 
 {-| This model basically represents things we have locally which also belong
@@ -28,13 +28,13 @@ on the backend. So, conceptually it is a kind of a local cache of some of the
 things on the backend.
 -}
 type alias Model =
-    { items : WebData (EntityDictList ItemId Item)
+    { items : EntityDictList ItemId Item
     }
 
 
 emptyModel : Model
 emptyModel =
-    { items = NotAsked
+    { items = EveryDictList.empty
     }
 
 
@@ -42,5 +42,4 @@ emptyModel =
 putting things back into the backend.
 -}
 type Msg
-    = FetchItems
-    | HandleFetchedItems (WebData (EntityDictList ItemId Item))
+    = MsgItems Backend.Item.Model.Msg

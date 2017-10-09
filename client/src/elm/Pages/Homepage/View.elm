@@ -1,19 +1,21 @@
 module Pages.Homepage.View exposing (..)
 
-import Pages.Homepage.Model exposing (Model, Msg(..))
+import Backend.Restful exposing (EntityDictList)
 import Html exposing (..)
 import Html.Attributes exposing (alt, class, classList, href, placeholder, src, style, target, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Item.View exposing (viewItemsTeaser)
 import Json.Encode exposing (string)
-import User.Model exposing (User)
+import Pages.Homepage.Model exposing (Model, Msg(..))
+import User.Model exposing (CurrentUser, User)
 import User.View
 import Utils.Html exposing (divider, sectionDivider, showIf, showMaybe)
 
 
-view : String -> Maybe User -> Model -> Html Msg
-view baseUrl muser model =
+view : String -> CurrentUser -> EntityDictList ItemId Item -> Html Msg
+view baseUrl muser items =
     div []
-        [ User.View.view muser
-        , viewItemsTeaser baseUrl model.items
+        [ text "Homepage"
+
+        -- viewItemsTeaser baseUrl model.items
         ]

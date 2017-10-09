@@ -7,8 +7,6 @@ port module App.Update
 
 import App.Model exposing (..)
 import App.Types exposing (Widget(..))
-import Pages.Homepage.Update
-import Pages.Item.Update
 import Json.Decode exposing (Value, decodeValue)
 import User.Decoder exposing (decodeCurrentUser)
 
@@ -21,9 +19,8 @@ init flags =
                 "item" ->
                     Item
 
-                "homepage" ->
-                    HomePage
-
+                -- "homepage" ->
+                --     HomePage
                 -- Fallback to page not found.
                 _ ->
                     NotFound
@@ -46,23 +43,24 @@ update msg model =
             in
                 model ! []
 
-        MsgPagesHomepage subMsg ->
-            let
-                ( val, cmds ) =
-                    Pages.Homepage.Update.update subMsg model.pageHomepage
-            in
-                ( { model | pageHomepage = val }
-                , Cmd.map MsgPagesHomepage cmds
-                )
 
-        MsgPagesItem subMsg ->
-            let
-                ( val, cmds ) =
-                    Pages.Item.Update.update subMsg model.pageItem
-            in
-                ( { model | pageItem = val }
-                , Cmd.map MsgPagesItem cmds
-                )
+
+-- MsgPagesHomepage subMsg ->
+--     let
+--         ( val, cmds ) =
+--             Pages.Homepage.Update.update subMsg model.pageHomepage
+--     in
+--         ( { model | pageHomepage = val }
+--         , Cmd.map MsgPagesHomepage cmds
+--         )
+-- MsgPagesItem subMsg ->
+--     let
+--         ( val, cmds ) =
+--             Pages.Item.Update.update subMsg model.pageItem
+--     in
+--         ( { model | pageItem = val }
+--         , Cmd.map MsgPagesItem cmds
+--         )
 
 
 subscriptions : Model -> Sub Msg
@@ -71,11 +69,10 @@ subscriptions model =
         subs =
             case model.widget of
                 Item ->
-                    Sub.map MsgPagesItem <| Pages.Item.Update.subscriptions
+                    Sub.map MsgPagesItem <| Backend.Item.Update.subscriptions
 
-                HomePage ->
-                    Sub.map MsgPagesHomepage <| Pages.Homepage.Update.subscriptions
-
+                -- HomePage ->
+                --     Sub.map MsgPagesHomepage <| Pages.Homepage.Update.subscriptions
                 NotFound ->
                     Sub.none
     in

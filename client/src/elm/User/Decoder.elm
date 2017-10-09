@@ -1,6 +1,7 @@
 module User.Decoder
     exposing
         ( decodeCurrentUser
+        , decodeUserTuple
         )
 
 import Backend.Entities exposing (UserId)

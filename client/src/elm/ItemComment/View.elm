@@ -11,17 +11,17 @@ import Html.Events exposing (onClick, onInput)
 import ItemComment.Model exposing (EveryDictListItemComments, ItemComment, ItemCommentId, Model, Msg(..), Tab(..))
 import Markdown
 import RemoteData exposing (..)
-import User.Model exposing (User)
+import User.Model exposing (Authenticated, CurrentUser(..))
 import Utils.Html exposing (divider, emptyNode, sectionDivider, showIf, showMaybe)
 
 
-view : String -> Maybe User -> Model -> Html Msg
-view baseUrl muser model =
-    case muser of
-        Nothing ->
+view : String -> CurrentUser -> Model -> Html Msg
+view baseUrl user model =
+    case user of
+        Anonymous ->
             emptyNode
 
-        Just user ->
+        Authenticated ( userId, user ) ->
             let
                 mainArea =
                     case model.selectedTab of

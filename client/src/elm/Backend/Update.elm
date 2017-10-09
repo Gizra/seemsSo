@@ -1,40 +1,18 @@
 module Backend.Update exposing (update)
 
-{-| This could perhaps be distributed one level down, to
-`Backend.Session.Update`, `Backend.Clinic.Update` etc. Or, perhaps it is nicer
-to keep it together here for now.
--}
-
-import Backend.Entities exposing (..)
-import Backend.Model exposing (..)
-import Backend.Restful exposing (EndPoint, toEntityId)
-import EveryDictList
-import Gizra.NominalDate exposing (NominalDate)
-import Http exposing (Error)
-import Backend.Item.Model exposing (Item)
-import Maybe.Extra exposing (toList)
-import RemoteData exposing (RemoteData(..))
+import App.Types exposing (BackendUrl)
+import Backend.Item.Update
+import Backend.Model exposing (Model, Msg(..))
 
 
-itemEndpoint : EndPoint Error () ItemId Item
-itemEndpoint =
-    { path = "api/items"
-    , tag = toEntityId
-    , decoder = decodeClinic
-    , error = identity
-    , params = always []
-    }
-
-
-update : BackendUrl -> String -> Msg -> Model -> ( Model, Cmd Msg )
-update backendUrl accessToken msg model =
-    let
-        getFromBackend =
-            -- Partially apply the backendUrl and accessToken, just for fun
-            Backend.Restful.get backendUrl (Just accessToken)
-    in
-        case msg of
-            HandleFetchedItems items ->
-                ( { model | items = items }
-                , Cmd.none
+update : BackendUrl -> Msg -> Model -> ( Model, Cmd Msg )
+update backendUrl msg model =
+    case msg of
+        MsgItems subMsg ->
+            let
+                ( modelUpdated, subCmds ) =
+                    Backend.Item.Update.update backendUrl subMsg model
+            in
+                ( modelUpdated
+                , Cmd.map MsgItems subCmds
                 )
