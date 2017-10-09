@@ -55,8 +55,8 @@ decodeItemComment =
         |> andThen (\val -> succeed <| EditableWebData.create val)
 
 
-deocdeItemIdAndComments : Decoder ( ItemId, EntityDictList ItemCommentId (EditableWebData ItemComment) )
+deocdeItemIdAndComments : Decoder ( StorageKey ItemId, EntityDictList ItemCommentId (EditableWebData ItemComment) )
 deocdeItemIdAndComments =
     decode (,)
-        |> required "itemId" (decodeId toEntityId)
+        |> required "itemId" decodeStorageKeyAsEntityId
         |> required "comments" decodeItemComments

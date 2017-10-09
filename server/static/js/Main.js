@@ -10712,6 +10712,14 @@ _elm_community$maybe_extra$Maybe_Extra_ops['?'] = F2(
 		return A2(_elm_lang$core$Maybe$withDefault, x, mx);
 	});
 
+var _Gizra$elm_storage_key$StorageKey$value = function (storageKey) {
+	var _p0 = storageKey;
+	if (_p0.ctor === 'Existing') {
+		return _elm_lang$core$Maybe$Just(_p0._0);
+	} else {
+		return _elm_lang$core$Maybe$Nothing;
+	}
+};
 var _Gizra$elm_storage_key$StorageKey$Existing = function (a) {
 	return {ctor: 'Existing', _0: a};
 };
@@ -11314,7 +11322,7 @@ var _Gizra$elm_spa_exmple$Backend_Item_Decoder$deocdeItemIdAndComments = A3(
 	A3(
 		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
 		'itemId',
-		_Gizra$elm_spa_exmple$Backend_Restful$decodeId(_Gizra$elm_spa_exmple$Backend_Restful$toEntityId),
+		_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeStorageKeyAsEntityId,
 		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(
 			F2(
 				function (v0, v1) {
@@ -13494,15 +13502,23 @@ var _Gizra$elm_spa_exmple$Utils_WebData$viewError = function (error) {
 };
 
 var _Gizra$elm_spa_exmple$Backend_Item_Update$saveComment = F3(
-	function (_p1, _p0, itemComment) {
-		var _p2 = _p1;
-		var _p3 = _p0;
-		var _p4 = _p3._0;
+	function (_p0, storageKeys, itemComment) {
+		var _p1 = _p0;
+		var itemId = A2(
+			_elm_lang$core$Maybe$withDefault,
+			'',
+			A2(
+				_elm_lang$core$Maybe$map,
+				function (_p2) {
+					return _elm_lang$core$Basics$toString(
+						_Gizra$elm_spa_exmple$Backend_Restful$fromEntityId(_p2));
+				},
+				_Gizra$elm_storage_key$StorageKey$value(
+					_elm_lang$core$Tuple$first(storageKeys))));
 		return A3(
 			_Gizra$elm_spa_exmple$Utils_WebData$sendWithHandler,
 			_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItemComments,
-			_Gizra$elm_spa_exmple$Backend_Item_Model$HandleSaveComment(
-				{ctor: '_Tuple2', _0: _p4, _1: _p3._1}),
+			_Gizra$elm_spa_exmple$Backend_Item_Model$HandleSaveComment(storageKeys),
 			A2(
 				_lukewestby$elm_http_builder$HttpBuilder$withJsonBody,
 				_elm_lang$core$Json_Encode$object(
@@ -13526,40 +13542,51 @@ var _Gizra$elm_spa_exmple$Backend_Item_Update$saveComment = F3(
 						_lukewestby$elm_http_builder$HttpBuilder$post(
 							A2(
 								_elm_lang$core$Basics_ops['++'],
-								_p2._0,
-								A2(
-									_elm_lang$core$Basics_ops['++'],
-									'/api/comments/',
-									_elm_lang$core$Basics$toString(_p4))))))));
+								_p1._0,
+								A2(_elm_lang$core$Basics_ops['++'], '/api/comments/', itemId)))))));
 	});
 var _Gizra$elm_spa_exmple$Backend_Item_Update$update = F3(
 	function (backendUrl, msg, model) {
-		var _p5 = msg;
-		switch (_p5.ctor) {
+		var _p3 = msg;
+		switch (_p3.ctor) {
 			case 'HandleFetchItems':
-				if (_p5._0.ctor === 'Ok') {
+				if (_p3._0.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
-							{items: _p5._0._0}),
+							{items: _p3._0._0}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
-					var _p6 = A2(_elm_lang$core$Debug$log, 'HandleItems', _p5._0._0);
+					var _p4 = A2(_elm_lang$core$Debug$log, 'HandleItems', _p3._0._0);
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						model,
 						{ctor: '[]'});
 				}
 			case 'HandleFetchItemIdAndCommentsTuple':
-				if (_p5._0.ctor === 'Ok') {
-					return A2(
-						_elm_lang$core$Platform_Cmd_ops['!'],
-						model,
-						{ctor: '[]'});
+				if (_p3._0.ctor === 'Ok') {
+					var _p5 = _p3._0._0._0;
+					var itemsUpdated = A3(
+						_elm_community$maybe_extra$Maybe_Extra$unwrap,
+						model.items,
+						function (item) {
+							var itemUpdated = _elm_lang$core$Native_Utils.update(
+								item,
+								{comments: _p3._0._0._1});
+							return A3(_Gizra$elm_dictlist$EveryDictList$insert, _p5, itemUpdated, model.items);
+						},
+						A2(_Gizra$elm_dictlist$EveryDictList$get, _p5, model.items));
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{items: itemsUpdated}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
 				} else {
-					var _p7 = A2(_elm_lang$core$Debug$log, 'HandleFetchItemIdAndCommentsTuple', _p5._0._0);
+					var _p6 = A2(_elm_lang$core$Debug$log, 'HandleFetchItemIdAndCommentsTuple', _p3._0._0);
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						model,
@@ -13571,7 +13598,7 @@ var _Gizra$elm_spa_exmple$Backend_Item_Update$update = F3(
 					model,
 					{ctor: '[]'});
 			default:
-				if (_p5._1.ctor === 'Ok') {
+				if (_p3._1.ctor === 'Ok') {
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						model,
@@ -13590,16 +13617,16 @@ var _Gizra$elm_spa_exmple$Backend_Item_Update$subscriptions = _elm_lang$core$Pla
 	{
 		ctor: '::',
 		_0: _Gizra$elm_spa_exmple$Backend_Item_Update$items(
-			function (_p8) {
+			function (_p7) {
 				return _Gizra$elm_spa_exmple$Backend_Item_Model$HandleFetchItems(
-					A2(_elm_lang$core$Json_Decode$decodeValue, _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItems, _p8));
+					A2(_elm_lang$core$Json_Decode$decodeValue, _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItems, _p7));
 			}),
 		_1: {
 			ctor: '::',
 			_0: _Gizra$elm_spa_exmple$Backend_Item_Update$itemIdAndCommentsTuple(
-				function (_p9) {
+				function (_p8) {
 					return _Gizra$elm_spa_exmple$Backend_Item_Model$HandleFetchItemIdAndCommentsTuple(
-						A2(_elm_lang$core$Json_Decode$decodeValue, _Gizra$elm_spa_exmple$Backend_Item_Decoder$deocdeItemIdAndComments, _p9));
+						A2(_elm_lang$core$Json_Decode$decodeValue, _Gizra$elm_spa_exmple$Backend_Item_Decoder$deocdeItemIdAndComments, _p8));
 				}),
 			_1: {ctor: '[]'}
 		}

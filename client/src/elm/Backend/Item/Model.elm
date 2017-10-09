@@ -29,6 +29,6 @@ type alias ItemComment =
 
 type Msg
     = HandleFetchItems (Result String (EntityDictList ItemId Item))
-    | HandleFetchItemIdAndCommentsTuple (Result String ( ItemId, EntityDictList ItemCommentId (EditableWebData ItemComment) ))
-    | SaveComment ( ItemId, StorageKey ItemCommentId )
-    | HandleSaveComment ( ItemId, StorageKey ItemCommentId ) (Result Http.Error (EntityDictList ItemCommentId (EditableWebData ItemComment)))
+    | HandleFetchItemIdAndCommentsTuple (Result String ( StorageKey ItemId, EntityDictList ItemCommentId (EditableWebData ItemComment) ))
+    | SaveComment ( StorageKey ItemId, StorageKey ItemCommentId )
+    | HandleSaveComment ( StorageKey ItemId, StorageKey ItemCommentId ) (Result Http.Error (EntityDictList ItemCommentId (EditableWebData ItemComment)))
