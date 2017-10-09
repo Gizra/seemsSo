@@ -1,0 +1,6 @@
+// Send the values via Elm's ports.
+
+elmApp.ports.itemIdAndCommentsTuple.send({
+  "itemId" : #{rawJS $ show $ fromSqlKey itemId},
+  "comments" : #{rawJS comments}
+});

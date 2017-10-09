@@ -2,6 +2,7 @@ module Backend.Item.Decoder
     exposing
         ( decodeItemComments
         , decodeItems
+        , deocdeItemIdAndComments
         )
 
 import Backend.Entities exposing (ItemCommentId, ItemId)
@@ -39,6 +40,11 @@ decodeItemComments =
         ]
 
 
+decodeStorageKeyAsEntityId : Decoder (StorageKey (EntityId a))
+decodeStorageKeyAsEntityId =
+    decodeId toEntityId |> andThen (\val -> succeed <| Existing val)
+
+
 decodeItemComment : Decoder (EditableWebData ItemComment)
 decodeItemComment =
     (decode ItemComment
@@ -49,6 +55,8 @@ decodeItemComment =
         |> andThen (\val -> succeed <| EditableWebData.create val)
 
 
-decodeStorageKeyAsEntityId : Decoder (StorageKey (EntityId a))
-decodeStorageKeyAsEntityId =
-    decodeId toEntityId |> andThen (\val -> succeed <| Existing val)
+deocdeItemIdAndComments : Decoder ( ItemId, EntityDictList ItemCommentId (EditableWebData ItemComment) )
+deocdeItemIdAndComments =
+    decode (,)
+        |> required "itemId" (decodeId toEntityId)
+        |> required "comments" decodeItemComments

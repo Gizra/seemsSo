@@ -11124,6 +11124,9 @@ var _Gizra$elm_spa_exmple$Backend_Item_Model$HandleSaveComment = F2(
 var _Gizra$elm_spa_exmple$Backend_Item_Model$SaveComment = function (a) {
 	return {ctor: 'SaveComment', _0: a};
 };
+var _Gizra$elm_spa_exmple$Backend_Item_Model$HandleFetchItemIdAndCommentsTuple = function (a) {
+	return {ctor: 'HandleFetchItemIdAndCommentsTuple', _0: a};
+};
 var _Gizra$elm_spa_exmple$Backend_Item_Model$HandleFetchItems = function (a) {
 	return {ctor: 'HandleFetchItems', _0: a};
 };
@@ -11269,13 +11272,6 @@ var _Gizra$elm_spa_exmple$User_Decoder$decodeCurrentUser = _elm_lang$core$Json_D
 		}
 	});
 
-var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeStorageKeyAsEntityId = A2(
-	_elm_lang$core$Json_Decode$andThen,
-	function (val) {
-		return _elm_lang$core$Json_Decode$succeed(
-			_Gizra$elm_storage_key$StorageKey$Existing(val));
-	},
-	_Gizra$elm_spa_exmple$Backend_Restful$decodeId(_Gizra$elm_spa_exmple$Backend_Restful$toEntityId));
 var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItemComment = A2(
 	_elm_lang$core$Json_Decode$andThen,
 	function (val) {
@@ -11294,6 +11290,13 @@ var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItemComment = A2(
 				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
 				_Gizra$elm_spa_exmple$User_Decoder$decodeUserTuple,
 				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$Backend_Item_Model$ItemComment)))));
+var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeStorageKeyAsEntityId = A2(
+	_elm_lang$core$Json_Decode$andThen,
+	function (val) {
+		return _elm_lang$core$Json_Decode$succeed(
+			_Gizra$elm_storage_key$StorageKey$Existing(val));
+	},
+	_Gizra$elm_spa_exmple$Backend_Restful$decodeId(_Gizra$elm_spa_exmple$Backend_Restful$toEntityId));
 var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItemComments = _elm_lang$core$Json_Decode$oneOf(
 	{
 		ctor: '::',
@@ -11304,6 +11307,19 @@ var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItemComments = _elm_lang$co
 			_1: {ctor: '[]'}
 		}
 	});
+var _Gizra$elm_spa_exmple$Backend_Item_Decoder$deocdeItemIdAndComments = A3(
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+	'comments',
+	_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItemComments,
+	A3(
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+		'itemId',
+		_Gizra$elm_spa_exmple$Backend_Restful$decodeId(_Gizra$elm_spa_exmple$Backend_Restful$toEntityId),
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(
+			F2(
+				function (v0, v1) {
+					return {ctor: '_Tuple2', _0: v0, _1: v1};
+				}))));
 var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItem = A4(
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optional,
 	'comments',
@@ -13536,6 +13552,19 @@ var _Gizra$elm_spa_exmple$Backend_Item_Update$update = F3(
 						model,
 						{ctor: '[]'});
 				}
+			case 'HandleFetchItemIdAndCommentsTuple':
+				if (_p5._0.ctor === 'Ok') {
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						model,
+						{ctor: '[]'});
+				} else {
+					var _p7 = A2(_elm_lang$core$Debug$log, 'HandleFetchItemIdAndCommentsTuple', _p5._0._0);
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						model,
+						{ctor: '[]'});
+				}
 			case 'SaveComment':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -13556,10 +13585,24 @@ var _Gizra$elm_spa_exmple$Backend_Item_Update$update = F3(
 		}
 	});
 var _Gizra$elm_spa_exmple$Backend_Item_Update$items = _elm_lang$core$Native_Platform.incomingPort('items', _elm_lang$core$Json_Decode$value);
-var _Gizra$elm_spa_exmple$Backend_Item_Update$subscriptions = _Gizra$elm_spa_exmple$Backend_Item_Update$items(
-	function (_p7) {
-		return _Gizra$elm_spa_exmple$Backend_Item_Model$HandleFetchItems(
-			A2(_elm_lang$core$Json_Decode$decodeValue, _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItems, _p7));
+var _Gizra$elm_spa_exmple$Backend_Item_Update$itemIdAndCommentsTuple = _elm_lang$core$Native_Platform.incomingPort('itemIdAndCommentsTuple', _elm_lang$core$Json_Decode$value);
+var _Gizra$elm_spa_exmple$Backend_Item_Update$subscriptions = _elm_lang$core$Platform_Sub$batch(
+	{
+		ctor: '::',
+		_0: _Gizra$elm_spa_exmple$Backend_Item_Update$items(
+			function (_p8) {
+				return _Gizra$elm_spa_exmple$Backend_Item_Model$HandleFetchItems(
+					A2(_elm_lang$core$Json_Decode$decodeValue, _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItems, _p8));
+			}),
+		_1: {
+			ctor: '::',
+			_0: _Gizra$elm_spa_exmple$Backend_Item_Update$itemIdAndCommentsTuple(
+				function (_p9) {
+					return _Gizra$elm_spa_exmple$Backend_Item_Model$HandleFetchItemIdAndCommentsTuple(
+						A2(_elm_lang$core$Json_Decode$decodeValue, _Gizra$elm_spa_exmple$Backend_Item_Decoder$deocdeItemIdAndComments, _p9));
+				}),
+			_1: {ctor: '[]'}
+		}
 	});
 
 var _Gizra$elm_spa_exmple$Backend_Update$subscriptions = A2(_elm_lang$core$Platform_Sub$map, _Gizra$elm_spa_exmple$Backend_Model$MsgItems, _Gizra$elm_spa_exmple$Backend_Item_Update$subscriptions);

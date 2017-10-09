@@ -6,7 +6,7 @@ port module Backend.Item.Update
 
 import App.Types exposing (BackendUrl(..))
 import Backend.Entities exposing (ItemCommentId, ItemId)
-import Backend.Item.Decoder exposing (decodeItemComments, decodeItems)
+import Backend.Item.Decoder exposing (decodeItemComments, decodeItems, deocdeItemIdAndComments)
 import Backend.Item.Model exposing (ItemComment, Msg(..))
 import Backend.Model exposing (Model)
 import HttpBuilder exposing (send, toTask, withCredentials, withExpect, withJsonBody, withQueryParams)
@@ -33,6 +33,16 @@ update backendUrl msg model =
             let
                 _ =
                     Debug.log "HandleItems" error
+            in
+            model ! []
+
+        HandleFetchItemIdAndCommentsTuple (Ok ( itemId, comments )) ->
+            model ! []
+
+        HandleFetchItemIdAndCommentsTuple (Err error) ->
+            let
+                _ =
+                    Debug.log "HandleFetchItemIdAndCommentsTuple" error
             in
             model ! []
 
@@ -81,6 +91,12 @@ saveComment (BackendUrl backendUrl) ( itemId, storageKey ) itemComment =
 port items : (Value -> msg) -> Sub msg
 
 
+port itemIdAndCommentsTuple : (Value -> msg) -> Sub msg
+
+
 subscriptions : Sub Msg
 subscriptions =
-    items (decodeValue decodeItems >> HandleFetchItems)
+    Sub.batch
+        [ items (decodeValue decodeItems >> HandleFetchItems)
+        , itemIdAndCommentsTuple (decodeValue deocdeItemIdAndComments >> HandleFetchItemIdAndCommentsTuple)
+        ]
