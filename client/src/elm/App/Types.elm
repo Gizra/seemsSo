@@ -1,4 +1,8 @@
-module App.Types exposing (Page)
+module App.Types
+    exposing
+        ( Page(..)
+        , BackendUrl(..)
+        )
 
 import Backend.Entities exposing (ItemId)
 

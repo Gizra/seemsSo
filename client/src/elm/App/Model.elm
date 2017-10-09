@@ -6,7 +6,7 @@ module App.Model
         , Model
         )
 
-import App.Types exposing (Widget(..))
+import App.Types exposing (Page(..))
 import Backend.Item.Model exposing (Item)
 import Backend.Model
 import Backend.Restful exposing (EntityDictList)
