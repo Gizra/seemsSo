@@ -8,7 +8,7 @@ import User.Model exposing (User, UserId)
 
 
 type alias ItemComment =
-    { userId : UserId
+    { user : UserId
     , user : User
     , comment : String
     , created : Date

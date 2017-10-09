@@ -54,3 +54,11 @@ type alias ItemCommentId =
 
 type ItemCommentIdType
     = ItemCommentIdType
+
+
+type alias UserId =
+    EntityId UserIdType
+
+
+type UserIdType
+    = UserIdType
