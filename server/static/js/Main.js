@@ -14132,7 +14132,16 @@ var _Gizra$elm_spa_exmple$Pages_Homepage_View$viewItemsTeaser = F2(
 				A2(
 					_Gizra$elm_dictlist$EveryDictList$map,
 					F2(
-						function (itemId, item) {
+						function (storageKey, item) {
+							var itemId = function () {
+								var _p2 = storageKey;
+								if (_p2.ctor === 'Existing') {
+									return _elm_lang$core$Basics$toString(
+										_Gizra$elm_spa_exmple$Backend_Restful$fromEntityId(_p2._0));
+								} else {
+									return '';
+								}
+							}();
 							return A2(
 								_elm_lang$html$Html$li,
 								{ctor: '[]'},
@@ -14146,10 +14155,7 @@ var _Gizra$elm_spa_exmple$Pages_Homepage_View$viewItemsTeaser = F2(
 												A2(
 													_elm_lang$core$Basics_ops['++'],
 													_p1._0,
-													A2(
-														_elm_lang$core$Basics_ops['++'],
-														'item/',
-														_elm_lang$core$Basics$toString(itemId)))),
+													A2(_elm_lang$core$Basics_ops['++'], 'item/', itemId))),
 											_1: {ctor: '[]'}
 										},
 										{

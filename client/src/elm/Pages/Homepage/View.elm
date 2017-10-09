@@ -3,11 +3,12 @@ module Pages.Homepage.View exposing (..)
 import App.Types exposing (BackendUrl(..))
 import Backend.Entities exposing (ItemId)
 import Backend.Item.Model exposing (Item)
-import Backend.Restful exposing (EntityDictList)
+import Backend.Restful exposing (EntityDictList, fromEntityId)
 import EveryDictList exposing (EveryDictList)
 import Html exposing (..)
 import Html.Attributes exposing (alt, class, classList, href, placeholder, src, style, target, type_, value)
 import Html.Events exposing (onClick, onInput)
+import StorageKey exposing (StorageKey(..))
 import User.Model exposing (CurrentUser)
 
 
@@ -23,9 +24,20 @@ viewItemsTeaser (BackendUrl backendUrl) items =
     ul []
         (items
             |> EveryDictList.map
-                (\itemId item ->
+                (\storageKey item ->
+                    let
+                        itemId =
+                            case storageKey of
+                                Existing entityId ->
+                                    fromEntityId entityId
+                                        |> toString
+
+                                New ->
+                                    -- Satisfy the compiler.
+                                    ""
+                    in
                     li []
-                        [ a [ href <| backendUrl ++ "item/" ++ toString itemId ] [ text item.name ]
+                        [ a [ href <| backendUrl ++ "item/" ++ itemId ] [ text item.name ]
                         ]
                 )
             |> EveryDictList.values
