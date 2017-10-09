@@ -11304,9 +11304,11 @@ var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItemComments = _elm_lang$co
 			_1: {ctor: '[]'}
 		}
 	});
-var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItem = A2(
-	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
+var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItem = A4(
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optional,
+	'comments',
 	_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItemComments,
+	_Gizra$elm_dictlist$EveryDictList$empty,
 	A3(
 		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
 		'name',

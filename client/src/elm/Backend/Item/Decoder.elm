@@ -28,7 +28,7 @@ decodeItem : Decoder Item
 decodeItem =
     decode Item
         |> required "name" string
-        |> custom decodeItemComments
+        |> optional "comments" decodeItemComments EveryDictList.empty
 
 
 decodeItemComments : Decoder (EntityDictList ItemCommentId (EditableWebData ItemComment))
