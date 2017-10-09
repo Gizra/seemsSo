@@ -2,7 +2,7 @@ module Pages.Item.Model exposing (..)
 
 import Date
 import EveryDictList
-import Item.Model exposing (ItemId)
+import Backend.Item.Model exposing (ItemId)
 import ItemComment.Model exposing (EveryDictListItemComments, ItemCommentId)
 import User.Model exposing (User)
 

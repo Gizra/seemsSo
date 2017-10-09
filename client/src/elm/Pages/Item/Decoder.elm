@@ -4,7 +4,7 @@ module Pages.Item.Decoder
         )
 
 import Item.Decoder exposing (decodeItemId)
-import Item.Model exposing (ItemId)
+import Backend.Item.Model exposing (ItemId)
 import ItemComment.Decoder exposing (decodeEveryDictListItemComments, decodeItemCommentId)
 import ItemComment.Model exposing (EveryDictListItemComments, ItemComment, ItemCommentId)
 import Json.Decode exposing (Decoder, andThen, at, dict, fail, field, float, index, int, keyValuePairs, list, map, map2, nullable, oneOf, string, succeed)
