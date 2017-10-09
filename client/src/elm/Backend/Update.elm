@@ -1,4 +1,4 @@
-module Backend.Update exposing (update)
+module Backend.Update exposing (subscriptions, update)
 
 import App.Types exposing (BackendUrl)
 import Backend.Item.Update
@@ -13,6 +13,11 @@ update backendUrl msg model =
                 ( modelUpdated, subCmds ) =
                     Backend.Item.Update.update backendUrl subMsg model
             in
-                ( modelUpdated
-                , Cmd.map MsgItems subCmds
-                )
+            ( modelUpdated
+            , Cmd.map MsgItems subCmds
+            )
+
+
+subscriptions : Sub Msg
+subscriptions =
+    Sub.map MsgItems <| Backend.Item.Update.subscriptions

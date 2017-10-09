@@ -1,22 +1,25 @@
 module Backend.Item.Decoder
     exposing
-        ( decodeItems
+        ( decodeItemComments
+        , decodeItems
         )
 
 import Backend.Entities exposing (ItemCommentId, ItemId)
 import Backend.Item.Model exposing (Item, ItemComment)
-import Backend.Restful exposing (EntityDictList, decodeId)
+import Backend.Restful exposing (EntityDictList, EntityId, decodeId, toEntityId)
+import Editable.WebData as EditableWebData exposing (EditableWebData)
 import EveryDictList exposing (decodeArray2, empty)
 import Json.Decode exposing (Decoder, andThen, at, dict, fail, field, float, index, int, keyValuePairs, list, map, map2, nullable, oneOf, string, succeed)
 import Json.Decode.Pipeline exposing (custom, decode, optional, optionalAt, required, requiredAt)
+import StorageKey exposing (StorageKey(Existing))
 import User.Decoder exposing (decodeUserTuple)
-import Utils.Json exposing (decodeEmptyArrayAs, decodeInt)
+import Utils.Json exposing (decodeDate, decodeEmptyArrayAs, decodeInt)
 
 
 decodeItems : Decoder (EntityDictList ItemId Item)
 decodeItems =
     oneOf
-        [ decodeArray2 (decodeId ItemId) decodeItem
+        [ decodeArray2 decodeStorageKeyAsEntityId decodeItem
         , decodeEmptyArrayAs empty
         ]
 
@@ -28,15 +31,15 @@ decodeItem =
         |> custom decodeItemComments
 
 
-decodeItemComments : Decoder (EntityDictList ItemCommentId ItemComment)
+decodeItemComments : Decoder (EntityDictList ItemCommentId (EditableWebData ItemComment))
 decodeItemComments =
     oneOf
-        [ decodeArray2 (decodeId ItemCommentId) decodeItemComment
+        [ decodeArray2 decodeStorageKeyAsEntityId decodeItemComment
         , decodeEmptyArrayAs EveryDictList.empty
         ]
 
 
-decodeItemComment : Decoder ItemComment
+decodeItemComment : Decoder (EditableWebData ItemComment)
 decodeItemComment =
     (decode ItemComment
         |> custom decodeUserTuple
@@ -44,3 +47,8 @@ decodeItemComment =
         |> required "created" decodeDate
     )
         |> andThen (\val -> succeed <| EditableWebData.create val)
+
+
+decodeStorageKeyAsEntityId : Decoder (StorageKey (EntityId a))
+decodeStorageKeyAsEntityId =
+    decodeId toEntityId |> andThen (\val -> succeed <| Existing val)

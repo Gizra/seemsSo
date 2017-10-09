@@ -6,7 +6,6 @@ module User.Model
         )
 
 import Backend.Entities exposing (UserId)
-import RemoteData exposing (WebData)
 
 
 type CurrentUser

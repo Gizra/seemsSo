@@ -1,20 +1,19 @@
 module App.Model
     exposing
-        ( emptyModel
-        , Flags
-        , Msg(..)
+        ( Flags
         , Model
+        , Msg(..)
+        , emptyModel
         )
 
-import App.Types exposing (Page(..))
-import Backend.Item.Model exposing (Item)
+import App.Types exposing (BackendUrl(..), Page(..))
 import Backend.Model
-import Backend.Restful exposing (EntityDictList)
 import User.Model exposing (CurrentUser(Anonymous), User)
 
 
 type Msg
     = HandleUser (Result String CurrentUser)
+    | MsgBackend Backend.Model.Msg
 
 
 
@@ -31,7 +30,7 @@ type alias Model =
     { activePage : Page
     , backend : Backend.Model.Model
     , user : CurrentUser
-    , baseUrl : String
+    , backendUrl : BackendUrl
     }
 
 
@@ -42,6 +41,5 @@ emptyModel =
     , user = Anonymous
 
     -- @todo: Get dynamically.
-    , baseUrl =
-        "http://localhost:3000/"
+    , backendUrl = BackendUrl "http://localhost:3000/"
     }

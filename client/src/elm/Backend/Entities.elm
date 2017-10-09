@@ -1,6 +1,6 @@
 module Backend.Entities exposing (..)
 
-import Backend.Restful exposing (EntityId(..))
+import Backend.Restful exposing (EntityId)
 
 
 {-
@@ -21,6 +21,7 @@ import Backend.Restful exposing (EntityId(..))
 
        Item
        ItemComment
+       UserId
 
    Now, to create a new one, use the following process:
 
@@ -40,6 +41,14 @@ import Backend.Restful exposing (EntityId(..))
 -}
 
 
+type alias UserId =
+    EntityId UserIdType
+
+
+type UserIdType
+    = UserIdType
+
+
 type alias ItemId =
     EntityId ItemIdType
 
@@ -54,11 +63,3 @@ type alias ItemCommentId =
 
 type ItemCommentIdType
     = ItemCommentIdType
-
-
-type alias UserId =
-    EntityId UserIdType
-
-
-type UserIdType
-    = UserIdType

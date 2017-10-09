@@ -4,12 +4,16 @@ port module Backend.Item.Update
         , update
         )
 
-import App.Types exposing (BackendUrl)
-import Backend.Item.Decoder exposing (decodeItems)
-import Backend.Item.Model exposing (Msg(..))
+import App.Types exposing (BackendUrl(..))
+import Backend.Entities exposing (ItemCommentId, ItemId)
+import Backend.Item.Decoder exposing (decodeItemComments, decodeItems)
+import Backend.Item.Model exposing (ItemComment, Msg(..))
 import Backend.Model exposing (Model)
-import EveryDictList
+import HttpBuilder exposing (send, toTask, withCredentials, withExpect, withJsonBody, withQueryParams)
 import Json.Decode exposing (Value, decodeValue)
+import Json.Encode exposing (object, string)
+import StorageKey exposing (StorageKey)
+import Utils.WebData exposing (sendWithHandler)
 
 
 {-| This is a delegated update for bundling related `Msg`s together.
@@ -28,25 +32,25 @@ update backendUrl msg model =
         HandleFetchItems (Err error) ->
             let
                 _ =
-                    Debug.log "HandleItems" err
+                    Debug.log "HandleItems" error
             in
-                model ! []
+            model ! []
 
         SaveComment ( itemId, storageKey ) ->
-            model ! Cmd.none
+            model ! []
 
         -- ( { model | status = Loading }
         -- , saveComment model
         -- , Nothing
         -- )
-        HandleSaveComment ( itemId, storageKey ) (Ok everyDictListItemComments) ->
+        HandleSaveComment ( itemId, storageKey ) (Ok itemComment) ->
             model ! []
 
         -- ( { model | comment = "", status = NotAsked }
         -- , Cmd.none
         -- , Just everyDictListItemComments
         -- )
-        HandleSaveComment ( itemId, storageKey ) (Err err) ->
+        HandleSaveComment ( itemId, storageKey ) (Err error) ->
             model ! []
 
 
@@ -62,8 +66,8 @@ update backendUrl msg model =
 
 
 saveComment : BackendUrl -> ( ItemId, StorageKey ItemCommentId ) -> ItemComment -> Cmd Msg
-saveComment backendUrl ( itemId, storageKey ) itemComment =
-    HttpBuilder.post (backendUrl ++ "/api/comments/" ++ (toString itemId))
+saveComment (BackendUrl backendUrl) ( itemId, storageKey ) itemComment =
+    HttpBuilder.post (backendUrl ++ "/api/comments/" ++ toString itemId)
         |> withCredentials
         |> withQueryParams [ ( "_accept", "application/json" ) ]
         |> withJsonBody (object [ ( "comment", string itemComment.comment ) ])
@@ -79,4 +83,4 @@ port items : (Value -> msg) -> Sub msg
 
 subscriptions : Sub Msg
 subscriptions =
-    items (decodeValue decodeItems >> HandleItems)
+    items (decodeValue decodeItems >> HandleFetchItems)

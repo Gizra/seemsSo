@@ -1,5 +1,6 @@
 module Pages.Item.View exposing (..)
 
+import App.Types exposing (BackendUrl)
 import DictList
 import Html exposing (..)
 import Html.Attributes exposing (alt, class, classList, href, placeholder, src, style, target, type_, value)
@@ -9,8 +10,8 @@ import User.Model exposing (CurrentUser(..))
 import Utils.Html exposing (divider, sectionDivider, showIf, showMaybe)
 
 
-view : String -> CurrentUser -> Html msg
-view baseUrl currentUser =
+view : BackendUrl -> CurrentUser -> Html msg
+view backendUrl currentUser =
     div []
         [ text "Item page"
 

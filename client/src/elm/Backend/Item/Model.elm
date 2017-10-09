@@ -30,4 +30,4 @@ type alias ItemComment =
 type Msg
     = HandleFetchItems (Result String (EntityDictList ItemId Item))
     | SaveComment ( ItemId, StorageKey ItemCommentId )
-    | HandleSavecomment ( ItemId, StorageKey ItemCommentId ) (Result Http.Error ItemComment)
+    | HandleSaveComment ( ItemId, StorageKey ItemCommentId ) (Result Http.Error (EntityDictList ItemCommentId (EditableWebData ItemComment)))

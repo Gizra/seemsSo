@@ -5,7 +5,7 @@ module User.Decoder
         )
 
 import Backend.Entities exposing (UserId)
-import Backend.Restful exposing (decodeId)
+import Backend.Restful exposing (EntityId, decodeId, toEntityId)
 import Json.Decode exposing (Decoder, andThen, at, dict, fail, field, float, index, int, keyValuePairs, list, map, map2, null, nullable, oneOf, string, succeed)
 import Json.Decode.Pipeline exposing (custom, decode, optional, optionalAt, required, requiredAt)
 import User.Model exposing (CurrentUser(..), User, UserTuple)
@@ -23,7 +23,7 @@ decodeCurrentUser =
 decodeUserTuple : Decoder UserTuple
 decodeUserTuple =
     decode (,)
-        |> custom (decodeId UserId)
+        |> custom (decodeId toEntityId)
         |> custom decodeUser
 
 
