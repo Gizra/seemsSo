@@ -5,20 +5,27 @@ import Backend.Entities exposing (ItemId)
 import Backend.Item.Model exposing (Item)
 import Backend.Restful exposing (EntityDictList)
 import DictList
+import EveryDictList exposing (EveryDictList)
 import Html exposing (..)
 import Html.Attributes exposing (alt, class, classList, href, placeholder, src, style, target, type_, value)
 import Html.Events exposing (onClick, onInput)
-import Maybe.Extra exposing (isJust)
+import ItemComment.View exposing (viewItemComments)
+import Maybe.Extra exposing (isJust, unwrap)
+import StorageKey exposing (StorageKey(Existing))
 import User.Model exposing (CurrentUser(..))
-import Utils.Html exposing (divider, sectionDivider, showIf, showMaybe)
+import Utils.Html exposing (divider, emptyNode, sectionDivider, showIf, showMaybe)
 
 
-view : BackendUrl -> CurrentUser -> EntityDictList ItemId Item -> Html msg
-view backendUrl currentUser items =
-    div []
-        [ text "Item page"
-        , pre [] [ text <| toString items ]
+view : BackendUrl -> CurrentUser -> EntityDictList ItemId Item -> ItemId -> Html msg
+view backendUrl currentUser items currentItemId =
+    unwrap emptyNode
+        (\item ->
+            div []
+                [ h1 [] [ text item.name ]
+                , pre [] [ text <| toString items ]
+                , viewItemComments currentUser item.comments
 
-        -- viewItemComments muser model.comments
-        -- , Html.map MsgItemComment <| ItemComment.View.view baseUrl muser model.itemComment
-        ]
+                -- , Html.map MsgItemComment <| ItemComment.View.view baseUrl muser model.itemComment
+                ]
+        )
+        (EveryDictList.get (Existing currentItemId) items)
