@@ -14210,15 +14210,16 @@ var _Gizra$elm_spa_exmple$Pages_Homepage_View$viewItemsTeaser = F2(
 					_Gizra$elm_dictlist$EveryDictList$map,
 					F2(
 						function (storageKey, item) {
-							var itemId = function () {
-								var _p2 = storageKey;
-								if (_p2.ctor === 'Existing') {
-									return _elm_lang$core$Basics$toString(
-										_Gizra$elm_spa_exmple$Backend_Restful$fromEntityId(_p2._0));
-								} else {
-									return '';
-								}
-							}();
+							var itemId = A2(
+								_elm_lang$core$Maybe$withDefault,
+								'',
+								A2(
+									_elm_lang$core$Maybe$map,
+									function (_p2) {
+										return _elm_lang$core$Basics$toString(
+											_Gizra$elm_spa_exmple$Backend_Restful$fromEntityId(_p2));
+									},
+									_Gizra$elm_storage_key$StorageKey$value(storageKey)));
 							return A2(
 								_elm_lang$html$Html$li,
 								{ctor: '[]'},

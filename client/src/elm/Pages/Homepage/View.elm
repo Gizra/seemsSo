@@ -27,14 +27,10 @@ viewItemsTeaser (BackendUrl backendUrl) items =
                 (\storageKey item ->
                     let
                         itemId =
-                            case storageKey of
-                                Existing entityId ->
-                                    fromEntityId entityId
-                                        |> toString
-
-                                New ->
-                                    -- Satisfy the compiler.
-                                    ""
+                            storageKey
+                                |> StorageKey.value
+                                |> Maybe.map (fromEntityId >> toString)
+                                |> Maybe.withDefault ""
                     in
                     li []
                         [ a [ href <| backendUrl ++ "item/" ++ itemId ] [ text item.name ]
