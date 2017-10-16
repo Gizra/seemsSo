@@ -9104,76 +9104,6 @@ var _Gizra$elm_dictlist$AllDictList$relativePosition = F2(
 		}
 	});
 
-var _Gizra$elm_dictlist$DictList$mapKeys = _Gizra$elm_dictlist$AllDictList$mapKeys(_elm_lang$core$Basics$identity);
-var _Gizra$elm_dictlist$DictList$keepOnly = _Gizra$elm_dictlist$AllDictList$keepOnly;
-var _Gizra$elm_dictlist$DictList$removeMany = _Gizra$elm_dictlist$AllDictList$removeMany;
-var _Gizra$elm_dictlist$DictList$removeWhen = _Gizra$elm_dictlist$AllDictList$removeWhen;
-var _Gizra$elm_dictlist$DictList$fromListBy = _Gizra$elm_dictlist$AllDictList$fromListBy(_elm_lang$core$Basics$identity);
-var _Gizra$elm_dictlist$DictList$groupBy = _Gizra$elm_dictlist$AllDictList$groupBy(_elm_lang$core$Basics$identity);
-var _Gizra$elm_dictlist$DictList$fromAllDictList = _elm_lang$core$Basics$identity;
-var _Gizra$elm_dictlist$DictList$toAllDictList = _elm_lang$core$Basics$identity;
-var _Gizra$elm_dictlist$DictList$fromDict = _Gizra$elm_dictlist$AllDictList$fromDict;
-var _Gizra$elm_dictlist$DictList$toDict = _Gizra$elm_dictlist$AllDictList$toDict;
-var _Gizra$elm_dictlist$DictList$fromList = _Gizra$elm_dictlist$AllDictList$fromList(_elm_lang$core$Basics$identity);
-var _Gizra$elm_dictlist$DictList$toList = _Gizra$elm_dictlist$AllDictList$toList;
-var _Gizra$elm_dictlist$DictList$values = _Gizra$elm_dictlist$AllDictList$values;
-var _Gizra$elm_dictlist$DictList$keys = _Gizra$elm_dictlist$AllDictList$keys;
-var _Gizra$elm_dictlist$DictList$partition = _Gizra$elm_dictlist$AllDictList$partition;
-var _Gizra$elm_dictlist$DictList$filter = _Gizra$elm_dictlist$AllDictList$filter;
-var _Gizra$elm_dictlist$DictList$foldr = _Gizra$elm_dictlist$AllDictList$foldr;
-var _Gizra$elm_dictlist$DictList$foldl = _Gizra$elm_dictlist$AllDictList$foldl;
-var _Gizra$elm_dictlist$DictList$map = _Gizra$elm_dictlist$AllDictList$map;
-var _Gizra$elm_dictlist$DictList$merge = _Gizra$elm_dictlist$AllDictList$merge;
-var _Gizra$elm_dictlist$DictList$diff = _Gizra$elm_dictlist$AllDictList$diff;
-var _Gizra$elm_dictlist$DictList$intersect = _Gizra$elm_dictlist$AllDictList$intersect;
-var _Gizra$elm_dictlist$DictList$union = _Gizra$elm_dictlist$AllDictList$union;
-var _Gizra$elm_dictlist$DictList$singleton = _Gizra$elm_dictlist$AllDictList$singleton(_elm_lang$core$Basics$identity);
-var _Gizra$elm_dictlist$DictList$update = _Gizra$elm_dictlist$AllDictList$update;
-var _Gizra$elm_dictlist$DictList$remove = _Gizra$elm_dictlist$AllDictList$remove;
-var _Gizra$elm_dictlist$DictList$insert = _Gizra$elm_dictlist$AllDictList$insert;
-var _Gizra$elm_dictlist$DictList$isEmpty = _Gizra$elm_dictlist$AllDictList$isEmpty;
-var _Gizra$elm_dictlist$DictList$size = _Gizra$elm_dictlist$AllDictList$size;
-var _Gizra$elm_dictlist$DictList$member = _Gizra$elm_dictlist$AllDictList$member;
-var _Gizra$elm_dictlist$DictList$get = _Gizra$elm_dictlist$AllDictList$get;
-var _Gizra$elm_dictlist$DictList$eq = _Gizra$elm_dictlist$AllDictList$eq;
-var _Gizra$elm_dictlist$DictList$empty = _Gizra$elm_dictlist$AllDictList$empty(_elm_lang$core$Basics$identity);
-var _Gizra$elm_dictlist$DictList$insertRelativeTo = _Gizra$elm_dictlist$AllDictList$insertRelativeTo;
-var _Gizra$elm_dictlist$DictList$atRelativePosition = _Gizra$elm_dictlist$AllDictList$atRelativePosition;
-var _Gizra$elm_dictlist$DictList$relativePosition = _Gizra$elm_dictlist$AllDictList$relativePosition;
-var _Gizra$elm_dictlist$DictList$insertBefore = _Gizra$elm_dictlist$AllDictList$insertBefore;
-var _Gizra$elm_dictlist$DictList$insertAfter = _Gizra$elm_dictlist$AllDictList$insertAfter;
-var _Gizra$elm_dictlist$DictList$getAt = _Gizra$elm_dictlist$AllDictList$getAt;
-var _Gizra$elm_dictlist$DictList$getKeyAt = _Gizra$elm_dictlist$AllDictList$getKeyAt;
-var _Gizra$elm_dictlist$DictList$reorder = _Gizra$elm_dictlist$AllDictList$reorder;
-var _Gizra$elm_dictlist$DictList$previous = _Gizra$elm_dictlist$AllDictList$previous;
-var _Gizra$elm_dictlist$DictList$next = _Gizra$elm_dictlist$AllDictList$next;
-var _Gizra$elm_dictlist$DictList$indexOfKey = _Gizra$elm_dictlist$AllDictList$indexOfKey;
-var _Gizra$elm_dictlist$DictList$sortWith = _Gizra$elm_dictlist$AllDictList$sortWith;
-var _Gizra$elm_dictlist$DictList$sortBy = _Gizra$elm_dictlist$AllDictList$sortBy;
-var _Gizra$elm_dictlist$DictList$sort = _Gizra$elm_dictlist$AllDictList$sort;
-var _Gizra$elm_dictlist$DictList$drop = _Gizra$elm_dictlist$AllDictList$drop;
-var _Gizra$elm_dictlist$DictList$take = _Gizra$elm_dictlist$AllDictList$take;
-var _Gizra$elm_dictlist$DictList$minimum = _Gizra$elm_dictlist$AllDictList$minimum;
-var _Gizra$elm_dictlist$DictList$maximum = _Gizra$elm_dictlist$AllDictList$maximum;
-var _Gizra$elm_dictlist$DictList$product = _Gizra$elm_dictlist$AllDictList$product;
-var _Gizra$elm_dictlist$DictList$sum = _Gizra$elm_dictlist$AllDictList$sum;
-var _Gizra$elm_dictlist$DictList$concat = _Gizra$elm_dictlist$AllDictList$concat(_elm_lang$core$Basics$identity);
-var _Gizra$elm_dictlist$DictList$append = _Gizra$elm_dictlist$AllDictList$append;
-var _Gizra$elm_dictlist$DictList$any = _Gizra$elm_dictlist$AllDictList$any;
-var _Gizra$elm_dictlist$DictList$all = _Gizra$elm_dictlist$AllDictList$all;
-var _Gizra$elm_dictlist$DictList$reverse = _Gizra$elm_dictlist$AllDictList$reverse;
-var _Gizra$elm_dictlist$DictList$length = _Gizra$elm_dictlist$AllDictList$length;
-var _Gizra$elm_dictlist$DictList$filterMap = _Gizra$elm_dictlist$AllDictList$filterMap;
-var _Gizra$elm_dictlist$DictList$indexedMap = _Gizra$elm_dictlist$AllDictList$indexedMap;
-var _Gizra$elm_dictlist$DictList$tail = _Gizra$elm_dictlist$AllDictList$tail;
-var _Gizra$elm_dictlist$DictList$head = _Gizra$elm_dictlist$AllDictList$head;
-var _Gizra$elm_dictlist$DictList$cons = _Gizra$elm_dictlist$AllDictList$cons;
-var _Gizra$elm_dictlist$DictList$decodeArray2 = _Gizra$elm_dictlist$AllDictList$decodeArray2(_elm_lang$core$Basics$identity);
-var _Gizra$elm_dictlist$DictList$decodeArray = _Gizra$elm_dictlist$AllDictList$decodeArray(_elm_lang$core$Basics$identity);
-var _Gizra$elm_dictlist$DictList$decodeKeysAndValues = _Gizra$elm_dictlist$AllDictList$decodeKeysAndValues(_elm_lang$core$Basics$identity);
-var _Gizra$elm_dictlist$DictList$decodeWithKeys = _Gizra$elm_dictlist$AllDictList$decodeWithKeys(_elm_lang$core$Basics$identity);
-var _Gizra$elm_dictlist$DictList$decodeObject = _Gizra$elm_dictlist$AllDictList$decodeObject;
-
 var _Gizra$elm_dictlist$EveryDictList$mapKeys = _Gizra$elm_dictlist$AllDictList$mapKeys(_elm_lang$core$Basics$toString);
 var _Gizra$elm_dictlist$EveryDictList$keepOnly = _Gizra$elm_dictlist$AllDictList$keepOnly;
 var _Gizra$elm_dictlist$EveryDictList$removeMany = _Gizra$elm_dictlist$AllDictList$removeMany;
@@ -11147,19 +11077,45 @@ var _Gizra$elm_spa_exmple$Backend_Model$MsgItems = function (a) {
 	return {ctor: 'MsgItems', _0: a};
 };
 
+var _Gizra$elm_spa_exmple$ItemComment_Model$Model = function (a) {
+	return {selectedTab: a};
+};
+var _Gizra$elm_spa_exmple$ItemComment_Model$Preview = {ctor: 'Preview'};
+var _Gizra$elm_spa_exmple$ItemComment_Model$Edit = {ctor: 'Edit'};
+var _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel = {selectedTab: _Gizra$elm_spa_exmple$ItemComment_Model$Edit};
+var _Gizra$elm_spa_exmple$ItemComment_Model$SetTab = function (a) {
+	return {ctor: 'SetTab', _0: a};
+};
+
+var _Gizra$elm_spa_exmple$Pages_Item_Model$emptyModel = {itemComment: _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel};
+var _Gizra$elm_spa_exmple$Pages_Item_Model$Model = function (a) {
+	return {itemComment: a};
+};
+var _Gizra$elm_spa_exmple$Pages_Item_Model$SetComment = F2(
+	function (a, b) {
+		return {ctor: 'SetComment', _0: a, _1: b};
+	});
+var _Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment = function (a) {
+	return {ctor: 'MsgItemComment', _0: a};
+};
+
 var _Gizra$elm_spa_exmple$App_Model$emptyModel = {
 	activePage: _Gizra$elm_spa_exmple$App_Types$NotFound,
 	backend: _Gizra$elm_spa_exmple$Backend_Model$emptyModel,
 	user: _Gizra$elm_spa_exmple$User_Model$Anonymous,
-	backendUrl: _Gizra$elm_spa_exmple$App_Types$BackendUrl('http://localhost:3000/')
+	backendUrl: _Gizra$elm_spa_exmple$App_Types$BackendUrl('http://localhost:3000/'),
+	pagesItem: _Gizra$elm_spa_exmple$Pages_Item_Model$emptyModel
 };
 var _Gizra$elm_spa_exmple$App_Model$Flags = function (a) {
 	return {page: a};
 };
-var _Gizra$elm_spa_exmple$App_Model$Model = F4(
-	function (a, b, c, d) {
-		return {activePage: a, backend: b, user: c, backendUrl: d};
+var _Gizra$elm_spa_exmple$App_Model$Model = F5(
+	function (a, b, c, d, e) {
+		return {activePage: a, backend: b, user: c, backendUrl: d, pagesItem: e};
 	});
+var _Gizra$elm_spa_exmple$App_Model$MsgPagesItem = function (a) {
+	return {ctor: 'MsgPagesItem', _0: a};
+};
 var _Gizra$elm_spa_exmple$App_Model$MsgBackend = function (a) {
 	return {ctor: 'MsgBackend', _0: a};
 };
@@ -13653,41 +13609,86 @@ var _Gizra$elm_spa_exmple$Backend_Update$update = F3(
 		};
 	});
 
-var _Gizra$elm_spa_exmple$App_Update$update = F2(
+var _Gizra$elm_spa_exmple$ItemComment_Update$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
-		if (_p0.ctor === 'HandleUser') {
-			if (_p0._0.ctor === 'Ok') {
-				return A2(
-					_elm_lang$core$Platform_Cmd_ops['!'],
-					_elm_lang$core$Native_Utils.update(
-						model,
-						{user: _p0._0._0}),
-					{ctor: '[]'});
-			} else {
-				var _p1 = A2(_elm_lang$core$Debug$log, 'HandleUser', _p0._0._0);
-				return A2(
-					_elm_lang$core$Platform_Cmd_ops['!'],
-					model,
-					{ctor: '[]'});
-			}
-		} else {
-			var _p2 = A3(_Gizra$elm_spa_exmple$Backend_Update$update, model.backendUrl, _p0._0, model.backend);
-			var subModel = _p2._0;
-			var subCmds = _p2._1;
+		return _elm_lang$core$Native_Utils.update(
+			model,
+			{selectedTab: _p0._0});
+	});
+
+var _Gizra$elm_spa_exmple$Pages_Item_Update$update = F4(
+	function (msg, model, items, currentItemId) {
+		var _p0 = msg;
+		if (_p0.ctor === 'MsgItemComment') {
 			return {
 				ctor: '_Tuple2',
 				_0: _elm_lang$core$Native_Utils.update(
 					model,
-					{backend: subModel}),
-				_1: A2(_elm_lang$core$Platform_Cmd$map, _Gizra$elm_spa_exmple$App_Model$MsgBackend, subCmds)
+					{
+						itemComment: A2(_Gizra$elm_spa_exmple$ItemComment_Update$update, _p0._0, model.itemComment)
+					}),
+				_1: _elm_lang$core$Platform_Cmd$none
 			};
+		} else {
+			return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+		}
+	});
+
+var _Gizra$elm_spa_exmple$App_Update$update = F2(
+	function (msg, model) {
+		var _p0 = msg;
+		switch (_p0.ctor) {
+			case 'HandleUser':
+				if (_p0._0.ctor === 'Ok') {
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{user: _p0._0._0}),
+						{ctor: '[]'});
+				} else {
+					var _p1 = A2(_elm_lang$core$Debug$log, 'HandleUser', _p0._0._0);
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						model,
+						{ctor: '[]'});
+				}
+			case 'MsgBackend':
+				var _p2 = A3(_Gizra$elm_spa_exmple$Backend_Update$update, model.backendUrl, _p0._0, model.backend);
+				var subModel = _p2._0;
+				var subCmds = _p2._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{backend: subModel}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _Gizra$elm_spa_exmple$App_Model$MsgBackend, subCmds)
+				};
+			default:
+				var _p3 = function () {
+					var _p4 = model.activePage;
+					if (_p4.ctor === 'Item') {
+						return A4(_Gizra$elm_spa_exmple$Pages_Item_Update$update, _p0._0, model.pagesItem, model.backend.items, _p4._0);
+					} else {
+						return {ctor: '_Tuple2', _0: model.pagesItem, _1: _elm_lang$core$Platform_Cmd$none};
+					}
+				}();
+				var subModel = _p3._0;
+				var subCmds = _p3._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{pagesItem: subModel}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _Gizra$elm_spa_exmple$App_Model$MsgPagesItem, subCmds)
+				};
 		}
 	});
 var _Gizra$elm_spa_exmple$App_Update$init = function (flags) {
 	var page = function () {
-		var _p3 = flags.page;
-		switch (_p3) {
+		var _p5 = flags.page;
+		switch (_p5) {
 			case 'item':
 				return _Gizra$elm_spa_exmple$App_Types$Item(
 					_Gizra$elm_spa_exmple$Backend_Restful$toEntityId(1));
@@ -13708,8 +13709,8 @@ var _Gizra$elm_spa_exmple$App_Update$init = function (flags) {
 var _Gizra$elm_spa_exmple$App_Update$user = _elm_lang$core$Native_Platform.incomingPort('user', _elm_lang$core$Json_Decode$value);
 var _Gizra$elm_spa_exmple$App_Update$subscriptions = function (model) {
 	var subs = function () {
-		var _p4 = model.activePage;
-		switch (_p4.ctor) {
+		var _p6 = model.activePage;
+		switch (_p6.ctor) {
 			case 'Item':
 				return A2(_elm_lang$core$Platform_Sub$map, _Gizra$elm_spa_exmple$App_Model$MsgBackend, _Gizra$elm_spa_exmple$Backend_Update$subscriptions);
 			case 'HomePage':
@@ -13722,9 +13723,9 @@ var _Gizra$elm_spa_exmple$App_Update$subscriptions = function (model) {
 		{
 			ctor: '::',
 			_0: _Gizra$elm_spa_exmple$App_Update$user(
-				function (_p5) {
+				function (_p7) {
 					return _Gizra$elm_spa_exmple$App_Model$HandleUser(
-						A2(_elm_lang$core$Json_Decode$decodeValue, _Gizra$elm_spa_exmple$User_Decoder$decodeCurrentUser, _p5));
+						A2(_elm_lang$core$Json_Decode$decodeValue, _Gizra$elm_spa_exmple$User_Decoder$decodeCurrentUser, _p7));
 				}),
 			_1: {
 				ctor: '::',
@@ -22143,18 +22144,13 @@ var _Gizra$elm_spa_exmple$Pages_Item_View$view = F4(
 							}),
 						_1: {
 							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$pre,
-								{ctor: '[]'},
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html$text(
-										_elm_lang$core$Basics$toString(items)),
-									_1: {ctor: '[]'}
-								}),
+							_0: A2(_Gizra$elm_spa_exmple$ItemComment_View$viewItemComments, currentUser, item.comments),
 							_1: {
 								ctor: '::',
-								_0: A2(_Gizra$elm_spa_exmple$ItemComment_View$viewItemComments, currentUser, item.comments),
+								_0: A2(
+									_elm_lang$html$Html$map,
+									_Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment,
+									A2(_Gizra$elm_spa_exmple$ItemComment_View$view, backendUrl, currentUser)),
 								_1: {ctor: '[]'}
 							}
 						}
@@ -22192,7 +22188,10 @@ var _Gizra$elm_spa_exmple$App_View$view = function (model) {
 				},
 				{
 					ctor: '::',
-					_0: A4(_Gizra$elm_spa_exmple$Pages_Item_View$view, model.backendUrl, model.user, model.backend.items, _p0._0),
+					_0: A2(
+						_elm_lang$html$Html$map,
+						_Gizra$elm_spa_exmple$App_Model$MsgPagesItem,
+						A4(_Gizra$elm_spa_exmple$Pages_Item_View$view, model.backendUrl, model.user, model.backend.items, _p0._0)),
 					_1: {ctor: '[]'}
 				});
 		default:

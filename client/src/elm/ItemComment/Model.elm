@@ -1,8 +1,20 @@
-module ItemComment.Model exposing (..)
+module ItemComment.Model
+    exposing
+        ( Model
+        , Msg(..)
+        , Tab(..)
+        , emptyModel
+        )
 
 
 type alias Model =
     { selectedTab : Tab
+    }
+
+
+emptyModel : Model
+emptyModel =
+    { selectedTab = Edit
     }
 
 

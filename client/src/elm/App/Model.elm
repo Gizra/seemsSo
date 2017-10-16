@@ -8,17 +8,14 @@ module App.Model
 
 import App.Types exposing (BackendUrl(..), Page(..))
 import Backend.Model
+import Pages.Item.Model
 import User.Model exposing (CurrentUser(Anonymous), User)
 
 
 type Msg
     = HandleUser (Result String CurrentUser)
     | MsgBackend Backend.Model.Msg
-
-
-
--- | MsgPagesHomepage
--- | MsgPagesItem
+    | MsgPagesItem Pages.Item.Model.Msg
 
 
 type alias Flags =
@@ -31,6 +28,7 @@ type alias Model =
     , backend : Backend.Model.Model
     , user : CurrentUser
     , backendUrl : BackendUrl
+    , pagesItem : Pages.Item.Model.Model
     }
 
 
@@ -42,4 +40,5 @@ emptyModel =
 
     -- @todo: Get dynamically.
     , backendUrl = BackendUrl "http://localhost:3000/"
+    , pagesItem = Pages.Item.Model.emptyModel
     }

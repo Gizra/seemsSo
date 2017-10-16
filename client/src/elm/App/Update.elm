@@ -10,6 +10,7 @@ import App.Types exposing (Page(..))
 import Backend.Restful exposing (toEntityId)
 import Backend.Update
 import Json.Decode exposing (Value, decodeValue)
+import Pages.Item.Update
 import User.Decoder exposing (decodeCurrentUser)
 
 
@@ -56,6 +57,20 @@ update msg model =
             , Cmd.map MsgBackend subCmds
             )
 
+        MsgPagesItem subMsg ->
+            let
+                ( subModel, subCmds ) =
+                    case model.activePage of
+                        Item itemId ->
+                            Pages.Item.Update.update subMsg model.pagesItem model.backend.items itemId
+
+                        _ ->
+                            ( model.pagesItem, Cmd.none )
+            in
+            ( { model | pagesItem = subModel }
+            , Cmd.map MsgPagesItem subCmds
+            )
+
 
 
 -- MsgPagesHomepage subMsg ->
@@ -65,14 +80,6 @@ update msg model =
 --     in
 --         ( { model | pageHomepage = val }
 --         , Cmd.map MsgPagesHomepage cmds
---         )
--- MsgPagesItem subMsg ->
---     let
---         ( val, cmds ) =
---             Pages.Item.Update.update subMsg model.pageItem
---     in
---         ( { model | pageItem = val }
---         , Cmd.map MsgPagesItem cmds
 --         )
 
 
