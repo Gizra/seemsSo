@@ -10,4 +10,4 @@ update : Msg -> Model -> Model
 update msg model =
     case msg of
         SetTab tab ->
-            ({ model | selectedTab = tab })
+            { model | selectedTab = tab }

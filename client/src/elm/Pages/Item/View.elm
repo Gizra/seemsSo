@@ -10,20 +10,20 @@ import Html.Attributes exposing (alt, class, classList, href, placeholder, src, 
 import Html.Events exposing (onClick, onInput)
 import ItemComment.View exposing (viewItemComments)
 import Maybe.Extra exposing (isJust, unwrap)
-import Pages.Item.Model exposing (Msg)
+import Pages.Item.Model exposing (Model, Msg)
 import StorageKey exposing (StorageKey(Existing))
 import User.Model exposing (CurrentUser(..))
 import Utils.Html exposing (divider, emptyNode, sectionDivider, showIf, showMaybe)
 
 
-view : BackendUrl -> CurrentUser -> EntityDictList ItemId Item -> ItemId -> Html Msg
-view backendUrl currentUser items currentItemId =
+view : BackendUrl -> CurrentUser -> EntityDictList ItemId Item -> ItemId -> Model -> Html Msg
+view backendUrl currentUser items currentItemId model =
     unwrap emptyNode
         (\item ->
             div []
                 [ h1 [] [ text item.name ]
                 , viewItemComments currentUser item.comments
-                , Html.map Pages.Item.Model.MsgItemComment <| ItemComment.View.view backendUrl currentUser
+                , Html.map Pages.Item.Model.MsgItemComment <| ItemComment.View.view backendUrl currentUser ( currentItemId, item ) StorageKey.New model.itemComment
                 ]
         )
         (EveryDictList.get (Existing currentItemId) items)
