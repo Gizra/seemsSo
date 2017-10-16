@@ -89,10 +89,10 @@ subscriptions model =
         subs =
             case model.activePage of
                 Item itemId ->
-                    Sub.map MsgBackend <| Backend.Update.subscriptions
+                    Sub.map MsgBackend <| Backend.Update.subscriptions model.user
 
                 HomePage ->
-                    Sub.map MsgBackend <| Backend.Update.subscriptions
+                    Sub.map MsgBackend <| Backend.Update.subscriptions model.user
 
                 NotFound ->
                     Sub.none

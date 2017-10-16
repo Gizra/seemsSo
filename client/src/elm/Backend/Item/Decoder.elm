@@ -8,36 +8,61 @@ module Backend.Item.Decoder
 import Backend.Entities exposing (ItemCommentId, ItemId)
 import Backend.Item.Model exposing (Item, ItemComment)
 import Backend.Restful exposing (EntityDictList, EntityId, decodeId, toEntityId)
+import Date
 import Editable.WebData as EditableWebData exposing (EditableWebData)
 import EveryDictList exposing (decodeArray2, empty)
 import Json.Decode exposing (Decoder, andThen, at, dict, fail, field, float, index, int, keyValuePairs, list, map, map2, nullable, oneOf, string, succeed)
 import Json.Decode.Pipeline exposing (custom, decode, optional, optionalAt, required, requiredAt)
 import StorageKey exposing (StorageKey(Existing))
 import User.Decoder exposing (decodeUserTuple)
+import User.Model exposing (CurrentUser(..))
 import Utils.Json exposing (decodeDate, decodeEmptyArrayAs, decodeInt)
 
 
-decodeItems : Decoder (EntityDictList ItemId Item)
-decodeItems =
+decodeItems : CurrentUser -> Decoder (EntityDictList ItemId Item)
+decodeItems currentUser =
     oneOf
-        [ decodeArray2 decodeStorageKeyAsEntityId decodeItem
+        [ decodeArray2 decodeStorageKeyAsEntityId (decodeItem currentUser)
         , decodeEmptyArrayAs empty
         ]
 
 
-decodeItem : Decoder Item
-decodeItem =
+decodeItem : CurrentUser -> Decoder Item
+decodeItem currentUser =
     decode Item
         |> required "name" string
-        |> optional "comments" decodeItemComments EveryDictList.empty
+        |> optional "comments" (decodeItemComments currentUser) EveryDictList.empty
 
 
-decodeItemComments : Decoder (EntityDictList ItemCommentId (EditableWebData ItemComment))
-decodeItemComments =
+decodeItemComments : CurrentUser -> Decoder (EntityDictList ItemCommentId (EditableWebData ItemComment))
+decodeItemComments currentUser =
     oneOf
         [ decodeArray2 decodeStorageKeyAsEntityId decodeItemComment
         , decodeEmptyArrayAs EveryDictList.empty
         ]
+        |> andThen
+            (\dictList ->
+                -- Add `New` only of Authnticated users.
+                (case currentUser of
+                    Authenticated userTuple ->
+                        let
+                            emptyCommentItem =
+                                EditableWebData.create
+                                    { user = userTuple
+                                    , comment = ""
+
+                                    -- @todo: Make created `Maybe`?
+                                    , created = Date.fromTime 0
+                                    }
+                        in
+                        dictList
+                            |> EveryDictList.insert StorageKey.New emptyCommentItem
+
+                    Anonymous ->
+                        dictList
+                )
+                    |> succeed
+            )
 
 
 decodeStorageKeyAsEntityId : Decoder (StorageKey (EntityId a))
@@ -55,8 +80,8 @@ decodeItemComment =
         |> andThen (\val -> succeed <| EditableWebData.create val)
 
 
-deocdeItemIdAndComments : Decoder ( StorageKey ItemId, EntityDictList ItemCommentId (EditableWebData ItemComment) )
-deocdeItemIdAndComments =
+deocdeItemIdAndComments : CurrentUser -> Decoder ( StorageKey ItemId, EntityDictList ItemCommentId (EditableWebData ItemComment) )
+deocdeItemIdAndComments currentUser =
     decode (,)
         |> required "itemId" (decodeInt |> andThen (\val -> toEntityId val |> Existing |> succeed))
-        |> required "comments" decodeItemComments
+        |> required "comments" (decodeItemComments currentUser)

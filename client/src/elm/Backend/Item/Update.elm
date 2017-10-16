@@ -16,6 +16,7 @@ import Json.Decode exposing (Value, decodeValue)
 import Json.Encode exposing (object, string)
 import Maybe.Extra exposing (unwrap)
 import StorageKey exposing (StorageKey)
+import User.Model exposing (CurrentUser)
 import Utils.WebData exposing (sendWithHandler)
 
 
@@ -92,8 +93,8 @@ update backendUrl msg model =
 --     )
 
 
-saveComment : BackendUrl -> ( StorageKey ItemId, StorageKey ItemCommentId ) -> ItemComment -> Cmd Msg
-saveComment (BackendUrl backendUrl) storageKeys itemComment =
+saveComment : BackendUrl -> CurrentUser -> ( StorageKey ItemId, StorageKey ItemCommentId ) -> ItemComment -> Cmd Msg
+saveComment (BackendUrl backendUrl) currentUser storageKeys itemComment =
     let
         itemId =
             Tuple.first storageKeys
@@ -105,7 +106,7 @@ saveComment (BackendUrl backendUrl) storageKeys itemComment =
         |> withCredentials
         |> withQueryParams [ ( "_accept", "application/json" ) ]
         |> withJsonBody (object [ ( "comment", string itemComment.comment ) ])
-        |> sendWithHandler decodeItemComments (HandleSaveComment storageKeys)
+        |> sendWithHandler (decodeItemComments currentUser) (HandleSaveComment storageKeys)
 
 
 
@@ -118,9 +119,9 @@ port items : (Value -> msg) -> Sub msg
 port itemIdAndCommentsTuple : (Value -> msg) -> Sub msg
 
 
-subscriptions : Sub Msg
-subscriptions =
+subscriptions : CurrentUser -> Sub Msg
+subscriptions currentUser =
     Sub.batch
-        [ items (decodeValue decodeItems >> HandleFetchItems)
-        , itemIdAndCommentsTuple (decodeValue deocdeItemIdAndComments >> HandleFetchItemIdAndCommentsTuple)
+        [ items (decodeValue (decodeItems currentUser) >> HandleFetchItems)
+        , itemIdAndCommentsTuple (decodeValue (deocdeItemIdAndComments currentUser) >> HandleFetchItemIdAndCommentsTuple)
         ]

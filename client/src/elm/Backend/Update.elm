@@ -3,6 +3,7 @@ module Backend.Update exposing (subscriptions, update)
 import App.Types exposing (BackendUrl)
 import Backend.Item.Update
 import Backend.Model exposing (Model, Msg(..))
+import User.Model exposing (CurrentUser)
 
 
 update : BackendUrl -> Msg -> Model -> ( Model, Cmd Msg )
@@ -18,6 +19,6 @@ update backendUrl msg model =
             )
 
 
-subscriptions : Sub Msg
-subscriptions =
-    Sub.map MsgItems <| Backend.Item.Update.subscriptions
+subscriptions : CurrentUser -> Sub Msg
+subscriptions currentUser =
+    Sub.map MsgItems <| Backend.Item.Update.subscriptions currentUser
