@@ -32,3 +32,4 @@ type Msg
 type DelegatedMsg
     = NoOp
     | MsgBackendItem Backend.Model.Msg
+    | UpdateBackend

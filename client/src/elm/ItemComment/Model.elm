@@ -30,10 +30,11 @@ type Tab
 
 type Msg
     = SetTab Tab
-      -- Coresponds to`SaveComment` in `Backend.Item.Model`
     | DelegatedSaveComment ( StorageKey ItemId, StorageKey ItemCommentId )
+    | SetComment ( StorageKey ItemId, StorageKey ItemCommentId ) String
 
 
 type DelegatedMsg
     = NoOp
     | MsgBackendItem Backend.Model.Msg
+    | UpdateBackend

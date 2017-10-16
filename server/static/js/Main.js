@@ -11083,12 +11083,17 @@ var _Gizra$elm_spa_exmple$ItemComment_Model$Model = function (a) {
 var _Gizra$elm_spa_exmple$ItemComment_Model$Preview = {ctor: 'Preview'};
 var _Gizra$elm_spa_exmple$ItemComment_Model$Edit = {ctor: 'Edit'};
 var _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel = {selectedTab: _Gizra$elm_spa_exmple$ItemComment_Model$Edit};
+var _Gizra$elm_spa_exmple$ItemComment_Model$SetComment = F2(
+	function (a, b) {
+		return {ctor: 'SetComment', _0: a, _1: b};
+	});
 var _Gizra$elm_spa_exmple$ItemComment_Model$DelegatedSaveComment = function (a) {
 	return {ctor: 'DelegatedSaveComment', _0: a};
 };
 var _Gizra$elm_spa_exmple$ItemComment_Model$SetTab = function (a) {
 	return {ctor: 'SetTab', _0: a};
 };
+var _Gizra$elm_spa_exmple$ItemComment_Model$UpdateBackend = {ctor: 'UpdateBackend'};
 var _Gizra$elm_spa_exmple$ItemComment_Model$MsgBackendItem = function (a) {
 	return {ctor: 'MsgBackendItem', _0: a};
 };
@@ -11105,6 +11110,7 @@ var _Gizra$elm_spa_exmple$Pages_Item_Model$SetComment = F2(
 var _Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment = function (a) {
 	return {ctor: 'MsgItemComment', _0: a};
 };
+var _Gizra$elm_spa_exmple$Pages_Item_Model$UpdateBackend = {ctor: 'UpdateBackend'};
 var _Gizra$elm_spa_exmple$Pages_Item_Model$MsgBackendItem = function (a) {
 	return {ctor: 'MsgBackendItem', _0: a};
 };
@@ -13666,28 +13672,59 @@ var _Gizra$elm_spa_exmple$Backend_Update$update = F3(
 var _Gizra$elm_spa_exmple$ItemComment_Update$update = F3(
 	function (msg, model, _p0) {
 		var _p1 = _p0;
-		var _p3 = _p1._1;
+		var _p8 = _p1._1;
 		var _p2 = msg;
-		if (_p2.ctor === 'SetTab') {
-			return {
-				ctor: '_Tuple2',
-				_0: _elm_lang$core$Native_Utils.update(
-					model,
-					{selectedTab: _p2._0}),
-				_1: {ctor: '_Tuple2', _0: _p3, _1: _Gizra$elm_spa_exmple$ItemComment_Model$NoOp}
-			};
-		} else {
-			return {
-				ctor: '_Tuple2',
-				_0: model,
-				_1: {
+		switch (_p2.ctor) {
+			case 'SetTab':
+				return {
 					ctor: '_Tuple2',
-					_0: _p3,
-					_1: _Gizra$elm_spa_exmple$ItemComment_Model$MsgBackendItem(
-						_Gizra$elm_spa_exmple$Backend_Model$MsgItems(
-							_Gizra$elm_spa_exmple$Backend_Item_Model$SaveComment(_p2._0)))
-				}
-			};
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{selectedTab: _p2._0}),
+					_1: {ctor: '_Tuple2', _0: _p8, _1: _Gizra$elm_spa_exmple$ItemComment_Model$NoOp}
+				};
+			case 'DelegatedSaveComment':
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: {
+						ctor: '_Tuple2',
+						_0: _p8,
+						_1: _Gizra$elm_spa_exmple$ItemComment_Model$MsgBackendItem(
+							_Gizra$elm_spa_exmple$Backend_Model$MsgItems(
+								_Gizra$elm_spa_exmple$Backend_Item_Model$SaveComment(_p2._0)))
+					}
+				};
+			default:
+				var _p7 = _p2._0._0;
+				var _p6 = _p2._0._1;
+				var partialBackendModelUpdated = function () {
+					var _p3 = A2(_Gizra$elm_dictlist$EveryDictList$get, _p7, _p8.items);
+					if (_p3.ctor === 'Nothing') {
+						return _p8;
+					} else {
+						var _p5 = _p3._0;
+						var _p4 = A2(_Gizra$elm_dictlist$EveryDictList$get, _p6, _p5.comments);
+						if (_p4.ctor === 'Nothing') {
+							return _p8;
+						} else {
+							var itemUpdated = _elm_lang$core$Native_Utils.update(
+								_p5,
+								{
+									comments: A3(_Gizra$elm_dictlist$EveryDictList$insert, _p6, _p4._0, _p5.comments)
+								});
+							var itemsUpdated = A3(_Gizra$elm_dictlist$EveryDictList$insert, _p7, itemUpdated, _p8.items);
+							return _elm_lang$core$Native_Utils.update(
+								_p8,
+								{items: itemsUpdated});
+						}
+					}
+				}();
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: {ctor: '_Tuple2', _0: partialBackendModelUpdated, _1: _Gizra$elm_spa_exmple$ItemComment_Model$UpdateBackend}
+				};
 		}
 	});
 
@@ -13710,10 +13747,13 @@ var _Gizra$elm_spa_exmple$Pages_Item_Update$update = F4(
 				{itemComment: subModel});
 			var delegatedMsgs = function () {
 				var _p4 = delegatedMsg;
-				if (_p4.ctor === 'NoOp') {
-					return _Gizra$elm_spa_exmple$Pages_Item_Model$NoOp;
-				} else {
-					return _Gizra$elm_spa_exmple$Pages_Item_Model$MsgBackendItem(_p4._0);
+				switch (_p4.ctor) {
+					case 'NoOp':
+						return _Gizra$elm_spa_exmple$Pages_Item_Model$NoOp;
+					case 'MsgBackendItem':
+						return _Gizra$elm_spa_exmple$Pages_Item_Model$MsgBackendItem(_p4._0);
+					default:
+						return _Gizra$elm_spa_exmple$Pages_Item_Model$UpdateBackend;
 				}
 			}();
 			return {
@@ -13777,33 +13817,47 @@ var _Gizra$elm_spa_exmple$App_Update$update = F2(
 						var partialBackendModel = _p5._2._0;
 						var delegatedMsg = _p5._2._1;
 						var _p6 = delegatedMsg;
-						if (_p6.ctor === 'NoOp') {
-							return {
-								ctor: '_Tuple3',
-								_0: subModel,
-								_1: subCmds,
-								_2: {ctor: '_Tuple2', _0: model.backend, _1: _elm_lang$core$Platform_Cmd$none}
-							};
-						} else {
-							var msg = A2(
-								_elm_lang$core$Platform_Cmd$map,
-								_Gizra$elm_spa_exmple$App_Model$MsgBackend,
-								A2(
-									_elm_lang$core$Task$perform,
-									_elm_lang$core$Basics$identity,
-									_elm_lang$core$Task$succeed(_p6._0)));
-							var backend = model.backend;
-							var backendUpdated = _elm_lang$core$Native_Utils.update(
-								backend,
-								{
-									items: A2(_Gizra$elm_dictlist$EveryDictList$union, partialBackendModel.items, model.backend.items)
-								});
-							return {
-								ctor: '_Tuple3',
-								_0: subModel,
-								_1: subCmds,
-								_2: {ctor: '_Tuple2', _0: backendUpdated, _1: msg}
-							};
+						switch (_p6.ctor) {
+							case 'NoOp':
+								return {
+									ctor: '_Tuple3',
+									_0: subModel,
+									_1: subCmds,
+									_2: {ctor: '_Tuple2', _0: model.backend, _1: _elm_lang$core$Platform_Cmd$none}
+								};
+							case 'MsgBackendItem':
+								var msg = A2(
+									_elm_lang$core$Platform_Cmd$map,
+									_Gizra$elm_spa_exmple$App_Model$MsgBackend,
+									A2(
+										_elm_lang$core$Task$perform,
+										_elm_lang$core$Basics$identity,
+										_elm_lang$core$Task$succeed(_p6._0)));
+								var backend = model.backend;
+								var backendUpdated = _elm_lang$core$Native_Utils.update(
+									backend,
+									{
+										items: A2(_Gizra$elm_dictlist$EveryDictList$union, partialBackendModel.items, model.backend.items)
+									});
+								return {
+									ctor: '_Tuple3',
+									_0: subModel,
+									_1: subCmds,
+									_2: {ctor: '_Tuple2', _0: backendUpdated, _1: msg}
+								};
+							default:
+								var backend = model.backend;
+								var backendUpdated = _elm_lang$core$Native_Utils.update(
+									backend,
+									{
+										items: A2(_Gizra$elm_dictlist$EveryDictList$union, partialBackendModel.items, model.backend.items)
+									});
+								return {
+									ctor: '_Tuple3',
+									_0: subModel,
+									_1: subCmds,
+									_2: {ctor: '_Tuple2', _0: backendUpdated, _1: _elm_lang$core$Platform_Cmd$none}
+								};
 						}
 					} else {
 						return {

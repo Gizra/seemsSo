@@ -83,6 +83,7 @@ update msg model =
 
                                 Pages.Item.Model.MsgBackendItem backendMsg ->
                                     let
+                                        -- @todo: Call Pages.Item.Model.UpdateBackend to remove duplication?
                                         backend =
                                             model.backend
 
@@ -96,6 +97,19 @@ update msg model =
                                                 |> Cmd.map MsgBackend
                                     in
                                     ( subModel, subCmds, ( backendUpdated, msg ) )
+
+                                -- Just update the backend data, but without
+                                -- any Cmd. This will be used when a sub-model will edit the data (e.g. via a form)
+                                -- but the form was not submitted yet.
+                                Pages.Item.Model.UpdateBackend ->
+                                    let
+                                        backend =
+                                            model.backend
+
+                                        backendUpdated =
+                                            { backend | items = EveryDictList.union partialBackendModel.items model.backend.items }
+                                    in
+                                    ( subModel, subCmds, ( backendUpdated, Cmd.none ) )
 
                         _ ->
                             ( model.pagesItem, Cmd.none, ( model.backend, Cmd.none ) )

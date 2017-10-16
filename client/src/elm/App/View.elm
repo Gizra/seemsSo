@@ -6,7 +6,6 @@ import Html exposing (..)
 import Html.Attributes exposing (class)
 import Pages.Homepage.View
 import Pages.Item.View exposing (view)
-import StorageKey exposing (StorageKey(Existing))
 
 
 view : Model -> Html Msg

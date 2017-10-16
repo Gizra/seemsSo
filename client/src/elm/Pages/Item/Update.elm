@@ -36,6 +36,9 @@ update backendUrl msg model ( storageKey, partialBackendModel ) =
 
                         ItemComment.Model.MsgBackendItem backendMsg ->
                             MsgBackendItem backendMsg
+
+                        ItemComment.Model.UpdateBackend ->
+                            UpdateBackend
             in
             ( modelUpdated
             , Cmd.none

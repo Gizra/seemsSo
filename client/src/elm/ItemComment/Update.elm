@@ -7,6 +7,7 @@ import Backend.Entities exposing (ItemId)
 import Backend.Item.Model exposing (Item)
 import Backend.Model
 import Backend.Restful exposing (EntityDictList)
+import EveryDictList exposing (EveryDictList)
 import ItemComment.Model exposing (DelegatedMsg(..), Model, Msg(..))
 import StorageKey exposing (StorageKey)
 
@@ -23,7 +24,34 @@ update msg model ( storageKey, partialBackendModel ) =
             , ( partialBackendModel, NoOp )
             )
 
-        DelegatedSaveComment values ->
+        DelegatedSaveComment storageKeys ->
             ( model
-            , ( partialBackendModel, MsgBackendItem <| Backend.Model.MsgItems <| Backend.Item.Model.SaveComment values )
+              -- Coresponds to`SaveComment` in `Backend.Item.Model`
+            , ( partialBackendModel, MsgBackendItem <| Backend.Model.MsgItems <| Backend.Item.Model.SaveComment storageKeys )
+            )
+
+        SetComment ( itemId, commentId ) comment ->
+            let
+                partialBackendModelUpdated =
+                    case EveryDictList.get itemId partialBackendModel.items of
+                        Nothing ->
+                            partialBackendModel
+
+                        Just item ->
+                            case EveryDictList.get commentId item.comments of
+                                Nothing ->
+                                    partialBackendModel
+
+                                Just comment ->
+                                    let
+                                        itemUpdated =
+                                            { item | comments = EveryDictList.insert commentId comment item.comments }
+
+                                        itemsUpdated =
+                                            EveryDictList.insert itemId itemUpdated partialBackendModel.items
+                                    in
+                                    { partialBackendModel | items = itemsUpdated }
+            in
+            ( model
+            , ( partialBackendModelUpdated, UpdateBackend )
             )
