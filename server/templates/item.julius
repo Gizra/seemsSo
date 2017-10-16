@@ -1,9 +1,13 @@
 // Send the values via Elm's ports.
+// We let the user be sent first, and have enough time for decoding, as the items
+// need to be aware of the current user to know how to handle comment CRUD.
 
-// Elm is expecting to get a list of items.
-elmApp.ports.items.send([#{rawJS itemJson}]);
+setTimeout(function() {
+  // Elm is expecting to get a list of items.
+  elmApp.ports.items.send([#{rawJS itemJson}]);
 
-elmApp.ports.itemIdAndCommentsTuple.send({
-  "itemId" : #{rawJS $ show $ fromSqlKey itemId},
-  "comments" : #{rawJS comments}
-});
+  elmApp.ports.itemIdAndCommentsTuple.send({
+    "itemId" : #{rawJS $ show $ fromSqlKey itemId},
+    "comments" : #{rawJS comments}
+  });
+}, 0);

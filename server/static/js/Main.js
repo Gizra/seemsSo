@@ -22574,19 +22574,19 @@ var _Gizra$elm_spa_exmple$Pages_Item_View$view = F5(
 							}),
 						_1: {
 							ctor: '::',
-							_0: A2(_Gizra$elm_spa_exmple$ItemComment_View$viewItemComments, currentUser, item.comments),
+							_0: A2(
+								_elm_lang$html$Html$map,
+								_Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment,
+								A5(
+									_Gizra$elm_spa_exmple$ItemComment_View$view,
+									backendUrl,
+									currentUser,
+									{ctor: '_Tuple2', _0: itemStorageKey, _1: item},
+									_Gizra$elm_storage_key$StorageKey$New,
+									model.itemComment)),
 							_1: {
 								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$map,
-									_Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment,
-									A5(
-										_Gizra$elm_spa_exmple$ItemComment_View$view,
-										backendUrl,
-										currentUser,
-										{ctor: '_Tuple2', _0: itemStorageKey, _1: item},
-										_Gizra$elm_storage_key$StorageKey$New,
-										model.itemComment)),
+								_0: A2(_Gizra$elm_spa_exmple$ItemComment_View$viewItemComments, currentUser, item.comments),
 								_1: {ctor: '[]'}
 							}
 						}

@@ -22,8 +22,8 @@ view backendUrl currentUser items itemStorageKey model =
         (\item ->
             div []
                 [ h1 [] [ text item.name ]
-                , viewItemComments currentUser item.comments
                 , Html.map Pages.Item.Model.MsgItemComment <| ItemComment.View.view backendUrl currentUser ( itemStorageKey, item ) StorageKey.New model.itemComment
+                , viewItemComments currentUser item.comments
                 ]
         )
         (EveryDictList.get itemStorageKey items)
