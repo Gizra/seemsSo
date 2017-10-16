@@ -9,8 +9,11 @@ import App.Model exposing (..)
 import App.Types exposing (Page(..))
 import Backend.Restful exposing (toEntityId)
 import Backend.Update
+import EveryDictList
 import Json.Decode exposing (Value, decodeValue)
+import Pages.Item.Model
 import Pages.Item.Update
+import StorageKey exposing (StorageKey(Existing))
 import User.Decoder exposing (decodeCurrentUser)
 
 
@@ -21,7 +24,9 @@ init flags =
             case flags.page of
                 "item" ->
                     -- @todo: Get the item id.
-                    Item (toEntityId 1)
+                    toEntityId 1
+                        |> Existing
+                        |> Item
 
                 "homepage" ->
                     HomePage
@@ -62,19 +67,36 @@ update msg model =
                 noBackendChange =
                     ( model.backend, Cmd.none )
 
-                ( subModel, subCmds, ( backendModel, backendCmds ) ) =
+                ( subModel, subCmds, ( backendUpdated, backendCmds ) ) =
                     case model.activePage of
                         Item itemId ->
-                            -- @todo: Pass just model.backend instead of model.backend.items?
-                            Pages.Item.Update.update model.backendUrl subMsg model.pagesItem model.backend model.backend.items itemId
+                            let
+                                ( subModel, subCmds, ( partialBackendModel, delegatedMsg ) ) =
+                                    Pages.Item.Update.update model.backendUrl subMsg model.pagesItem ( itemId, model.backend )
+                            in
+                            case delegatedMsg of
+                                Pages.Item.Model.NoOp ->
+                                    -- No change to the backend.
+                                    -- Make the return value a Maybe, just with the changed values?
+                                    ( subModel, subCmds, ( model.backend, Cmd.none ) )
+
+                                Pages.Item.Model.MsgBackendItem backendMsg ->
+                                    let
+                                        backend =
+                                            model.backend
+
+                                        backendUpdated =
+                                            { backend | items = EveryDictList.union partialBackendModel.items model.backend.items }
+                                    in
+                                    ( subModel, subCmds, ( backendUpdated, Cmd.map MsgBackend backendMsg ) )
 
                         _ ->
-                            ( model.pagesItem, Cmd.none, noBackendChange )
+                            ( model.pagesItem, Cmd.none, ( model.backend, Cmd.none ) )
             in
             ( { model | pagesItem = subModel }
             , Cmd.batch
                 [ Cmd.map MsgPagesItem subCmds
-                , Cmd.map MsgBackend backendCmds
+                , backendCmds
                 ]
             )
 

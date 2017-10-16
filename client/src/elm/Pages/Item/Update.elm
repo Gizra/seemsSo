@@ -9,55 +9,43 @@ import Backend.Item.Model exposing (Item)
 import Backend.Model
 import Backend.Restful exposing (EntityDictList)
 import Backend.Update
-import ItemComment.Model exposing (DelegatedMsg(..))
+import ItemComment.Model
 import ItemComment.Update
-import Pages.Item.Model exposing (Model, Msg(..))
+import Pages.Item.Model exposing (DelegatedMsg(..), Model, Msg(..))
+import StorageKey exposing (StorageKey)
 
 
-update : BackendUrl -> Msg -> Model -> Backend.Model.Model -> EntityDictList ItemId Item -> ItemId -> ( Model, Cmd Msg, ( Backend.Model.Model, Cmd Backend.Model.Msg ) )
-update backendUrl msg model backendModel items currentItemId =
-    let
-        noBackendChange =
-            ( backendModel, Cmd.none )
-    in
+update :
+    BackendUrl
+    -> Msg
+    -> Model
+    -> ( StorageKey ItemId, { r | items : EntityDictList ItemId Item } )
+    -> ( Model, Cmd Msg, ( { r | items : EntityDictList ItemId Item }, DelegatedMsg ) )
+update backendUrl msg model ( storageKey, partialBackendModel ) =
     case msg of
-        MsgBackendItem subMsg ->
-            let
-                ( subModel, backendMsg ) =
-                    Backend.Update.update backendUrl subMsg backendModel
-            in
-            ( model
-            , Cmd.none
-            , ( subModel, backendMsg )
-            )
-
         MsgItemComment subMsg ->
             let
-                ( subModel, delegatedMsg ) =
-                    ItemComment.Update.update subMsg model.itemComment
+                ( subModel, ( partialBackendModelUpdated, delegatedMsg ) ) =
+                    ItemComment.Update.update subMsg model.itemComment ( storageKey, partialBackendModel )
 
                 modelUpdated =
                     { model | itemComment = subModel }
 
-                backendChanges =
+                delegatedMsgs =
                     case delegatedMsg of
-                        NoOp ->
-                            noBackendChange
+                        ItemComment.Model.NoOp ->
+                            NoOp
 
-                        SaveComment values ->
-                            let
-                                ( _, _, changes ) =
-                                    update backendUrl (MsgBackendItem <| Backend.Model.MsgItems <| Backend.Item.Model.SaveComment values) modelUpdated backendModel items currentItemId
-                            in
-                            changes
+                        ItemComment.Model.MsgBackendItem backendItemMsg ->
+                            MsgBackendItem backendItemMsg
             in
             ( modelUpdated
             , Cmd.none
-            , backendChanges
+            , ( partialBackendModelUpdated, delegatedMsgs )
             )
 
         SetComment storageKey comment ->
             ( model
             , Cmd.none
-            , noBackendChange
+            , ( partialBackendModel, NoOp )
             )

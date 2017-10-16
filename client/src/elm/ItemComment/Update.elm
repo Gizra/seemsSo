@@ -3,16 +3,26 @@ module ItemComment.Update
         ( update
         )
 
+import Backend.Entities exposing (ItemId)
+import Backend.Item.Model exposing (Item)
+import Backend.Restful exposing (EntityDictList)
 import ItemComment.Model exposing (DelegatedMsg(..), Model, Msg(..))
+import StorageKey exposing (StorageKey)
 
 
-update : Msg -> Model -> ( Model, DelegatedMsg )
-update msg model =
+update :
+    Msg
+    -> Model
+    -> ( StorageKey ItemId, { r | items : EntityDictList ItemId Item } )
+    -> ( Model, ( { r | items : EntityDictList ItemId Item }, DelegatedMsg ) )
+update msg model ( storageKey, partialBackendModel ) =
     case msg of
         SetTab tab ->
             ( { model | selectedTab = tab }
-            , NoOp
+            , ( partialBackendModel, NoOp )
             )
 
         DelegatedSaveComment values ->
-            ( model, SaveComment values )
+            ( model
+            , ( partialBackendModel, MsgBackendItem <| Backend.Item.Model.SaveComment values )
+            )

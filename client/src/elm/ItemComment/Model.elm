@@ -8,6 +8,7 @@ module ItemComment.Model
         )
 
 import Backend.Entities exposing (ItemCommentId, ItemId)
+import Backend.Item.Model
 import StorageKey exposing (StorageKey)
 
 
@@ -35,5 +36,4 @@ type Msg
 
 type DelegatedMsg
     = NoOp
-      -- Coresponds to`SaveComment` in `Backend.Item.Model`
-    | SaveComment ( StorageKey ItemId, StorageKey ItemCommentId )
+    | MsgBackendItem Backend.Item.Model.Msg

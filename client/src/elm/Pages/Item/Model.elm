@@ -1,11 +1,13 @@
 module Pages.Item.Model
     exposing
-        ( Model
+        ( DelegatedMsg(..)
+        , Model
         , Msg(..)
         , emptyModel
         )
 
 import Backend.Entities exposing (ItemCommentId)
+import Backend.Item.Model
 import Backend.Model
 import ItemComment.Model exposing (Model, Msg(..))
 import StorageKey exposing (StorageKey)
@@ -23,6 +25,10 @@ emptyModel =
 
 
 type Msg
-    = MsgBackendItem Backend.Model.Msg
-    | MsgItemComment ItemComment.Model.Msg
+    = MsgItemComment ItemComment.Model.Msg
     | SetComment (StorageKey ItemCommentId) String
+
+
+type DelegatedMsg
+    = NoOp
+    | MsgBackendItem Backend.Model.Msg

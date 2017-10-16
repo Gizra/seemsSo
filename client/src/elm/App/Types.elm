@@ -5,10 +5,11 @@ module App.Types
         )
 
 import Backend.Entities exposing (ItemId)
+import StorageKey exposing (StorageKey)
 
 
 type Page
-    = Item ItemId
+    = Item (StorageKey ItemId)
     | HomePage
     | NotFound
 
