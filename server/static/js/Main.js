@@ -22227,7 +22227,12 @@ var _Gizra$elm_spa_exmple$ItemComment_View$viewActions = F2(
 			ctor: '::',
 			_0: _elm_lang$html$Html_Attributes$disabled(true),
 			_1: {ctor: '[]'}
-		} : {ctor: '[]'};
+		} : {
+			ctor: '::',
+			_0: _elm_lang$html$Html_Events$onClick(
+				_Gizra$elm_spa_exmple$ItemComment_Model$DelegatedSaveComment(storageKeys)),
+			_1: {ctor: '[]'}
+		};
 		return A2(
 			_elm_lang$html$Html$div,
 			A2(
@@ -22288,11 +22293,16 @@ var _Gizra$elm_spa_exmple$ItemComment_View$viewEdit = F2(
 							_0: _elm_lang$html$Html_Attributes$value(itemComment.comment),
 							_1: {
 								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$rows(6),
+								_0: _elm_lang$html$Html_Events$onInput(
+									_Gizra$elm_spa_exmple$ItemComment_Model$SetComment(storageKeys)),
 								_1: {
 									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$cols(60),
-									_1: {ctor: '[]'}
+									_0: _elm_lang$html$Html_Attributes$rows(6),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$cols(60),
+										_1: {ctor: '[]'}
+									}
 								}
 							}
 						}

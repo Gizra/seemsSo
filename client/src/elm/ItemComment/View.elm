@@ -131,9 +131,7 @@ viewEdit storageKeys editableWebData =
         [ textarea
             [ required True
             , value <| itemComment.comment
-
-            -- @todo: Re-wire.
-            -- , onInput SetComment
+            , onInput <| SetComment storageKeys
             , rows 6
             , cols 60
             ]
@@ -173,8 +171,7 @@ viewActions storageKeys editableWebData =
             if isLoading || emptyComment then
                 [ disabled True ]
             else
-                [-- @todo: Re-wire
-                 -- onClick <| SaveComment
+                [ onClick <| DelegatedSaveComment storageKeys
                 ]
     in
     div
