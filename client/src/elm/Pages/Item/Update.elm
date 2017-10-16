@@ -6,9 +6,7 @@ module Pages.Item.Update
 import App.Types exposing (BackendUrl)
 import Backend.Entities exposing (ItemId)
 import Backend.Item.Model exposing (Item)
-import Backend.Model
 import Backend.Restful exposing (EntityDictList)
-import Backend.Update
 import ItemComment.Model
 import ItemComment.Update
 import Pages.Item.Model exposing (DelegatedMsg(..), Model, Msg(..))
@@ -36,8 +34,8 @@ update backendUrl msg model ( storageKey, partialBackendModel ) =
                         ItemComment.Model.NoOp ->
                             NoOp
 
-                        ItemComment.Model.MsgBackendItem backendItemMsg ->
-                            MsgBackendItem backendItemMsg
+                        ItemComment.Model.MsgBackendItem backendMsg ->
+                            MsgBackendItem backendMsg
             in
             ( modelUpdated
             , Cmd.none

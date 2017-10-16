@@ -5,6 +5,7 @@ module ItemComment.Update
 
 import Backend.Entities exposing (ItemId)
 import Backend.Item.Model exposing (Item)
+import Backend.Model
 import Backend.Restful exposing (EntityDictList)
 import ItemComment.Model exposing (DelegatedMsg(..), Model, Msg(..))
 import StorageKey exposing (StorageKey)
@@ -24,5 +25,5 @@ update msg model ( storageKey, partialBackendModel ) =
 
         DelegatedSaveComment values ->
             ( model
-            , ( partialBackendModel, MsgBackendItem <| Backend.Item.Model.SaveComment values )
+            , ( partialBackendModel, MsgBackendItem <| Backend.Model.MsgItems <| Backend.Item.Model.SaveComment values )
             )

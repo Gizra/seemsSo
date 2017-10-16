@@ -8,7 +8,7 @@ module ItemComment.Model
         )
 
 import Backend.Entities exposing (ItemCommentId, ItemId)
-import Backend.Item.Model
+import Backend.Model
 import StorageKey exposing (StorageKey)
 
 
@@ -36,4 +36,4 @@ type Msg
 
 type DelegatedMsg
     = NoOp
-    | MsgBackendItem Backend.Item.Model.Msg
+    | MsgBackendItem Backend.Model.Msg

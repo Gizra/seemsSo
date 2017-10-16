@@ -19,7 +19,8 @@ view model =
 
         Item itemId ->
             div [ class "ui container" ]
-                [ Html.map MsgPagesItem <| Pages.Item.View.view model.backendUrl model.user model.backend.items (Existing itemId) model.pagesItem
+                -- @todo: Send model.backend instead of model.backend.items
+                [ Html.map MsgPagesItem <| Pages.Item.View.view model.backendUrl model.user model.backend.items itemId model.pagesItem
                 ]
 
         NotFound ->

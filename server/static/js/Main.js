@@ -11089,8 +11089,8 @@ var _Gizra$elm_spa_exmple$ItemComment_Model$DelegatedSaveComment = function (a) 
 var _Gizra$elm_spa_exmple$ItemComment_Model$SetTab = function (a) {
 	return {ctor: 'SetTab', _0: a};
 };
-var _Gizra$elm_spa_exmple$ItemComment_Model$SaveComment = function (a) {
-	return {ctor: 'SaveComment', _0: a};
+var _Gizra$elm_spa_exmple$ItemComment_Model$MsgBackendItem = function (a) {
+	return {ctor: 'MsgBackendItem', _0: a};
 };
 var _Gizra$elm_spa_exmple$ItemComment_Model$NoOp = {ctor: 'NoOp'};
 
@@ -11108,6 +11108,7 @@ var _Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment = function (a) {
 var _Gizra$elm_spa_exmple$Pages_Item_Model$MsgBackendItem = function (a) {
 	return {ctor: 'MsgBackendItem', _0: a};
 };
+var _Gizra$elm_spa_exmple$Pages_Item_Model$NoOp = {ctor: 'NoOp'};
 
 var _Gizra$elm_spa_exmple$App_Model$emptyModel = {
 	activePage: _Gizra$elm_spa_exmple$App_Types$NotFound,
@@ -13662,70 +13663,72 @@ var _Gizra$elm_spa_exmple$Backend_Update$update = F3(
 		};
 	});
 
-var _Gizra$elm_spa_exmple$ItemComment_Update$update = F2(
-	function (msg, model) {
-		var _p0 = msg;
-		if (_p0.ctor === 'SetTab') {
+var _Gizra$elm_spa_exmple$ItemComment_Update$update = F3(
+	function (msg, model, _p0) {
+		var _p1 = _p0;
+		var _p3 = _p1._1;
+		var _p2 = msg;
+		if (_p2.ctor === 'SetTab') {
 			return {
 				ctor: '_Tuple2',
 				_0: _elm_lang$core$Native_Utils.update(
 					model,
-					{selectedTab: _p0._0}),
-				_1: _Gizra$elm_spa_exmple$ItemComment_Model$NoOp
+					{selectedTab: _p2._0}),
+				_1: {ctor: '_Tuple2', _0: _p3, _1: _Gizra$elm_spa_exmple$ItemComment_Model$NoOp}
 			};
 		} else {
 			return {
 				ctor: '_Tuple2',
 				_0: model,
-				_1: _Gizra$elm_spa_exmple$ItemComment_Model$SaveComment(_p0._0)
+				_1: {
+					ctor: '_Tuple2',
+					_0: _p3,
+					_1: _Gizra$elm_spa_exmple$ItemComment_Model$MsgBackendItem(
+						_Gizra$elm_spa_exmple$Backend_Model$MsgItems(
+							_Gizra$elm_spa_exmple$Backend_Item_Model$SaveComment(_p2._0)))
+				}
 			};
 		}
 	});
 
-var _Gizra$elm_spa_exmple$Pages_Item_Update$update = F6(
-	function (backendUrl, msg, model, backendModel, items, currentItemId) {
-		var noBackendChange = {ctor: '_Tuple2', _0: backendModel, _1: _elm_lang$core$Platform_Cmd$none};
-		var _p0 = msg;
-		switch (_p0.ctor) {
-			case 'MsgBackendItem':
-				var _p1 = A3(_Gizra$elm_spa_exmple$Backend_Update$update, backendUrl, _p0._0, backendModel);
-				var subModel = _p1._0;
-				var backendMsg = _p1._1;
-				return {
-					ctor: '_Tuple3',
-					_0: model,
-					_1: _elm_lang$core$Platform_Cmd$none,
-					_2: {ctor: '_Tuple2', _0: subModel, _1: backendMsg}
-				};
-			case 'MsgItemComment':
-				var _p2 = A2(_Gizra$elm_spa_exmple$ItemComment_Update$update, _p0._0, model.itemComment);
-				var subModel = _p2._0;
-				var delegatedMsg = _p2._1;
-				var modelUpdated = _elm_lang$core$Native_Utils.update(
-					model,
-					{itemComment: subModel});
-				var backendChanges = function () {
-					var _p3 = delegatedMsg;
-					if (_p3.ctor === 'NoOp') {
-						return noBackendChange;
-					} else {
-						var _p4 = A6(
-							_Gizra$elm_spa_exmple$Pages_Item_Update$update,
-							backendUrl,
-							_Gizra$elm_spa_exmple$Pages_Item_Model$MsgBackendItem(
-								_Gizra$elm_spa_exmple$Backend_Model$MsgItems(
-									_Gizra$elm_spa_exmple$Backend_Item_Model$SaveComment(_p3._0))),
-							modelUpdated,
-							backendModel,
-							items,
-							currentItemId);
-						var changes = _p4._2;
-						return changes;
-					}
-				}();
-				return {ctor: '_Tuple3', _0: modelUpdated, _1: _elm_lang$core$Platform_Cmd$none, _2: backendChanges};
-			default:
-				return {ctor: '_Tuple3', _0: model, _1: _elm_lang$core$Platform_Cmd$none, _2: noBackendChange};
+var _Gizra$elm_spa_exmple$Pages_Item_Update$update = F4(
+	function (backendUrl, msg, model, _p0) {
+		var _p1 = _p0;
+		var _p5 = _p1._1;
+		var _p2 = msg;
+		if (_p2.ctor === 'MsgItemComment') {
+			var _p3 = A3(
+				_Gizra$elm_spa_exmple$ItemComment_Update$update,
+				_p2._0,
+				model.itemComment,
+				{ctor: '_Tuple2', _0: _p1._0, _1: _p5});
+			var subModel = _p3._0;
+			var partialBackendModelUpdated = _p3._1._0;
+			var delegatedMsg = _p3._1._1;
+			var modelUpdated = _elm_lang$core$Native_Utils.update(
+				model,
+				{itemComment: subModel});
+			var delegatedMsgs = function () {
+				var _p4 = delegatedMsg;
+				if (_p4.ctor === 'NoOp') {
+					return _Gizra$elm_spa_exmple$Pages_Item_Model$NoOp;
+				} else {
+					return _Gizra$elm_spa_exmple$Pages_Item_Model$MsgBackendItem(_p4._0);
+				}
+			}();
+			return {
+				ctor: '_Tuple3',
+				_0: modelUpdated,
+				_1: _elm_lang$core$Platform_Cmd$none,
+				_2: {ctor: '_Tuple2', _0: partialBackendModelUpdated, _1: delegatedMsgs}
+			};
+		} else {
+			return {
+				ctor: '_Tuple3',
+				_0: model,
+				_1: _elm_lang$core$Platform_Cmd$none,
+				_2: {ctor: '_Tuple2', _0: _p5, _1: _Gizra$elm_spa_exmple$Pages_Item_Model$NoOp}
+			};
 		}
 	});
 
@@ -13760,19 +13763,62 @@ var _Gizra$elm_spa_exmple$App_Update$update = F2(
 					_1: A2(_elm_lang$core$Platform_Cmd$map, _Gizra$elm_spa_exmple$App_Model$MsgBackend, subCmds)
 				};
 			default:
-				var noBackendChange = {ctor: '_Tuple2', _0: model.backend, _1: _elm_lang$core$Platform_Cmd$none};
 				var _p3 = function () {
 					var _p4 = model.activePage;
 					if (_p4.ctor === 'Item') {
-						return A6(_Gizra$elm_spa_exmple$Pages_Item_Update$update, model.backendUrl, _p0._0, model.pagesItem, model.backend, model.backend.items, _p4._0);
+						var _p5 = A4(
+							_Gizra$elm_spa_exmple$Pages_Item_Update$update,
+							model.backendUrl,
+							_p0._0,
+							model.pagesItem,
+							{ctor: '_Tuple2', _0: _p4._0, _1: model.backend});
+						var subModel = _p5._0;
+						var subCmds = _p5._1;
+						var partialBackendModel = _p5._2._0;
+						var delegatedMsg = _p5._2._1;
+						var _p6 = delegatedMsg;
+						if (_p6.ctor === 'NoOp') {
+							return {
+								ctor: '_Tuple3',
+								_0: subModel,
+								_1: subCmds,
+								_2: {ctor: '_Tuple2', _0: model.backend, _1: _elm_lang$core$Platform_Cmd$none}
+							};
+						} else {
+							var msg = A2(
+								_elm_lang$core$Platform_Cmd$map,
+								_Gizra$elm_spa_exmple$App_Model$MsgBackend,
+								A2(
+									_elm_lang$core$Task$perform,
+									_elm_lang$core$Basics$identity,
+									_elm_lang$core$Task$succeed(_p6._0)));
+							var backend = model.backend;
+							var backendUpdated = _elm_lang$core$Native_Utils.update(
+								backend,
+								{
+									items: A2(_Gizra$elm_dictlist$EveryDictList$union, partialBackendModel.items, model.backend.items)
+								});
+							return {
+								ctor: '_Tuple3',
+								_0: subModel,
+								_1: subCmds,
+								_2: {ctor: '_Tuple2', _0: backendUpdated, _1: msg}
+							};
+						}
 					} else {
-						return {ctor: '_Tuple3', _0: model.pagesItem, _1: _elm_lang$core$Platform_Cmd$none, _2: noBackendChange};
+						return {
+							ctor: '_Tuple3',
+							_0: model.pagesItem,
+							_1: _elm_lang$core$Platform_Cmd$none,
+							_2: {ctor: '_Tuple2', _0: model.backend, _1: _elm_lang$core$Platform_Cmd$none}
+						};
 					}
 				}();
 				var subModel = _p3._0;
 				var subCmds = _p3._1;
-				var backendModel = _p3._2._0;
+				var backendUpdated = _p3._2._0;
 				var backendCmds = _p3._2._1;
+				var noBackendChange = {ctor: '_Tuple2', _0: model.backend, _1: _elm_lang$core$Platform_Cmd$none};
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -13784,7 +13830,7 @@ var _Gizra$elm_spa_exmple$App_Update$update = F2(
 							_0: A2(_elm_lang$core$Platform_Cmd$map, _Gizra$elm_spa_exmple$App_Model$MsgPagesItem, subCmds),
 							_1: {
 								ctor: '::',
-								_0: A2(_elm_lang$core$Platform_Cmd$map, _Gizra$elm_spa_exmple$App_Model$MsgBackend, backendCmds),
+								_0: backendCmds,
 								_1: {ctor: '[]'}
 							}
 						})
@@ -13793,11 +13839,12 @@ var _Gizra$elm_spa_exmple$App_Update$update = F2(
 	});
 var _Gizra$elm_spa_exmple$App_Update$init = function (flags) {
 	var page = function () {
-		var _p5 = flags.page;
-		switch (_p5) {
+		var _p7 = flags.page;
+		switch (_p7) {
 			case 'item':
 				return _Gizra$elm_spa_exmple$App_Types$Item(
-					_Gizra$elm_spa_exmple$Backend_Restful$toEntityId(1));
+					_Gizra$elm_storage_key$StorageKey$Existing(
+						_Gizra$elm_spa_exmple$Backend_Restful$toEntityId(1)));
 			case 'homepage':
 				return _Gizra$elm_spa_exmple$App_Types$HomePage;
 			default:
@@ -13815,8 +13862,8 @@ var _Gizra$elm_spa_exmple$App_Update$init = function (flags) {
 var _Gizra$elm_spa_exmple$App_Update$user = _elm_lang$core$Native_Platform.incomingPort('user', _elm_lang$core$Json_Decode$value);
 var _Gizra$elm_spa_exmple$App_Update$subscriptions = function (model) {
 	var subs = function () {
-		var _p6 = model.activePage;
-		switch (_p6.ctor) {
+		var _p8 = model.activePage;
+		switch (_p8.ctor) {
 			case 'Item':
 				return A2(
 					_elm_lang$core$Platform_Sub$map,
@@ -13835,9 +13882,9 @@ var _Gizra$elm_spa_exmple$App_Update$subscriptions = function (model) {
 		{
 			ctor: '::',
 			_0: _Gizra$elm_spa_exmple$App_Update$user(
-				function (_p7) {
+				function (_p9) {
 					return _Gizra$elm_spa_exmple$App_Model$HandleUser(
-						A2(_elm_lang$core$Json_Decode$decodeValue, _Gizra$elm_spa_exmple$User_Decoder$decodeCurrentUser, _p7));
+						A2(_elm_lang$core$Json_Decode$decodeValue, _Gizra$elm_spa_exmple$User_Decoder$decodeCurrentUser, _p9));
 				}),
 			_1: {
 				ctor: '::',
@@ -22513,13 +22560,7 @@ var _Gizra$elm_spa_exmple$App_View$view = function (model) {
 					_0: A2(
 						_elm_lang$html$Html$map,
 						_Gizra$elm_spa_exmple$App_Model$MsgPagesItem,
-						A5(
-							_Gizra$elm_spa_exmple$Pages_Item_View$view,
-							model.backendUrl,
-							model.user,
-							model.backend.items,
-							_Gizra$elm_storage_key$StorageKey$Existing(_p0._0),
-							model.pagesItem)),
+						A5(_Gizra$elm_spa_exmple$Pages_Item_View$view, model.backendUrl, model.user, model.backend.items, _p0._0, model.pagesItem)),
 					_1: {ctor: '[]'}
 				});
 		default:

@@ -14,6 +14,7 @@ import Json.Decode exposing (Value, decodeValue)
 import Pages.Item.Model
 import Pages.Item.Update
 import StorageKey exposing (StorageKey(Existing))
+import Task
 import User.Decoder exposing (decodeCurrentUser)
 
 
@@ -87,8 +88,14 @@ update msg model =
 
                                         backendUpdated =
                                             { backend | items = EveryDictList.union partialBackendModel.items model.backend.items }
+
+                                        msg =
+                                            backendMsg
+                                                |> Task.succeed
+                                                |> Task.perform identity
+                                                |> Cmd.map MsgBackend
                                     in
-                                    ( subModel, subCmds, ( backendUpdated, Cmd.map MsgBackend backendMsg ) )
+                                    ( subModel, subCmds, ( backendUpdated, msg ) )
 
                         _ ->
                             ( model.pagesItem, Cmd.none, ( model.backend, Cmd.none ) )
