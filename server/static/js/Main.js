@@ -11359,6 +11359,17 @@ var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItems = function (currentUs
 		});
 };
 
+var _Gizra$elm_spa_exmple$Backend_Item_Utils$getComment = F2(
+	function (_p0, items) {
+		var _p1 = _p0;
+		var _p2 = A2(_Gizra$elm_dictlist$EveryDictList$get, _p1._0, items);
+		if (_p2.ctor === 'Nothing') {
+			return _elm_lang$core$Maybe$Nothing;
+		} else {
+			return A2(_Gizra$elm_dictlist$EveryDictList$get, _p1._1, _p2._0.comments);
+		}
+	});
+
 var _elm_lang$virtual_dom$VirtualDom_Debug$wrap;
 var _elm_lang$virtual_dom$VirtualDom_Debug$wrapWithFlags;
 
@@ -13512,8 +13523,10 @@ var _Gizra$elm_spa_exmple$Utils_WebData$viewError = function (error) {
 };
 
 var _Gizra$elm_spa_exmple$Backend_Item_Update$saveComment = F4(
-	function (_p0, currentUser, storageKeys, itemComment) {
+	function (_p0, currentUser, storageKeys, editableWebData) {
 		var _p1 = _p0;
+		var itemComment = _stoeffel$editable$Editable$value(
+			_Gizra$elm_editable_webdata$Editable_WebData$toEditable(editableWebData));
 		var itemId = A2(
 			_elm_lang$core$Maybe$withDefault,
 			'',
@@ -13555,8 +13568,8 @@ var _Gizra$elm_spa_exmple$Backend_Item_Update$saveComment = F4(
 								_p1._0,
 								A2(_elm_lang$core$Basics_ops['++'], '/api/comments/', itemId)))))));
 	});
-var _Gizra$elm_spa_exmple$Backend_Item_Update$update = F3(
-	function (backendUrl, msg, model) {
+var _Gizra$elm_spa_exmple$Backend_Item_Update$update = F4(
+	function (backendUrl, currentUser, msg, model) {
 		var _p3 = msg;
 		switch (_p3.ctor) {
 			case 'HandleFetchItems':
@@ -13603,10 +13616,17 @@ var _Gizra$elm_spa_exmple$Backend_Item_Update$update = F3(
 						{ctor: '[]'});
 				}
 			case 'SaveComment':
-				return A2(
-					_elm_lang$core$Platform_Cmd_ops['!'],
-					model,
-					{ctor: '[]'});
+				var _p8 = _p3._0;
+				var _p7 = A2(_Gizra$elm_spa_exmple$Backend_Item_Utils$getComment, _p8, model.items);
+				if (_p7.ctor === 'Nothing') {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				} else {
+					return {
+						ctor: '_Tuple2',
+						_0: model,
+						_1: A4(_Gizra$elm_spa_exmple$Backend_Item_Update$saveComment, backendUrl, currentUser, _p8, _p7._0)
+					};
+				}
 			default:
 				if (_p3._1.ctor === 'Ok') {
 					return A2(
@@ -13628,22 +13648,22 @@ var _Gizra$elm_spa_exmple$Backend_Item_Update$subscriptions = function (currentU
 		{
 			ctor: '::',
 			_0: _Gizra$elm_spa_exmple$Backend_Item_Update$items(
-				function (_p7) {
+				function (_p9) {
 					return _Gizra$elm_spa_exmple$Backend_Item_Model$HandleFetchItems(
 						A2(
 							_elm_lang$core$Json_Decode$decodeValue,
 							_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItems(currentUser),
-							_p7));
+							_p9));
 				}),
 			_1: {
 				ctor: '::',
 				_0: _Gizra$elm_spa_exmple$Backend_Item_Update$itemIdAndCommentsTuple(
-					function (_p8) {
+					function (_p10) {
 						return _Gizra$elm_spa_exmple$Backend_Item_Model$HandleFetchItemIdAndCommentsTuple(
 							A2(
 								_elm_lang$core$Json_Decode$decodeValue,
 								_Gizra$elm_spa_exmple$Backend_Item_Decoder$deocdeItemIdAndComments(currentUser),
-								_p8));
+								_p10));
 					}),
 				_1: {ctor: '[]'}
 			}
@@ -13656,10 +13676,10 @@ var _Gizra$elm_spa_exmple$Backend_Update$subscriptions = function (currentUser) 
 		_Gizra$elm_spa_exmple$Backend_Model$MsgItems,
 		_Gizra$elm_spa_exmple$Backend_Item_Update$subscriptions(currentUser));
 };
-var _Gizra$elm_spa_exmple$Backend_Update$update = F3(
-	function (backendUrl, msg, model) {
+var _Gizra$elm_spa_exmple$Backend_Update$update = F4(
+	function (backendUrl, currentUser, msg, model) {
 		var _p0 = msg;
-		var _p1 = A3(_Gizra$elm_spa_exmple$Backend_Item_Update$update, backendUrl, _p0._0, model);
+		var _p1 = A4(_Gizra$elm_spa_exmple$Backend_Item_Update$update, backendUrl, currentUser, _p0._0, model);
 		var modelUpdated = _p1._0;
 		var subCmds = _p1._1;
 		return {
@@ -13807,7 +13827,7 @@ var _Gizra$elm_spa_exmple$App_Update$update = F2(
 						{ctor: '[]'});
 				}
 			case 'MsgBackend':
-				var _p2 = A3(_Gizra$elm_spa_exmple$Backend_Update$update, model.backendUrl, _p0._0, model.backend);
+				var _p2 = A4(_Gizra$elm_spa_exmple$Backend_Update$update, model.backendUrl, model.user, _p0._0, model.backend);
 				var subModel = _p2._0;
 				var subCmds = _p2._1;
 				return {

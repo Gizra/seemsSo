@@ -6,13 +6,13 @@ import Backend.Model exposing (Model, Msg(..))
 import User.Model exposing (CurrentUser)
 
 
-update : BackendUrl -> Msg -> Model -> ( Model, Cmd Msg )
-update backendUrl msg model =
+update : BackendUrl -> CurrentUser -> Msg -> Model -> ( Model, Cmd Msg )
+update backendUrl currentUser msg model =
     case msg of
         MsgItems subMsg ->
             let
                 ( modelUpdated, subCmds ) =
-                    Backend.Item.Update.update backendUrl subMsg model
+                    Backend.Item.Update.update backendUrl currentUser subMsg model
             in
             ( modelUpdated
             , Cmd.map MsgItems subCmds

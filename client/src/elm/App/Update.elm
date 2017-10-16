@@ -57,7 +57,7 @@ update msg model =
         MsgBackend subMsg ->
             let
                 ( subModel, subCmds ) =
-                    Backend.Update.update model.backendUrl subMsg model.backend
+                    Backend.Update.update model.backendUrl model.user subMsg model.backend
             in
             ( { model | backend = subModel }
             , Cmd.map MsgBackend subCmds

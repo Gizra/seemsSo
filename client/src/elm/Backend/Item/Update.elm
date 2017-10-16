@@ -8,8 +8,11 @@ import App.Types exposing (BackendUrl(..))
 import Backend.Entities exposing (ItemCommentId, ItemId)
 import Backend.Item.Decoder exposing (decodeItemComments, decodeItems, deocdeItemIdAndComments)
 import Backend.Item.Model exposing (ItemComment, Msg(..))
+import Backend.Item.Utils exposing (getComment)
 import Backend.Model exposing (Model)
 import Backend.Restful exposing (fromEntityId)
+import Editable
+import Editable.WebData exposing (EditableWebData)
 import EveryDictList exposing (EveryDictList)
 import HttpBuilder exposing (send, toTask, withCredentials, withExpect, withJsonBody, withQueryParams)
 import Json.Decode exposing (Value, decodeValue)
@@ -25,8 +28,8 @@ import Utils.WebData exposing (sendWithHandler)
 @todo: Clarify Model is of Backend, and Msg is of current model.
 
 -}
-update : BackendUrl -> Msg -> Model -> ( Model, Cmd Msg )
-update backendUrl msg model =
+update : BackendUrl -> CurrentUser -> Msg -> Model -> ( Model, Cmd Msg )
+update backendUrl currentUser msg model =
     case msg of
         HandleFetchItems (Ok items) ->
             ( { model | items = items }
@@ -64,13 +67,16 @@ update backendUrl msg model =
             in
             model ! []
 
-        SaveComment ( itemId, storageKey ) ->
-            model ! []
+        SaveComment storageKeys ->
+            case getComment storageKeys model.items of
+                Nothing ->
+                    ( model, Cmd.none )
 
-        -- ( { model | status = Loading }
-        -- , saveComment model
-        -- , Nothing
-        -- )
+                Just itemComment ->
+                    ( model
+                    , saveComment backendUrl currentUser storageKeys itemComment
+                    )
+
         HandleSaveComment ( itemId, storageKey ) (Ok itemComment) ->
             model ! []
 
@@ -93,14 +99,19 @@ update backendUrl msg model =
 --     )
 
 
-saveComment : BackendUrl -> CurrentUser -> ( StorageKey ItemId, StorageKey ItemCommentId ) -> ItemComment -> Cmd Msg
-saveComment (BackendUrl backendUrl) currentUser storageKeys itemComment =
+saveComment : BackendUrl -> CurrentUser -> ( StorageKey ItemId, StorageKey ItemCommentId ) -> EditableWebData ItemComment -> Cmd Msg
+saveComment (BackendUrl backendUrl) currentUser storageKeys editableWebData =
     let
         itemId =
             Tuple.first storageKeys
                 |> StorageKey.value
                 |> Maybe.map (fromEntityId >> toString)
                 |> Maybe.withDefault ""
+
+        itemComment =
+            editableWebData
+                |> Editable.WebData.toEditable
+                |> Editable.value
     in
     HttpBuilder.post (backendUrl ++ "/api/comments/" ++ itemId)
         |> withCredentials
