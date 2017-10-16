@@ -7,6 +7,8 @@ import Backend.Entities exposing (ItemId)
 import Backend.Item.Model exposing (Item)
 import Backend.Model
 import Backend.Restful exposing (EntityDictList)
+import Editable
+import Editable.WebData
 import EveryDictList exposing (EveryDictList)
 import ItemComment.Model exposing (DelegatedMsg(..), Model, Msg(..))
 import StorageKey exposing (StorageKey)
@@ -42,10 +44,22 @@ update msg model ( storageKey, partialBackendModel ) =
                                 Nothing ->
                                     partialBackendModel
 
-                                Just comment ->
+                                Just itemComment ->
                                     let
+                                        value =
+                                            itemComment
+                                                |> Editable.WebData.toEditable
+                                                |> Editable.value
+
+                                        valueUpdated =
+                                            { value | comment = comment }
+
+                                        itemCommentUpdated =
+                                            itemComment
+                                                |> Editable.WebData.map (Editable.edit >> Editable.update valueUpdated)
+
                                         itemUpdated =
-                                            { item | comments = EveryDictList.insert commentId comment item.comments }
+                                            { item | comments = EveryDictList.insert commentId itemCommentUpdated item.comments }
 
                                         itemsUpdated =
                                             EveryDictList.insert itemId itemUpdated partialBackendModel.items

@@ -114,7 +114,7 @@ update msg model =
                         _ ->
                             ( model.pagesItem, Cmd.none, ( model.backend, Cmd.none ) )
             in
-            ( { model | pagesItem = subModel }
+            ( { model | pagesItem = subModel, backend = backendUpdated }
             , Cmd.batch
                 [ Cmd.map MsgPagesItem subCmds
                 , backendCmds
