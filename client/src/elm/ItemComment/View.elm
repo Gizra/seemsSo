@@ -22,32 +22,32 @@ import User.Model exposing (CurrentUser(..))
 import Utils.Html exposing (divider, emptyNode, sectionDivider, showIf, showMaybe)
 
 
-view : BackendUrl -> CurrentUser -> ( ItemId, Item ) -> StorageKey ItemCommentId -> Model -> Html Msg
-view backendUrl currentUser ( itemId, item ) storageKey model =
+view : BackendUrl -> CurrentUser -> ( StorageKey ItemId, Item ) -> StorageKey ItemCommentId -> Model -> Html Msg
+view backendUrl currentUser ( itemStorageKey, item ) commentStorageKey model =
     case currentUser of
         Anonymous ->
             emptyNode
 
         Authenticated ( userId, user ) ->
-            case EveryDictList.get storageKey item.comments of
+            case EveryDictList.get commentStorageKey item.comments of
                 Nothing ->
                     emptyNode
 
-                Just comment ->
+                Just editableWebData ->
                     let
                         mainArea =
                             case model.selectedTab of
                                 Edit ->
-                                    viewEdit model.comment
+                                    viewEdit ( itemStorageKey, commentStorageKey ) editableWebData
 
                                 Preview ->
-                                    viewPreview model.comment
+                                    viewPreview editableWebData
                     in
                     div []
                         [ viewTabs model.selectedTab
                         , form [ class "ui form comment" ]
                             [ mainArea
-                            , viewActions model
+                            , viewActions ( itemStorageKey, commentStorageKey ) editableWebData
                             ]
                         ]
 
@@ -119,13 +119,21 @@ viewTabs selectedTab =
         ]
 
 
-viewEdit : String -> Html Msg
-viewEdit comment =
+viewEdit : ( StorageKey ItemId, StorageKey ItemCommentId ) -> EditableWebData ItemComment -> Html Msg
+viewEdit storageKeys editableWebData =
+    let
+        itemComment =
+            editableWebData
+                |> Editable.WebData.toEditable
+                |> Editable.value
+    in
     div [ class "field" ]
         [ textarea
             [ required True
-            , value comment
-            , onInput SetComment
+            , value <| itemComment.comment
+
+            -- @todo: Re-wire.
+            -- , onInput SetComment
             , rows 6
             , cols 60
             ]
@@ -133,26 +141,40 @@ viewEdit comment =
         ]
 
 
-viewPreview : String -> Html Msg
-viewPreview comment =
-    div [] <|
-        Markdown.toHtml Nothing comment
-
-
-viewActions : Model -> Html Msg
-viewActions model =
+viewPreview : EditableWebData ItemComment -> Html Msg
+viewPreview editableWebData =
     let
+        itemComment =
+            editableWebData
+                |> Editable.WebData.toEditable
+                |> Editable.value
+    in
+    div [] <|
+        Markdown.toHtml Nothing itemComment.comment
+
+
+viewActions : ( StorageKey ItemId, StorageKey ItemCommentId ) -> EditableWebData ItemComment -> Html Msg
+viewActions storageKeys editableWebData =
+    let
+        itemComment =
+            editableWebData
+                |> Editable.WebData.toEditable
+                |> Editable.value
+
         isLoading =
-            RemoteData.isLoading model.status
+            editableWebData
+                |> Editable.WebData.toWebData
+                |> RemoteData.isLoading
 
         emptyComment =
-            String.isEmpty model.comment
+            String.isEmpty itemComment.comment
 
         attrs =
             if isLoading || emptyComment then
                 [ disabled True ]
             else
-                [ onClick <| SaveComment
+                [-- @todo: Re-wire
+                 -- onClick <| SaveComment
                 ]
     in
     div

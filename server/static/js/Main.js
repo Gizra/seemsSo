@@ -11083,9 +11083,16 @@ var _Gizra$elm_spa_exmple$ItemComment_Model$Model = function (a) {
 var _Gizra$elm_spa_exmple$ItemComment_Model$Preview = {ctor: 'Preview'};
 var _Gizra$elm_spa_exmple$ItemComment_Model$Edit = {ctor: 'Edit'};
 var _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel = {selectedTab: _Gizra$elm_spa_exmple$ItemComment_Model$Edit};
+var _Gizra$elm_spa_exmple$ItemComment_Model$DelegatedSaveComment = function (a) {
+	return {ctor: 'DelegatedSaveComment', _0: a};
+};
 var _Gizra$elm_spa_exmple$ItemComment_Model$SetTab = function (a) {
 	return {ctor: 'SetTab', _0: a};
 };
+var _Gizra$elm_spa_exmple$ItemComment_Model$SaveComment = function (a) {
+	return {ctor: 'SaveComment', _0: a};
+};
+var _Gizra$elm_spa_exmple$ItemComment_Model$NoOp = {ctor: 'NoOp'};
 
 var _Gizra$elm_spa_exmple$Pages_Item_Model$emptyModel = {itemComment: _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel};
 var _Gizra$elm_spa_exmple$Pages_Item_Model$Model = function (a) {
@@ -11097,6 +11104,9 @@ var _Gizra$elm_spa_exmple$Pages_Item_Model$SetComment = F2(
 	});
 var _Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment = function (a) {
 	return {ctor: 'MsgItemComment', _0: a};
+};
+var _Gizra$elm_spa_exmple$Pages_Item_Model$MsgBackendItem = function (a) {
+	return {ctor: 'MsgBackendItem', _0: a};
 };
 
 var _Gizra$elm_spa_exmple$App_Model$emptyModel = {
@@ -13655,26 +13665,67 @@ var _Gizra$elm_spa_exmple$Backend_Update$update = F3(
 var _Gizra$elm_spa_exmple$ItemComment_Update$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
-		return _elm_lang$core$Native_Utils.update(
-			model,
-			{selectedTab: _p0._0});
-	});
-
-var _Gizra$elm_spa_exmple$Pages_Item_Update$update = F4(
-	function (msg, model, items, currentItemId) {
-		var _p0 = msg;
-		if (_p0.ctor === 'MsgItemComment') {
+		if (_p0.ctor === 'SetTab') {
 			return {
 				ctor: '_Tuple2',
 				_0: _elm_lang$core$Native_Utils.update(
 					model,
-					{
-						itemComment: A2(_Gizra$elm_spa_exmple$ItemComment_Update$update, _p0._0, model.itemComment)
-					}),
-				_1: _elm_lang$core$Platform_Cmd$none
+					{selectedTab: _p0._0}),
+				_1: _Gizra$elm_spa_exmple$ItemComment_Model$NoOp
 			};
 		} else {
-			return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+			return {
+				ctor: '_Tuple2',
+				_0: model,
+				_1: _Gizra$elm_spa_exmple$ItemComment_Model$SaveComment(_p0._0)
+			};
+		}
+	});
+
+var _Gizra$elm_spa_exmple$Pages_Item_Update$update = F6(
+	function (backendUrl, msg, model, backendModel, items, currentItemId) {
+		var noBackendChange = {ctor: '_Tuple2', _0: backendModel, _1: _elm_lang$core$Platform_Cmd$none};
+		var _p0 = msg;
+		switch (_p0.ctor) {
+			case 'MsgBackendItem':
+				var _p1 = A3(_Gizra$elm_spa_exmple$Backend_Update$update, backendUrl, _p0._0, backendModel);
+				var subModel = _p1._0;
+				var backendMsg = _p1._1;
+				return {
+					ctor: '_Tuple3',
+					_0: model,
+					_1: _elm_lang$core$Platform_Cmd$none,
+					_2: {ctor: '_Tuple2', _0: subModel, _1: backendMsg}
+				};
+			case 'MsgItemComment':
+				var _p2 = A2(_Gizra$elm_spa_exmple$ItemComment_Update$update, _p0._0, model.itemComment);
+				var subModel = _p2._0;
+				var delegatedMsg = _p2._1;
+				var modelUpdated = _elm_lang$core$Native_Utils.update(
+					model,
+					{itemComment: subModel});
+				var backendChanges = function () {
+					var _p3 = delegatedMsg;
+					if (_p3.ctor === 'NoOp') {
+						return noBackendChange;
+					} else {
+						var _p4 = A6(
+							_Gizra$elm_spa_exmple$Pages_Item_Update$update,
+							backendUrl,
+							_Gizra$elm_spa_exmple$Pages_Item_Model$MsgBackendItem(
+								_Gizra$elm_spa_exmple$Backend_Model$MsgItems(
+									_Gizra$elm_spa_exmple$Backend_Item_Model$SaveComment(_p3._0))),
+							modelUpdated,
+							backendModel,
+							items,
+							currentItemId);
+						var changes = _p4._2;
+						return changes;
+					}
+				}();
+				return {ctor: '_Tuple3', _0: modelUpdated, _1: _elm_lang$core$Platform_Cmd$none, _2: backendChanges};
+			default:
+				return {ctor: '_Tuple3', _0: model, _1: _elm_lang$core$Platform_Cmd$none, _2: noBackendChange};
 		}
 	});
 
@@ -13709,22 +13760,34 @@ var _Gizra$elm_spa_exmple$App_Update$update = F2(
 					_1: A2(_elm_lang$core$Platform_Cmd$map, _Gizra$elm_spa_exmple$App_Model$MsgBackend, subCmds)
 				};
 			default:
+				var noBackendChange = {ctor: '_Tuple2', _0: model.backend, _1: _elm_lang$core$Platform_Cmd$none};
 				var _p3 = function () {
 					var _p4 = model.activePage;
 					if (_p4.ctor === 'Item') {
-						return A4(_Gizra$elm_spa_exmple$Pages_Item_Update$update, _p0._0, model.pagesItem, model.backend.items, _p4._0);
+						return A6(_Gizra$elm_spa_exmple$Pages_Item_Update$update, model.backendUrl, _p0._0, model.pagesItem, model.backend, model.backend.items, _p4._0);
 					} else {
-						return {ctor: '_Tuple2', _0: model.pagesItem, _1: _elm_lang$core$Platform_Cmd$none};
+						return {ctor: '_Tuple3', _0: model.pagesItem, _1: _elm_lang$core$Platform_Cmd$none, _2: noBackendChange};
 					}
 				}();
 				var subModel = _p3._0;
 				var subCmds = _p3._1;
+				var backendModel = _p3._2._0;
+				var backendCmds = _p3._2._1;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{pagesItem: subModel}),
-					_1: A2(_elm_lang$core$Platform_Cmd$map, _Gizra$elm_spa_exmple$App_Model$MsgPagesItem, subCmds)
+					_1: _elm_lang$core$Platform_Cmd$batch(
+						{
+							ctor: '::',
+							_0: A2(_elm_lang$core$Platform_Cmd$map, _Gizra$elm_spa_exmple$App_Model$MsgPagesItem, subCmds),
+							_1: {
+								ctor: '::',
+								_0: A2(_elm_lang$core$Platform_Cmd$map, _Gizra$elm_spa_exmple$App_Model$MsgBackend, backendCmds),
+								_1: {ctor: '[]'}
+							}
+						})
 				};
 		}
 	});
@@ -22052,6 +22115,167 @@ var _Gizra$elm_spa_exmple$Utils_Html$showIf = F2(
 	});
 var _Gizra$elm_spa_exmple$Utils_Html$showMaybe = _elm_lang$core$Maybe$withDefault(_Gizra$elm_spa_exmple$Utils_Html$emptyNode);
 
+var _Gizra$elm_spa_exmple$ItemComment_View$viewActions = F2(
+	function (storageKeys, editableWebData) {
+		var isLoading = _krisajenkins$remotedata$RemoteData$isLoading(
+			_Gizra$elm_editable_webdata$Editable_WebData$toWebData(editableWebData));
+		var itemComment = _stoeffel$editable$Editable$value(
+			_Gizra$elm_editable_webdata$Editable_WebData$toEditable(editableWebData));
+		var emptyComment = _elm_lang$core$String$isEmpty(itemComment.comment);
+		var attrs = (isLoading || emptyComment) ? {
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$disabled(true),
+			_1: {ctor: '[]'}
+		} : {ctor: '[]'};
+		return A2(
+			_elm_lang$html$Html$div,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				attrs,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$classList(
+						{
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: 'ui button primary', _1: true},
+							_1: {
+								ctor: '::',
+								_0: {ctor: '_Tuple2', _0: 'loading', _1: isLoading},
+								_1: {
+									ctor: '::',
+									_0: {ctor: '_Tuple2', _0: 'disabled', _1: emptyComment},
+									_1: {ctor: '[]'}
+								}
+							}
+						}),
+					_1: {ctor: '[]'}
+				}),
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html$text('Comment'),
+				_1: {ctor: '[]'}
+			});
+	});
+var _Gizra$elm_spa_exmple$ItemComment_View$viewPreview = function (editableWebData) {
+	var itemComment = _stoeffel$editable$Editable$value(
+		_Gizra$elm_editable_webdata$Editable_WebData$toEditable(editableWebData));
+	return A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		A2(_pablohirafuji$elm_markdown$Markdown$toHtml, _elm_lang$core$Maybe$Nothing, itemComment.comment));
+};
+var _Gizra$elm_spa_exmple$ItemComment_View$viewEdit = F2(
+	function (storageKeys, editableWebData) {
+		var itemComment = _stoeffel$editable$Editable$value(
+			_Gizra$elm_editable_webdata$Editable_WebData$toEditable(editableWebData));
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('field'),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$textarea,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$required(true),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$value(itemComment.comment),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$rows(6),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$cols(60),
+									_1: {ctor: '[]'}
+								}
+							}
+						}
+					},
+					{ctor: '[]'}),
+				_1: {ctor: '[]'}
+			});
+	});
+var _Gizra$elm_spa_exmple$ItemComment_View$viewTabs = function (selectedTab) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('ui secondary pointing menu'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$a,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$classList(
+						{
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: 'item', _1: true},
+							_1: {
+								ctor: '::',
+								_0: {
+									ctor: '_Tuple2',
+									_0: 'active',
+									_1: _elm_lang$core$Native_Utils.eq(selectedTab, _Gizra$elm_spa_exmple$ItemComment_Model$Edit)
+								},
+								_1: {ctor: '[]'}
+							}
+						}),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Events$onClick(
+							_Gizra$elm_spa_exmple$ItemComment_Model$SetTab(_Gizra$elm_spa_exmple$ItemComment_Model$Edit)),
+						_1: {ctor: '[]'}
+					}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Edit'),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$a,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$classList(
+							{
+								ctor: '::',
+								_0: {ctor: '_Tuple2', _0: 'item', _1: true},
+								_1: {
+									ctor: '::',
+									_0: {
+										ctor: '_Tuple2',
+										_0: 'active',
+										_1: _elm_lang$core$Native_Utils.eq(selectedTab, _Gizra$elm_spa_exmple$ItemComment_Model$Preview)
+									},
+									_1: {ctor: '[]'}
+								}
+							}),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Events$onClick(
+								_Gizra$elm_spa_exmple$ItemComment_Model$SetTab(_Gizra$elm_spa_exmple$ItemComment_Model$Preview)),
+							_1: {ctor: '[]'}
+						}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('Preview'),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			}
+		});
+};
 var _Gizra$elm_spa_exmple$ItemComment_View$viewItemComment = F2(
 	function (currentUser, _p0) {
 		var _p1 = _p0;
@@ -22160,20 +22384,66 @@ var _Gizra$elm_spa_exmple$ItemComment_View$viewItemComments = F2(
 					_Gizra$elm_spa_exmple$ItemComment_View$viewItemComment(currentUser),
 					_Gizra$elm_dictlist$EveryDictList$toList(comments))));
 	});
-var _Gizra$elm_spa_exmple$ItemComment_View$view = F2(
-	function (backendUrl, currentUser) {
-		return A2(
-			_elm_lang$html$Html$div,
-			{ctor: '[]'},
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html$text('ItemComment'),
-				_1: {ctor: '[]'}
-			});
+var _Gizra$elm_spa_exmple$ItemComment_View$view = F5(
+	function (backendUrl, currentUser, _p4, commentStorageKey, model) {
+		var _p5 = _p4;
+		var _p10 = _p5._0;
+		var _p6 = currentUser;
+		if (_p6.ctor === 'Anonymous') {
+			return _Gizra$elm_spa_exmple$Utils_Html$emptyNode;
+		} else {
+			var _p7 = A2(_Gizra$elm_dictlist$EveryDictList$get, commentStorageKey, _p5._1.comments);
+			if (_p7.ctor === 'Nothing') {
+				return _Gizra$elm_spa_exmple$Utils_Html$emptyNode;
+			} else {
+				var _p9 = _p7._0;
+				var mainArea = function () {
+					var _p8 = model.selectedTab;
+					if (_p8.ctor === 'Edit') {
+						return A2(
+							_Gizra$elm_spa_exmple$ItemComment_View$viewEdit,
+							{ctor: '_Tuple2', _0: _p10, _1: commentStorageKey},
+							_p9);
+					} else {
+						return _Gizra$elm_spa_exmple$ItemComment_View$viewPreview(_p9);
+					}
+				}();
+				return A2(
+					_elm_lang$html$Html$div,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _Gizra$elm_spa_exmple$ItemComment_View$viewTabs(model.selectedTab),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$form,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$class('ui form comment'),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: mainArea,
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_Gizra$elm_spa_exmple$ItemComment_View$viewActions,
+											{ctor: '_Tuple2', _0: _p10, _1: commentStorageKey},
+											_p9),
+										_1: {ctor: '[]'}
+									}
+								}),
+							_1: {ctor: '[]'}
+						}
+					});
+			}
+		}
 	});
 
-var _Gizra$elm_spa_exmple$Pages_Item_View$view = F4(
-	function (backendUrl, currentUser, items, currentItemId) {
+var _Gizra$elm_spa_exmple$Pages_Item_View$view = F5(
+	function (backendUrl, currentUser, items, itemStorageKey, model) {
 		return A3(
 			_elm_community$maybe_extra$Maybe_Extra$unwrap,
 			_Gizra$elm_spa_exmple$Utils_Html$emptyNode,
@@ -22199,16 +22469,19 @@ var _Gizra$elm_spa_exmple$Pages_Item_View$view = F4(
 								_0: A2(
 									_elm_lang$html$Html$map,
 									_Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment,
-									A2(_Gizra$elm_spa_exmple$ItemComment_View$view, backendUrl, currentUser)),
+									A5(
+										_Gizra$elm_spa_exmple$ItemComment_View$view,
+										backendUrl,
+										currentUser,
+										{ctor: '_Tuple2', _0: itemStorageKey, _1: item},
+										_Gizra$elm_storage_key$StorageKey$New,
+										model.itemComment)),
 								_1: {ctor: '[]'}
 							}
 						}
 					});
 			},
-			A2(
-				_Gizra$elm_dictlist$EveryDictList$get,
-				_Gizra$elm_storage_key$StorageKey$Existing(currentItemId),
-				items));
+			A2(_Gizra$elm_dictlist$EveryDictList$get, itemStorageKey, items));
 	});
 
 var _Gizra$elm_spa_exmple$App_View$view = function (model) {
@@ -22240,7 +22513,13 @@ var _Gizra$elm_spa_exmple$App_View$view = function (model) {
 					_0: A2(
 						_elm_lang$html$Html$map,
 						_Gizra$elm_spa_exmple$App_Model$MsgPagesItem,
-						A4(_Gizra$elm_spa_exmple$Pages_Item_View$view, model.backendUrl, model.user, model.backend.items, _p0._0)),
+						A5(
+							_Gizra$elm_spa_exmple$Pages_Item_View$view,
+							model.backendUrl,
+							model.user,
+							model.backend.items,
+							_Gizra$elm_storage_key$StorageKey$Existing(_p0._0),
+							model.pagesItem)),
 					_1: {ctor: '[]'}
 				});
 		default:

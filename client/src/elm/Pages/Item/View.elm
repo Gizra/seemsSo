@@ -16,14 +16,14 @@ import User.Model exposing (CurrentUser(..))
 import Utils.Html exposing (divider, emptyNode, sectionDivider, showIf, showMaybe)
 
 
-view : BackendUrl -> CurrentUser -> EntityDictList ItemId Item -> ItemId -> Model -> Html Msg
-view backendUrl currentUser items currentItemId model =
+view : BackendUrl -> CurrentUser -> EntityDictList ItemId Item -> StorageKey ItemId -> Model -> Html Msg
+view backendUrl currentUser items itemStorageKey model =
     unwrap emptyNode
         (\item ->
             div []
                 [ h1 [] [ text item.name ]
                 , viewItemComments currentUser item.comments
-                , Html.map Pages.Item.Model.MsgItemComment <| ItemComment.View.view backendUrl currentUser ( currentItemId, item ) StorageKey.New model.itemComment
+                , Html.map Pages.Item.Model.MsgItemComment <| ItemComment.View.view backendUrl currentUser ( itemStorageKey, item ) StorageKey.New model.itemComment
                 ]
         )
-        (EveryDictList.get (Existing currentItemId) items)
+        (EveryDictList.get itemStorageKey items)

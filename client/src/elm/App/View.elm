@@ -6,6 +6,7 @@ import Html exposing (..)
 import Html.Attributes exposing (class)
 import Pages.Homepage.View
 import Pages.Item.View exposing (view)
+import StorageKey exposing (StorageKey(Existing))
 
 
 view : Model -> Html Msg
@@ -18,7 +19,7 @@ view model =
 
         Item itemId ->
             div [ class "ui container" ]
-                [ Html.map MsgPagesItem <| Pages.Item.View.view model.backendUrl model.user model.backend.items itemId
+                [ Html.map MsgPagesItem <| Pages.Item.View.view model.backendUrl model.user model.backend.items (Existing itemId) model.pagesItem
                 ]
 
         NotFound ->
