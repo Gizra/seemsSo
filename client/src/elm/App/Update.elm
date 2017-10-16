@@ -59,16 +59,23 @@ update msg model =
 
         MsgPagesItem subMsg ->
             let
-                ( subModel, subCmds ) =
+                noBackendChange =
+                    ( model.backend, Cmd.none )
+
+                ( subModel, subCmds, ( backendModel, backendCmds ) ) =
                     case model.activePage of
                         Item itemId ->
-                            Pages.Item.Update.update subMsg model.pagesItem model.backend.items itemId
+                            -- @todo: Pass just model.backend instead of model.backend.items?
+                            Pages.Item.Update.update model.backendUrl subMsg model.pagesItem model.backend model.backend.items itemId
 
                         _ ->
-                            ( model.pagesItem, Cmd.none )
+                            ( model.pagesItem, Cmd.none, noBackendChange )
             in
             ( { model | pagesItem = subModel }
-            , Cmd.map MsgPagesItem subCmds
+            , Cmd.batch
+                [ Cmd.map MsgPagesItem subCmds
+                , Cmd.map MsgBackend backendCmds
+                ]
             )
 
 

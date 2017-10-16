@@ -3,11 +3,16 @@ module ItemComment.Update
         ( update
         )
 
-import ItemComment.Model exposing (Model, Msg(..))
+import ItemComment.Model exposing (DelegatedMsg(..), Model, Msg(..))
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, DelegatedMsg )
 update msg model =
     case msg of
         SetTab tab ->
-            { model | selectedTab = tab }
+            ( { model | selectedTab = tab }
+            , NoOp
+            )
+
+        DelegatedSaveComment values ->
+            ( model, SaveComment values )

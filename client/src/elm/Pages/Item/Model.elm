@@ -6,6 +6,7 @@ module Pages.Item.Model
         )
 
 import Backend.Entities exposing (ItemCommentId)
+import Backend.Model
 import ItemComment.Model exposing (Model, Msg(..))
 import StorageKey exposing (StorageKey)
 
@@ -22,5 +23,6 @@ emptyModel =
 
 
 type Msg
-    = MsgItemComment ItemComment.Model.Msg
+    = MsgBackendItem Backend.Model.Msg
+    | MsgItemComment ItemComment.Model.Msg
     | SetComment (StorageKey ItemCommentId) String

@@ -1,10 +1,14 @@
 module ItemComment.Model
     exposing
-        ( Model
+        ( DelegatedMsg(..)
+        , Model
         , Msg(..)
         , Tab(..)
         , emptyModel
         )
+
+import Backend.Entities exposing (ItemCommentId, ItemId)
+import StorageKey exposing (StorageKey)
 
 
 type alias Model =
@@ -25,3 +29,11 @@ type Tab
 
 type Msg
     = SetTab Tab
+      -- Coresponds to`SaveComment` in `Backend.Item.Model`
+    | DelegatedSaveComment ( StorageKey ItemId, StorageKey ItemCommentId )
+
+
+type DelegatedMsg
+    = NoOp
+      -- Coresponds to`SaveComment` in `Backend.Item.Model`
+    | SaveComment ( StorageKey ItemId, StorageKey ItemCommentId )
