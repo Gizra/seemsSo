@@ -8,7 +8,7 @@ import App.Types exposing (BackendUrl(..))
 import Backend.Entities exposing (ItemCommentId, ItemId)
 import Backend.Item.Decoder exposing (decodeItemComments, decodeItems, deocdeItemIdAndComments)
 import Backend.Item.Model exposing (ItemComment, Msg(..))
-import Backend.Item.Utils exposing (getComment)
+import Backend.Item.Utils exposing (getComment, insertComments)
 import Backend.Model exposing (Model)
 import Backend.Restful exposing (fromEntityId)
 import Editable
@@ -77,8 +77,10 @@ update backendUrl currentUser msg model =
                     , saveComment backendUrl currentUser storageKeys itemComment
                     )
 
-        HandleSaveComment ( itemId, storageKey ) (Ok itemComment) ->
-            model ! []
+        HandleSaveComment storageKeys (Ok itemComments) ->
+            ( { model | items = insertComments storageKeys itemComments model.items }
+            , Cmd.none
+            )
 
         -- ( { model | comment = "", status = NotAsked }
         -- , Cmd.none

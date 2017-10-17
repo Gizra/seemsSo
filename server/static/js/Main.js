@@ -11369,6 +11369,51 @@ var _Gizra$elm_spa_exmple$Backend_Item_Utils$getComment = F2(
 			return A2(_Gizra$elm_dictlist$EveryDictList$get, _p1._1, _p2._0.comments);
 		}
 	});
+var _Gizra$elm_spa_exmple$Backend_Item_Utils$insertComments = F3(
+	function (_p3, itemComments, items) {
+		var _p4 = _p3;
+		var _p8 = _p4._0;
+		var _p5 = A2(_Gizra$elm_dictlist$EveryDictList$get, _p8, items);
+		if (_p5.ctor === 'Nothing') {
+			return items;
+		} else {
+			var _p7 = _p5._0;
+			var itemUpdated = _elm_lang$core$Native_Utils.update(
+				_p7,
+				{
+					comments: A2(_Gizra$elm_dictlist$EveryDictList$append, _p7.comments, itemComments)
+				});
+			var itemWithFreshNew = A3(
+				_elm_community$maybe_extra$Maybe_Extra$unwrap,
+				itemUpdated,
+				function (editableWebData) {
+					var value = _stoeffel$editable$Editable$value(
+						_Gizra$elm_editable_webdata$Editable_WebData$toEditable(editableWebData));
+					var valueUpdated = _elm_lang$core$Native_Utils.update(
+						value,
+						{comment: ''});
+					var itemCommentUpdated = A2(
+						_Gizra$elm_editable_webdata$Editable_WebData$map,
+						function (_p6) {
+							return A2(
+								_stoeffel$editable$Editable$update,
+								valueUpdated,
+								_stoeffel$editable$Editable$edit(_p6));
+						},
+						editableWebData);
+					return _elm_lang$core$Native_Utils.update(
+						itemUpdated,
+						{
+							comments: A3(_Gizra$elm_dictlist$EveryDictList$insert, _p4._1, itemCommentUpdated, itemUpdated.comments)
+						});
+				},
+				A2(
+					_Gizra$elm_spa_exmple$Backend_Item_Utils$getComment,
+					{ctor: '_Tuple2', _0: _p8, _1: _Gizra$elm_storage_key$StorageKey$New},
+					items));
+			return A3(_Gizra$elm_dictlist$EveryDictList$insert, _p8, itemWithFreshNew, items);
+		}
+	});
 
 var _elm_lang$virtual_dom$VirtualDom_Debug$wrap;
 var _elm_lang$virtual_dom$VirtualDom_Debug$wrapWithFlags;
@@ -13629,10 +13674,15 @@ var _Gizra$elm_spa_exmple$Backend_Item_Update$update = F4(
 				}
 			default:
 				if (_p3._1.ctor === 'Ok') {
-					return A2(
-						_elm_lang$core$Platform_Cmd_ops['!'],
-						model,
-						{ctor: '[]'});
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								items: A3(_Gizra$elm_spa_exmple$Backend_Item_Utils$insertComments, _p3._0, _p3._1._0, model.items)
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
 				} else {
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
@@ -22425,93 +22475,98 @@ var _Gizra$elm_spa_exmple$ItemComment_View$viewTabs = function (selectedTab) {
 var _Gizra$elm_spa_exmple$ItemComment_View$viewItemComment = F2(
 	function (currentUser, _p0) {
 		var _p1 = _p0;
-		var itemComment = _stoeffel$editable$Editable$value(
-			_Gizra$elm_editable_webdata$Editable_WebData$toEditable(_p1._1));
-		var _p2 = itemComment.user;
-		var authorId = _p2._0;
-		var author = _p2._1;
-		var itemCommentId = A2(
-			_elm_lang$core$Maybe$withDefault,
-			'',
-			A2(
-				_elm_lang$core$Maybe$map,
-				function (_p3) {
-					return _elm_lang$core$Basics$toString(
-						_Gizra$elm_spa_exmple$Backend_Restful$fromEntityId(_p3));
-				},
-				_Gizra$elm_storage_key$StorageKey$value(_p1._0)));
-		return A2(
-			_elm_lang$html$Html$div,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$id(
-					A2(_elm_lang$core$Basics_ops['++'], 'comment-', itemCommentId)),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('comment'),
-					_1: {ctor: '[]'}
-				}
-			},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$a,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('avatar'),
-						_1: {ctor: '[]'}
+		var _p4 = _p1._0;
+		if (_Gizra$elm_storage_key$StorageKey$isNew(_p4)) {
+			return _Gizra$elm_spa_exmple$Utils_Html$emptyNode;
+		} else {
+			var itemComment = _stoeffel$editable$Editable$value(
+				_Gizra$elm_editable_webdata$Editable_WebData$toEditable(_p1._1));
+			var _p2 = itemComment.user;
+			var authorId = _p2._0;
+			var author = _p2._1;
+			var itemCommentId = A2(
+				_elm_lang$core$Maybe$withDefault,
+				'',
+				A2(
+					_elm_lang$core$Maybe$map,
+					function (_p3) {
+						return _elm_lang$core$Basics$toString(
+							_Gizra$elm_spa_exmple$Backend_Restful$fromEntityId(_p3));
 					},
-					{
+					_Gizra$elm_storage_key$StorageKey$value(_p4)));
+			return A2(
+				_elm_lang$html$Html$div,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$id(
+						A2(_elm_lang$core$Basics_ops['++'], 'comment-', itemCommentId)),
+					_1: {
 						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$img,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$src('https://dummyimage.com/80x80/000/fff&text=Avatar'),
-								_1: {ctor: '[]'}
-							},
-							{ctor: '[]'}),
+						_0: _elm_lang$html$Html_Attributes$class('comment'),
 						_1: {ctor: '[]'}
-					}),
-				_1: {
+					}
+				},
+				{
 					ctor: '::',
 					_0: A2(
-						_elm_lang$html$Html$div,
+						_elm_lang$html$Html$a,
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('content'),
+							_0: _elm_lang$html$Html_Attributes$class('avatar'),
 							_1: {ctor: '[]'}
 						},
 						{
 							ctor: '::',
 							_0: A2(
-								_elm_lang$html$Html$div,
+								_elm_lang$html$Html$img,
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$class('author'),
+									_0: _elm_lang$html$Html_Attributes$src('https://dummyimage.com/80x80/000/fff&text=Avatar'),
 									_1: {ctor: '[]'}
 								},
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html$text(author.name),
-									_1: {ctor: '[]'}
-								}),
-							_1: {
+								{ctor: '[]'}),
+							_1: {ctor: '[]'}
+						}),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$div,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('content'),
+								_1: {ctor: '[]'}
+							},
+							{
 								ctor: '::',
 								_0: A2(
 									_elm_lang$html$Html$div,
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$class('text'),
+										_0: _elm_lang$html$Html_Attributes$class('author'),
 										_1: {ctor: '[]'}
 									},
-									A2(_pablohirafuji$elm_markdown$Markdown$toHtml, _elm_lang$core$Maybe$Nothing, itemComment.comment)),
-								_1: {ctor: '[]'}
-							}
-						}),
-					_1: {ctor: '[]'}
-				}
-			});
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text(author.name),
+										_1: {ctor: '[]'}
+									}),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$div,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$class('text'),
+											_1: {ctor: '[]'}
+										},
+										A2(_pablohirafuji$elm_markdown$Markdown$toHtml, _elm_lang$core$Maybe$Nothing, itemComment.comment)),
+									_1: {ctor: '[]'}
+								}
+							}),
+						_1: {ctor: '[]'}
+					}
+				});
+		}
 	});
 var _Gizra$elm_spa_exmple$ItemComment_View$viewItemComments = F2(
 	function (currentUser, comments) {
@@ -22531,27 +22586,27 @@ var _Gizra$elm_spa_exmple$ItemComment_View$viewItemComments = F2(
 					_Gizra$elm_dictlist$EveryDictList$toList(comments))));
 	});
 var _Gizra$elm_spa_exmple$ItemComment_View$view = F5(
-	function (backendUrl, currentUser, _p4, commentStorageKey, model) {
-		var _p5 = _p4;
-		var _p10 = _p5._0;
-		var _p6 = currentUser;
-		if (_p6.ctor === 'Anonymous') {
+	function (backendUrl, currentUser, _p5, commentStorageKey, model) {
+		var _p6 = _p5;
+		var _p11 = _p6._0;
+		var _p7 = currentUser;
+		if (_p7.ctor === 'Anonymous') {
 			return _Gizra$elm_spa_exmple$Utils_Html$emptyNode;
 		} else {
-			var _p7 = A2(_Gizra$elm_dictlist$EveryDictList$get, commentStorageKey, _p5._1.comments);
-			if (_p7.ctor === 'Nothing') {
+			var _p8 = A2(_Gizra$elm_dictlist$EveryDictList$get, commentStorageKey, _p6._1.comments);
+			if (_p8.ctor === 'Nothing') {
 				return _Gizra$elm_spa_exmple$Utils_Html$emptyNode;
 			} else {
-				var _p9 = _p7._0;
+				var _p10 = _p8._0;
 				var mainArea = function () {
-					var _p8 = model.selectedTab;
-					if (_p8.ctor === 'Edit') {
+					var _p9 = model.selectedTab;
+					if (_p9.ctor === 'Edit') {
 						return A2(
 							_Gizra$elm_spa_exmple$ItemComment_View$viewEdit,
-							{ctor: '_Tuple2', _0: _p10, _1: commentStorageKey},
-							_p9);
+							{ctor: '_Tuple2', _0: _p11, _1: commentStorageKey},
+							_p10);
 					} else {
-						return _Gizra$elm_spa_exmple$ItemComment_View$viewPreview(_p9);
+						return _Gizra$elm_spa_exmple$ItemComment_View$viewPreview(_p10);
 					}
 				}();
 				return A2(
@@ -22576,8 +22631,8 @@ var _Gizra$elm_spa_exmple$ItemComment_View$view = F5(
 										ctor: '::',
 										_0: A2(
 											_Gizra$elm_spa_exmple$ItemComment_View$viewActions,
-											{ctor: '_Tuple2', _0: _p10, _1: commentStorageKey},
-											_p9),
+											{ctor: '_Tuple2', _0: _p11, _1: commentStorageKey},
+											_p10),
 										_1: {ctor: '[]'}
 									}
 								}),

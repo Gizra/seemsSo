@@ -65,41 +65,44 @@ viewItemComments currentUser comments =
 
 viewItemComment : CurrentUser -> ( StorageKey ItemCommentId, EditableWebData ItemComment ) -> Html msg
 viewItemComment currentUser ( storageKey, editableWebData ) =
-    let
-        itemCommentId =
-            storageKey
-                |> StorageKey.value
-                |> Maybe.map (fromEntityId >> toString)
-                |> Maybe.withDefault ""
+    if StorageKey.isNew storageKey then
+        emptyNode
+    else
+        let
+            itemCommentId =
+                storageKey
+                    |> StorageKey.value
+                    |> Maybe.map (fromEntityId >> toString)
+                    |> Maybe.withDefault ""
 
-        itemComment =
-            editableWebData
-                |> Editable.WebData.toEditable
-                |> Editable.value
+            itemComment =
+                editableWebData
+                    |> Editable.WebData.toEditable
+                    |> Editable.value
 
-        ( authorId, author ) =
-            itemComment.user
-    in
-    div
-        [ id <| "comment-" ++ itemCommentId
-        , class "comment"
-        ]
-        [ a
-            [ class "avatar" ]
-            [ img
-                [ src "https://dummyimage.com/80x80/000/fff&text=Avatar" ]
-                []
+            ( authorId, author ) =
+                itemComment.user
+        in
+        div
+            [ id <| "comment-" ++ itemCommentId
+            , class "comment"
             ]
-        , div
-            [ class "content" ]
-            [ div
-                [ class "author" ]
-                [ text author.name ]
+            [ a
+                [ class "avatar" ]
+                [ img
+                    [ src "https://dummyimage.com/80x80/000/fff&text=Avatar" ]
+                    []
+                ]
             , div
-                [ class "text" ]
-                (Markdown.toHtml Nothing itemComment.comment)
+                [ class "content" ]
+                [ div
+                    [ class "author" ]
+                    [ text author.name ]
+                , div
+                    [ class "text" ]
+                    (Markdown.toHtml Nothing itemComment.comment)
+                ]
             ]
-        ]
 
 
 viewTabs : Tab -> Html Msg
