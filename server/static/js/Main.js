@@ -22350,7 +22350,14 @@ var _Gizra$elm_spa_exmple$ItemComment_View$viewActions = F2(
 var _Gizra$elm_spa_exmple$ItemComment_View$viewPreview = function (editableWebData) {
 	var itemComment = _stoeffel$editable$Editable$value(
 		_Gizra$elm_editable_webdata$Editable_WebData$toEditable(editableWebData));
-	return A2(
+	return _elm_lang$core$String$isEmpty(itemComment.comment) ? A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html$text('Nothing to preview'),
+			_1: {ctor: '[]'}
+		}) : A2(
 		_elm_lang$html$Html$div,
 		{ctor: '[]'},
 		A2(_pablohirafuji$elm_markdown$Markdown$toHtml, _elm_lang$core$Maybe$Nothing, itemComment.comment));
@@ -22664,19 +22671,19 @@ var _Gizra$elm_spa_exmple$Pages_Item_View$view = F5(
 							}),
 						_1: {
 							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$map,
-								_Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment,
-								A5(
-									_Gizra$elm_spa_exmple$ItemComment_View$view,
-									backendUrl,
-									currentUser,
-									{ctor: '_Tuple2', _0: itemStorageKey, _1: item},
-									_Gizra$elm_storage_key$StorageKey$New,
-									model.itemComment)),
+							_0: A2(_Gizra$elm_spa_exmple$ItemComment_View$viewItemComments, currentUser, item.comments),
 							_1: {
 								ctor: '::',
-								_0: A2(_Gizra$elm_spa_exmple$ItemComment_View$viewItemComments, currentUser, item.comments),
+								_0: A2(
+									_elm_lang$html$Html$map,
+									_Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment,
+									A5(
+										_Gizra$elm_spa_exmple$ItemComment_View$view,
+										backendUrl,
+										currentUser,
+										{ctor: '_Tuple2', _0: itemStorageKey, _1: item},
+										_Gizra$elm_storage_key$StorageKey$New,
+										model.itemComment)),
 								_1: {ctor: '[]'}
 							}
 						}

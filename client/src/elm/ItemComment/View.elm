@@ -150,8 +150,11 @@ viewPreview editableWebData =
                 |> Editable.WebData.toEditable
                 |> Editable.value
     in
-    div [] <|
-        Markdown.toHtml Nothing itemComment.comment
+    if String.isEmpty itemComment.comment then
+        div [] [ text "Nothing to preview" ]
+    else
+        div [] <|
+            Markdown.toHtml Nothing itemComment.comment
 
 
 viewActions : ( StorageKey ItemId, StorageKey ItemCommentId ) -> EditableWebData ItemComment -> Html Msg

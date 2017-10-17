@@ -86,7 +86,7 @@ update backendUrl currentUser msg model =
         -- , Cmd.none
         -- , Just everyDictListItemComments
         -- )
-        HandleSaveComment ( itemId, storageKey ) (Err error) ->
+        HandleSaveComment _ (Err error) ->
             model ! []
 
 
