@@ -11,6 +11,7 @@ import Editable exposing (Editable)
 import Editable.WebData exposing (EditableWebData)
 import EveryDictList exposing (EveryDictList)
 import Maybe.Extra exposing (unwrap)
+import RemoteData
 import StorageKey exposing (StorageKey)
 
 
@@ -54,6 +55,7 @@ insertComments ( itemId, commentId ) itemComments items =
                                 itemCommentUpdated =
                                     editableWebData
                                         |> Editable.WebData.map (Editable.edit >> Editable.update valueUpdated)
+                                        |> Editable.WebData.state RemoteData.NotAsked
                             in
                             { itemUpdated | comments = EveryDictList.insert commentId itemCommentUpdated itemUpdated.comments }
                         )

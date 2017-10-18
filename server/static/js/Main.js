@@ -11393,14 +11393,17 @@ var _Gizra$elm_spa_exmple$Backend_Item_Utils$insertComments = F3(
 						value,
 						{comment: ''});
 					var itemCommentUpdated = A2(
-						_Gizra$elm_editable_webdata$Editable_WebData$map,
-						function (_p6) {
-							return A2(
-								_stoeffel$editable$Editable$update,
-								valueUpdated,
-								_stoeffel$editable$Editable$edit(_p6));
-						},
-						editableWebData);
+						_Gizra$elm_editable_webdata$Editable_WebData$state,
+						_krisajenkins$remotedata$RemoteData$NotAsked,
+						A2(
+							_Gizra$elm_editable_webdata$Editable_WebData$map,
+							function (_p6) {
+								return A2(
+									_stoeffel$editable$Editable$update,
+									valueUpdated,
+									_stoeffel$editable$Editable$edit(_p6));
+							},
+							editableWebData));
 					return _elm_lang$core$Native_Utils.update(
 						itemUpdated,
 						{
