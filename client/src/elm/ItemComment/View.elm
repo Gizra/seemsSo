@@ -45,7 +45,9 @@ view backendUrl currentUser ( itemStorageKey, item ) commentStorageKey model =
                     in
                     div []
                         [ viewTabs model.selectedTab
-                        , form [ class "ui form comment" ]
+                        , form
+                            [ class "ui form comment"
+                            ]
                             [ mainArea
                             , viewActions ( itemStorageKey, commentStorageKey ) editableWebData
                             ]
@@ -185,6 +187,7 @@ viewActions storageKeys editableWebData =
                 [ onClick <| DelegatedSaveComment storageKeys
                 ]
     in
+    -- @todo: convert to button, and make sure it doesn't refresh the page.
     div
         (attrs
             ++ [ classList
