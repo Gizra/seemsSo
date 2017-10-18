@@ -170,11 +170,16 @@ viewActions storageKeys editableWebData =
                 |> Editable.WebData.toWebData
                 |> RemoteData.isLoading
 
-        emptyComment =
+        isDisabled =
             String.isEmpty itemComment.comment
+                || (editableWebData
+                        |> Editable.WebData.toWebData
+                        |> RemoteData.isNotAsked
+                        |> not
+                   )
 
         attrs =
-            if isLoading || emptyComment then
+            if isDisabled then
                 [ disabled True ]
             else
                 [ onClick <| DelegatedSaveComment storageKeys
@@ -185,8 +190,9 @@ viewActions storageKeys editableWebData =
             ++ [ classList
                     [ ( "ui button primary", True )
                     , ( "loading", isLoading )
-                    , ( "disabled", emptyComment )
+                    , ( "disabled", isDisabled )
                     ]
                ]
         )
-        [ text "Comment" ]
+        [ text "Comment"
+        ]

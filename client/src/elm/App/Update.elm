@@ -90,13 +90,13 @@ update msg model =
                                         backendUpdated =
                                             { backend | items = EveryDictList.union partialBackendModel.items model.backend.items }
 
-                                        msg =
+                                        cmd =
                                             backendMsg
                                                 |> Task.succeed
                                                 |> Task.perform identity
                                                 |> Cmd.map MsgBackend
                                     in
-                                    ( subModel, subCmds, ( backendUpdated, msg ) )
+                                    ( subModel, subCmds, ( backendUpdated, cmd ) )
 
                                 -- Just update the backend data, but without
                                 -- any Cmd. This will be used when a sub-model will edit the data (e.g. via a form)
@@ -120,17 +120,6 @@ update msg model =
                 , backendCmds
                 ]
             )
-
-
-
--- MsgPagesHomepage subMsg ->
---     let
---         ( val, cmds ) =
---             Pages.Homepage.Update.update subMsg model.pageHomepage
---     in
---         ( { model | pageHomepage = val }
---         , Cmd.map MsgPagesHomepage cmds
---         )
 
 
 subscriptions : Model -> Sub Msg

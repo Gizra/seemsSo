@@ -5,12 +5,15 @@ module ItemComment.Update
 
 import Backend.Entities exposing (ItemId)
 import Backend.Item.Model exposing (Item)
+import Backend.Item.Utils exposing (getComment, insertComments)
 import Backend.Model
 import Backend.Restful exposing (EntityDictList)
 import Editable
 import Editable.WebData
 import EveryDictList exposing (EveryDictList)
 import ItemComment.Model exposing (DelegatedMsg(..), Model, Msg(..))
+import Maybe.Extra exposing (unwrap)
+import RemoteData
 import StorageKey exposing (StorageKey)
 
 
@@ -26,10 +29,33 @@ update msg model ( storageKey, partialBackendModel ) =
             , ( partialBackendModel, NoOp )
             )
 
-        DelegatedSaveComment storageKeys ->
+        DelegatedSaveComment ( itemId, commentId ) ->
+            let
+                itemsUpdated =
+                    case EveryDictList.get itemId partialBackendModel.items of
+                        Nothing ->
+                            partialBackendModel.items
+
+                        Just item ->
+                            unwrap partialBackendModel.items
+                                (\itemComment ->
+                                    let
+                                        itemCommentUpdated =
+                                            itemComment
+                                                |> Editable.WebData.state RemoteData.Loading
+
+                                        itemUpdated =
+                                            { item | comments = EveryDictList.insert commentId itemCommentUpdated item.comments }
+                                    in
+                                    EveryDictList.insert itemId itemUpdated partialBackendModel.items
+                                )
+                                (getComment ( itemId, commentId ) partialBackendModel.items)
+            in
             ( model
               -- Coresponds to`SaveComment` in `Backend.Item.Model`
-            , ( partialBackendModel, MsgBackendItem <| Backend.Model.MsgItems <| Backend.Item.Model.SaveComment storageKeys )
+            , ( { partialBackendModel | items = itemsUpdated }
+              , MsgBackendItem <| Backend.Model.MsgItems <| Backend.Item.Model.SaveComment ( itemId, commentId )
+              )
             )
 
         SetComment ( itemId, commentId ) comment ->
