@@ -22349,10 +22349,14 @@ var _Gizra$elm_spa_exmple$ItemComment_View$viewActions = F2(
 			ctor: '::',
 			_0: _elm_lang$html$Html_Events$onClick(
 				_Gizra$elm_spa_exmple$ItemComment_Model$DelegatedSaveComment(storageKeys)),
-			_1: {ctor: '[]'}
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$action('javascript:void(0);'),
+				_1: {ctor: '[]'}
+			}
 		};
 		return A2(
-			_elm_lang$html$Html$div,
+			_elm_lang$html$Html$button,
 			A2(
 				_elm_lang$core$Basics_ops['++'],
 				attrs,
@@ -22662,7 +22666,11 @@ var _Gizra$elm_spa_exmple$ItemComment_View$view = F5(
 								{
 									ctor: '::',
 									_0: _elm_lang$html$Html_Attributes$class('ui form comment'),
-									_1: {ctor: '[]'}
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$action('javascript:void(0);'),
+										_1: {ctor: '[]'}
+									}
 								},
 								{
 									ctor: '::',

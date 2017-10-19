@@ -12,7 +12,7 @@ import Editable
 import Editable.WebData exposing (EditableWebData)
 import EveryDictList exposing (EveryDictList)
 import Html exposing (..)
-import Html.Attributes exposing (alt, class, classList, cols, disabled, href, id, placeholder, required, rows, src, style, target, type_, value)
+import Html.Attributes exposing (action, alt, class, classList, cols, disabled, href, id, placeholder, required, rows, src, style, target, type_, value)
 import Html.Events exposing (onClick, onInput)
 import ItemComment.Model exposing (Model, Msg(..), Tab(..))
 import Markdown
@@ -47,6 +47,7 @@ view backendUrl currentUser ( itemStorageKey, item ) commentStorageKey model =
                         [ viewTabs model.selectedTab
                         , form
                             [ class "ui form comment"
+                            , action "javascript:void(0);"
                             ]
                             [ mainArea
                             , viewActions ( itemStorageKey, commentStorageKey ) editableWebData
@@ -185,10 +186,10 @@ viewActions storageKeys editableWebData =
                 [ disabled True ]
             else
                 [ onClick <| DelegatedSaveComment storageKeys
+                , action "javascript:void(0);"
                 ]
     in
-    -- @todo: convert to button, and make sure it doesn't refresh the page.
-    div
+    button
         (attrs
             ++ [ classList
                     [ ( "ui button primary", True )
