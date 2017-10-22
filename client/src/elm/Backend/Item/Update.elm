@@ -25,7 +25,7 @@ import Utils.WebData exposing (sendWithHandler)
 
 {-| This is a delegated update for bundling related `Msg`s together.
 
-@todo: Clarify Model is of Backend, and Msg is of current model.
+Note that the `Model` is of Backend, and `Msg` is of current model.
 
 -}
 update : BackendUrl -> CurrentUser -> Msg -> Model -> ( Model, Cmd Msg )

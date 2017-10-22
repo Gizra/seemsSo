@@ -51,7 +51,9 @@ decodeItemComments currentUser =
                                     { user = userTuple
                                     , comment = ""
 
-                                    -- @todo: Make created `Maybe`?
+                                    -- @todo: We should consider making another type for CommentNotCreated
+                                    -- that won't hold the `user` and `created` as they are not relevant
+                                    -- while the comment isn't saved yet.
                                     , created = Date.fromTime 0
                                     }
                         in

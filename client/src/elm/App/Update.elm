@@ -88,7 +88,6 @@ update msg model =
 
                                 Pages.Item.Model.MsgBackendItem backendMsg ->
                                     let
-                                        -- @todo: Call Pages.Item.Model.UpdateBackend to remove duplication?
                                         backend =
                                             model.backend
 
