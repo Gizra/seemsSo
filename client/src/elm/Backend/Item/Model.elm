@@ -5,6 +5,7 @@ module Backend.Item.Model
         , Msg(..)
         )
 
+import Amount exposing (Amount)
 import Backend.Entities exposing (ItemCommentId, ItemId)
 import Backend.Restful exposing (EntityDictList)
 import Date exposing (Date)
@@ -17,6 +18,7 @@ import User.Model exposing (UserTuple)
 type alias Item =
     { name : String
     , comments : EntityDictList ItemCommentId (EditableWebData ItemComment)
+    , price : Amount
     }
 
 

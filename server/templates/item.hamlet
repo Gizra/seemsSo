@@ -13,9 +13,6 @@
         <div class="company">
             <strong>Company:</strong> <span class="company">#{companyName company}</span>
 
-        <div class="price">
-            <strong>Price:</strong> <span class="price">#{itemPrice item}</span>
-
         $maybe (Entity _ pdf) <- mpdf
             <div class="download">
                 <a href=/#{pdfFilePath $ pdfFileFilename pdf}>

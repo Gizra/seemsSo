@@ -10263,1160 +10263,325 @@ var _Gizra$elm_editable_webdata$Editable_WebData$state = F2(
 		return A2(_Gizra$elm_editable_webdata$Editable_WebData$EditableWebData, _p7._0, newWebData);
 	});
 
-var _lukewestby$elm_http_builder$HttpBuilder$replace = F2(
-	function (old, $new) {
-		return function (_p0) {
+var _Gizra$elm_spa_exmple$Currency_Model$USD = {ctor: 'USD'};
+var _Gizra$elm_spa_exmple$Currency_Model$ILS = {ctor: 'ILS'};
+var _Gizra$elm_spa_exmple$Currency_Model$EUR = {ctor: 'EUR'};
+
+var _cuducos$elm_format_number$FormatNumber_Locales$Locale = F5(
+	function (a, b, c, d, e) {
+		return {decimals: a, thousandSeparator: b, decimalSeparator: c, negativePrefix: d, negativeSuffix: e};
+	});
+var _cuducos$elm_format_number$FormatNumber_Locales$frenchLocale = A5(_cuducos$elm_format_number$FormatNumber_Locales$Locale, 3, ' ', ',', '−', '');
+var _cuducos$elm_format_number$FormatNumber_Locales$spanishLocale = A5(_cuducos$elm_format_number$FormatNumber_Locales$Locale, 3, '.', ',', '−', '');
+var _cuducos$elm_format_number$FormatNumber_Locales$usLocale = A5(_cuducos$elm_format_number$FormatNumber_Locales$Locale, 2, ',', '.', '−', '');
+
+var _myrho$elm_round$Round$funNum = F3(
+	function (fun, s, fl) {
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			1 / 0,
+			_elm_lang$core$Result$toMaybe(
+				_elm_lang$core$String$toFloat(
+					A2(fun, s, fl))));
+	});
+var _myrho$elm_round$Round$splitComma = function (str) {
+	var _p0 = A2(_elm_lang$core$String$split, '.', str);
+	if (_p0.ctor === '::') {
+		if (_p0._1.ctor === '::') {
+			return {ctor: '_Tuple2', _0: _p0._0, _1: _p0._1._0};
+		} else {
+			return {ctor: '_Tuple2', _0: _p0._0, _1: '0'};
+		}
+	} else {
+		return {ctor: '_Tuple2', _0: '0', _1: '0'};
+	}
+};
+var _myrho$elm_round$Round$toDecimal = function (fl) {
+	var _p1 = A2(
+		_elm_lang$core$String$split,
+		'e',
+		_elm_lang$core$Basics$toString(fl));
+	if (_p1.ctor === '::') {
+		if (_p1._1.ctor === '::') {
+			var _p4 = _p1._1._0;
+			var _p2 = function () {
+				var hasSign = _elm_lang$core$Native_Utils.cmp(fl, 0) < 0;
+				var _p3 = _myrho$elm_round$Round$splitComma(_p1._0);
+				var b = _p3._0;
+				var a = _p3._1;
+				return {
+					ctor: '_Tuple3',
+					_0: hasSign ? '-' : '',
+					_1: hasSign ? A2(_elm_lang$core$String$dropLeft, 1, b) : b,
+					_2: a
+				};
+			}();
+			var sign = _p2._0;
+			var before = _p2._1;
+			var after = _p2._2;
+			var e = A2(
+				_elm_lang$core$Maybe$withDefault,
+				0,
+				_elm_lang$core$Result$toMaybe(
+					_elm_lang$core$String$toInt(
+						A2(_elm_lang$core$String$startsWith, '+', _p4) ? A2(_elm_lang$core$String$dropLeft, 1, _p4) : _p4)));
+			var newBefore = (_elm_lang$core$Native_Utils.cmp(e, 0) > -1) ? before : ((_elm_lang$core$Native_Utils.cmp(
+				_elm_lang$core$Basics$abs(e),
+				_elm_lang$core$String$length(before)) < 0) ? A2(
+				_elm_lang$core$Basics_ops['++'],
+				A2(
+					_elm_lang$core$String$left,
+					_elm_lang$core$String$length(before) - _elm_lang$core$Basics$abs(e),
+					before),
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					'.',
+					A2(
+						_elm_lang$core$String$right,
+						_elm_lang$core$Basics$abs(e),
+						before))) : A2(
+				_elm_lang$core$Basics_ops['++'],
+				'0.',
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					A2(
+						_elm_lang$core$String$repeat,
+						_elm_lang$core$Basics$abs(e) - _elm_lang$core$String$length(before),
+						'0'),
+					before)));
+			var newAfter = (_elm_lang$core$Native_Utils.cmp(e, 0) < 1) ? after : ((_elm_lang$core$Native_Utils.cmp(
+				e,
+				_elm_lang$core$String$length(after)) < 0) ? A2(
+				_elm_lang$core$Basics_ops['++'],
+				A2(_elm_lang$core$String$left, e, after),
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					'.',
+					A2(
+						_elm_lang$core$String$right,
+						_elm_lang$core$String$length(after) - e,
+						after))) : A2(
+				_elm_lang$core$Basics_ops['++'],
+				after,
+				A2(
+					_elm_lang$core$String$repeat,
+					e - _elm_lang$core$String$length(after),
+					'0')));
 			return A2(
-				_elm_lang$core$String$join,
-				$new,
-				A2(_elm_lang$core$String$split, old, _p0));
-		};
-	});
-var _lukewestby$elm_http_builder$HttpBuilder$queryEscape = function (_p1) {
-	return A3(
-		_lukewestby$elm_http_builder$HttpBuilder$replace,
-		'%20',
-		'+',
-		_elm_lang$http$Http$encodeUri(_p1));
-};
-var _lukewestby$elm_http_builder$HttpBuilder$queryPair = function (_p2) {
-	var _p3 = _p2;
-	return A2(
-		_elm_lang$core$Basics_ops['++'],
-		_lukewestby$elm_http_builder$HttpBuilder$queryEscape(_p3._0),
-		A2(
-			_elm_lang$core$Basics_ops['++'],
-			'=',
-			_lukewestby$elm_http_builder$HttpBuilder$queryEscape(_p3._1)));
-};
-var _lukewestby$elm_http_builder$HttpBuilder$joinUrlEncoded = function (args) {
-	return A2(
-		_elm_lang$core$String$join,
-		'&',
-		A2(_elm_lang$core$List$map, _lukewestby$elm_http_builder$HttpBuilder$queryPair, args));
-};
-var _lukewestby$elm_http_builder$HttpBuilder$toRequest = function (builder) {
-	var encodedParams = _lukewestby$elm_http_builder$HttpBuilder$joinUrlEncoded(builder.queryParams);
-	var fullUrl = _elm_lang$core$String$isEmpty(encodedParams) ? builder.url : A2(
-		_elm_lang$core$Basics_ops['++'],
-		builder.url,
-		A2(_elm_lang$core$Basics_ops['++'], '?', encodedParams));
-	return _elm_lang$http$Http$request(
-		{method: builder.method, url: fullUrl, headers: builder.headers, body: builder.body, expect: builder.expect, timeout: builder.timeout, withCredentials: builder.withCredentials});
-};
-var _lukewestby$elm_http_builder$HttpBuilder$toTaskPlain = function (builder) {
-	return _elm_lang$http$Http$toTask(
-		_lukewestby$elm_http_builder$HttpBuilder$toRequest(builder));
-};
-var _lukewestby$elm_http_builder$HttpBuilder$withCacheBuster = F2(
-	function (paramName, builder) {
-		return _elm_lang$core$Native_Utils.update(
-			builder,
-			{
-				cacheBuster: _elm_lang$core$Maybe$Just(paramName)
-			});
-	});
-var _lukewestby$elm_http_builder$HttpBuilder$withQueryParams = F2(
-	function (queryParams, builder) {
-		return _elm_lang$core$Native_Utils.update(
-			builder,
-			{
-				queryParams: A2(_elm_lang$core$Basics_ops['++'], builder.queryParams, queryParams)
-			});
-	});
-var _lukewestby$elm_http_builder$HttpBuilder$toTaskWithCacheBuster = F2(
-	function (paramName, builder) {
-		var request = function (timestamp) {
-			return _lukewestby$elm_http_builder$HttpBuilder$toTaskPlain(
-				A2(
-					_lukewestby$elm_http_builder$HttpBuilder$withQueryParams,
-					{
-						ctor: '::',
-						_0: {
-							ctor: '_Tuple2',
-							_0: paramName,
-							_1: _elm_lang$core$Basics$toString(timestamp)
-						},
-						_1: {ctor: '[]'}
-					},
-					builder));
-		};
-		return A2(_elm_lang$core$Task$andThen, request, _elm_lang$core$Time$now);
-	});
-var _lukewestby$elm_http_builder$HttpBuilder$toTask = function (builder) {
-	var _p4 = builder.cacheBuster;
-	if (_p4.ctor === 'Just') {
-		return A2(_lukewestby$elm_http_builder$HttpBuilder$toTaskWithCacheBuster, _p4._0, builder);
+				_elm_lang$core$Basics_ops['++'],
+				sign,
+				A2(_elm_lang$core$Basics_ops['++'], newBefore, newAfter));
+		} else {
+			return _p1._0;
+		}
 	} else {
-		return _lukewestby$elm_http_builder$HttpBuilder$toTaskPlain(builder);
+		return '';
 	}
 };
-var _lukewestby$elm_http_builder$HttpBuilder$send = F2(
-	function (tagger, builder) {
-		return A2(
-			_elm_lang$core$Task$attempt,
-			tagger,
-			_lukewestby$elm_http_builder$HttpBuilder$toTask(builder));
-	});
-var _lukewestby$elm_http_builder$HttpBuilder$withExpect = F2(
-	function (expect, builder) {
-		return _elm_lang$core$Native_Utils.update(
-			builder,
-			{expect: expect});
-	});
-var _lukewestby$elm_http_builder$HttpBuilder$withCredentials = function (builder) {
-	return _elm_lang$core$Native_Utils.update(
-		builder,
-		{withCredentials: true});
+var _myrho$elm_round$Round$truncate = function (n) {
+	return (_elm_lang$core$Native_Utils.cmp(n, 0) < 0) ? _elm_lang$core$Basics$ceiling(n) : _elm_lang$core$Basics$floor(n);
 };
-var _lukewestby$elm_http_builder$HttpBuilder$withTimeout = F2(
-	function (timeout, builder) {
-		return _elm_lang$core$Native_Utils.update(
-			builder,
-			{
-				timeout: _elm_lang$core$Maybe$Just(timeout)
-			});
-	});
-var _lukewestby$elm_http_builder$HttpBuilder$withBody = F2(
-	function (body, builder) {
-		return _elm_lang$core$Native_Utils.update(
-			builder,
-			{body: body});
-	});
-var _lukewestby$elm_http_builder$HttpBuilder$withStringBody = F2(
-	function (contentType, value) {
-		return _lukewestby$elm_http_builder$HttpBuilder$withBody(
-			A2(_elm_lang$http$Http$stringBody, contentType, value));
-	});
-var _lukewestby$elm_http_builder$HttpBuilder$withUrlEncodedBody = function (_p5) {
-	return A2(
-		_lukewestby$elm_http_builder$HttpBuilder$withStringBody,
-		'application/x-www-form-urlencoded',
-		_lukewestby$elm_http_builder$HttpBuilder$joinUrlEncoded(_p5));
-};
-var _lukewestby$elm_http_builder$HttpBuilder$withJsonBody = function (value) {
-	return _lukewestby$elm_http_builder$HttpBuilder$withBody(
-		_elm_lang$http$Http$jsonBody(value));
-};
-var _lukewestby$elm_http_builder$HttpBuilder$withMultipartStringBody = function (partPairs) {
-	return _lukewestby$elm_http_builder$HttpBuilder$withBody(
-		_elm_lang$http$Http$multipartBody(
-			A2(
-				_elm_lang$core$List$map,
-				_elm_lang$core$Basics$uncurry(_elm_lang$http$Http$stringPart),
-				partPairs)));
-};
-var _lukewestby$elm_http_builder$HttpBuilder$withHeaders = F2(
-	function (headerPairs, builder) {
-		return _elm_lang$core$Native_Utils.update(
-			builder,
-			{
-				headers: A2(
-					_elm_lang$core$Basics_ops['++'],
-					A2(
-						_elm_lang$core$List$map,
-						_elm_lang$core$Basics$uncurry(_elm_lang$http$Http$header),
-						headerPairs),
-					builder.headers)
-			});
-	});
-var _lukewestby$elm_http_builder$HttpBuilder$withHeader = F3(
-	function (key, value, builder) {
-		return _elm_lang$core$Native_Utils.update(
-			builder,
-			{
-				headers: {
-					ctor: '::',
-					_0: A2(_elm_lang$http$Http$header, key, value),
-					_1: builder.headers
-				}
-			});
-	});
-var _lukewestby$elm_http_builder$HttpBuilder$requestWithMethodAndUrl = F2(
-	function (method, url) {
-		return {
-			method: method,
-			url: url,
-			headers: {ctor: '[]'},
-			body: _elm_lang$http$Http$emptyBody,
-			expect: _elm_lang$http$Http$expectStringResponse(
-				function (_p6) {
-					return _elm_lang$core$Result$Ok(
-						{ctor: '_Tuple0'});
-				}),
-			timeout: _elm_lang$core$Maybe$Nothing,
-			withCredentials: false,
-			queryParams: {ctor: '[]'},
-			cacheBuster: _elm_lang$core$Maybe$Nothing
-		};
-	});
-var _lukewestby$elm_http_builder$HttpBuilder$get = _lukewestby$elm_http_builder$HttpBuilder$requestWithMethodAndUrl('GET');
-var _lukewestby$elm_http_builder$HttpBuilder$post = _lukewestby$elm_http_builder$HttpBuilder$requestWithMethodAndUrl('POST');
-var _lukewestby$elm_http_builder$HttpBuilder$put = _lukewestby$elm_http_builder$HttpBuilder$requestWithMethodAndUrl('PUT');
-var _lukewestby$elm_http_builder$HttpBuilder$patch = _lukewestby$elm_http_builder$HttpBuilder$requestWithMethodAndUrl('PATCH');
-var _lukewestby$elm_http_builder$HttpBuilder$delete = _lukewestby$elm_http_builder$HttpBuilder$requestWithMethodAndUrl('DELETE');
-var _lukewestby$elm_http_builder$HttpBuilder$options = _lukewestby$elm_http_builder$HttpBuilder$requestWithMethodAndUrl('OPTIONS');
-var _lukewestby$elm_http_builder$HttpBuilder$trace = _lukewestby$elm_http_builder$HttpBuilder$requestWithMethodAndUrl('TRACE');
-var _lukewestby$elm_http_builder$HttpBuilder$head = _lukewestby$elm_http_builder$HttpBuilder$requestWithMethodAndUrl('HEAD');
-var _lukewestby$elm_http_builder$HttpBuilder$RequestBuilder = F9(
-	function (a, b, c, d, e, f, g, h, i) {
-		return {method: a, headers: b, url: c, body: d, expect: e, timeout: f, withCredentials: g, queryParams: h, cacheBuster: i};
-	});
-
-var _elm_community$maybe_extra$Maybe_Extra$foldrValues = F2(
-	function (item, list) {
-		var _p0 = item;
-		if (_p0.ctor === 'Nothing') {
-			return list;
+var _myrho$elm_round$Round$roundFun = F3(
+	function (functor, s, fl) {
+		if (_elm_lang$core$Native_Utils.eq(s, 0)) {
+			return _elm_lang$core$Basics$toString(
+				functor(fl));
 		} else {
-			return {ctor: '::', _0: _p0._0, _1: list};
-		}
-	});
-var _elm_community$maybe_extra$Maybe_Extra$values = A2(
-	_elm_lang$core$List$foldr,
-	_elm_community$maybe_extra$Maybe_Extra$foldrValues,
-	{ctor: '[]'});
-var _elm_community$maybe_extra$Maybe_Extra$filter = F2(
-	function (f, m) {
-		var _p1 = A2(_elm_lang$core$Maybe$map, f, m);
-		if ((_p1.ctor === 'Just') && (_p1._0 === true)) {
-			return m;
-		} else {
-			return _elm_lang$core$Maybe$Nothing;
-		}
-	});
-var _elm_community$maybe_extra$Maybe_Extra$traverseArray = function (f) {
-	var step = F2(
-		function (e, acc) {
-			var _p2 = f(e);
-			if (_p2.ctor === 'Nothing') {
-				return _elm_lang$core$Maybe$Nothing;
-			} else {
-				return A2(
-					_elm_lang$core$Maybe$map,
-					_elm_lang$core$Array$push(_p2._0),
-					acc);
-			}
-		});
-	return A2(
-		_elm_lang$core$Array$foldl,
-		step,
-		_elm_lang$core$Maybe$Just(_elm_lang$core$Array$empty));
-};
-var _elm_community$maybe_extra$Maybe_Extra$combineArray = _elm_community$maybe_extra$Maybe_Extra$traverseArray(_elm_lang$core$Basics$identity);
-var _elm_community$maybe_extra$Maybe_Extra$traverse = function (f) {
-	var step = F2(
-		function (e, acc) {
-			var _p3 = f(e);
-			if (_p3.ctor === 'Nothing') {
-				return _elm_lang$core$Maybe$Nothing;
-			} else {
-				return A2(
-					_elm_lang$core$Maybe$map,
-					F2(
-						function (x, y) {
-							return {ctor: '::', _0: x, _1: y};
-						})(_p3._0),
-					acc);
-			}
-		});
-	return A2(
-		_elm_lang$core$List$foldr,
-		step,
-		_elm_lang$core$Maybe$Just(
-			{ctor: '[]'}));
-};
-var _elm_community$maybe_extra$Maybe_Extra$combine = _elm_community$maybe_extra$Maybe_Extra$traverse(_elm_lang$core$Basics$identity);
-var _elm_community$maybe_extra$Maybe_Extra$toArray = function (m) {
-	var _p4 = m;
-	if (_p4.ctor === 'Nothing') {
-		return _elm_lang$core$Array$empty;
-	} else {
-		return A2(_elm_lang$core$Array$repeat, 1, _p4._0);
-	}
-};
-var _elm_community$maybe_extra$Maybe_Extra$toList = function (m) {
-	var _p5 = m;
-	if (_p5.ctor === 'Nothing') {
-		return {ctor: '[]'};
-	} else {
-		return {
-			ctor: '::',
-			_0: _p5._0,
-			_1: {ctor: '[]'}
-		};
-	}
-};
-var _elm_community$maybe_extra$Maybe_Extra$orElse = F2(
-	function (ma, mb) {
-		var _p6 = mb;
-		if (_p6.ctor === 'Nothing') {
-			return ma;
-		} else {
-			return mb;
-		}
-	});
-var _elm_community$maybe_extra$Maybe_Extra$orElseLazy = F2(
-	function (fma, mb) {
-		var _p7 = mb;
-		if (_p7.ctor === 'Nothing') {
-			return fma(
-				{ctor: '_Tuple0'});
-		} else {
-			return mb;
-		}
-	});
-var _elm_community$maybe_extra$Maybe_Extra$orLazy = F2(
-	function (ma, fmb) {
-		var _p8 = ma;
-		if (_p8.ctor === 'Nothing') {
-			return fmb(
-				{ctor: '_Tuple0'});
-		} else {
-			return ma;
-		}
-	});
-var _elm_community$maybe_extra$Maybe_Extra$or = F2(
-	function (ma, mb) {
-		var _p9 = ma;
-		if (_p9.ctor === 'Nothing') {
-			return mb;
-		} else {
-			return ma;
-		}
-	});
-var _elm_community$maybe_extra$Maybe_Extra$prev = _elm_lang$core$Maybe$map2(_elm_lang$core$Basics$always);
-var _elm_community$maybe_extra$Maybe_Extra$next = _elm_lang$core$Maybe$map2(
-	_elm_lang$core$Basics$flip(_elm_lang$core$Basics$always));
-var _elm_community$maybe_extra$Maybe_Extra$andMap = _elm_lang$core$Maybe$map2(
-	F2(
-		function (x, y) {
-			return y(x);
-		}));
-var _elm_community$maybe_extra$Maybe_Extra$unpack = F3(
-	function (d, f, m) {
-		var _p10 = m;
-		if (_p10.ctor === 'Nothing') {
-			return d(
-				{ctor: '_Tuple0'});
-		} else {
-			return f(_p10._0);
-		}
-	});
-var _elm_community$maybe_extra$Maybe_Extra$unwrap = F3(
-	function (d, f, m) {
-		var _p11 = m;
-		if (_p11.ctor === 'Nothing') {
-			return d;
-		} else {
-			return f(_p11._0);
-		}
-	});
-var _elm_community$maybe_extra$Maybe_Extra$isJust = function (m) {
-	var _p12 = m;
-	if (_p12.ctor === 'Nothing') {
-		return false;
-	} else {
-		return true;
-	}
-};
-var _elm_community$maybe_extra$Maybe_Extra$isNothing = function (m) {
-	var _p13 = m;
-	if (_p13.ctor === 'Nothing') {
-		return true;
-	} else {
-		return false;
-	}
-};
-var _elm_community$maybe_extra$Maybe_Extra$join = function (mx) {
-	var _p14 = mx;
-	if (_p14.ctor === 'Just') {
-		return _p14._0;
-	} else {
-		return _elm_lang$core$Maybe$Nothing;
-	}
-};
-var _elm_community$maybe_extra$Maybe_Extra_ops = _elm_community$maybe_extra$Maybe_Extra_ops || {};
-_elm_community$maybe_extra$Maybe_Extra_ops['?'] = F2(
-	function (mx, x) {
-		return A2(_elm_lang$core$Maybe$withDefault, x, mx);
-	});
-
-var _Gizra$elm_storage_key$StorageKey$value = function (storageKey) {
-	var _p0 = storageKey;
-	if (_p0.ctor === 'Existing') {
-		return _elm_lang$core$Maybe$Just(_p0._0);
-	} else {
-		return _elm_lang$core$Maybe$Nothing;
-	}
-};
-var _Gizra$elm_storage_key$StorageKey$Existing = function (a) {
-	return {ctor: 'Existing', _0: a};
-};
-var _Gizra$elm_storage_key$StorageKey$New = {ctor: 'New'};
-var _Gizra$elm_storage_key$StorageKey$isNew = function (storageKey) {
-	return _elm_lang$core$Native_Utils.eq(storageKey, _Gizra$elm_storage_key$StorageKey$New);
-};
-var _Gizra$elm_storage_key$StorageKey$isExisting = function (storageKey) {
-	return !_Gizra$elm_storage_key$StorageKey$isNew(storageKey);
-};
-
-//import Result //
-
-var _elm_lang$core$Native_Date = function() {
-
-function fromString(str)
-{
-	var date = new Date(str);
-	return isNaN(date.getTime())
-		? _elm_lang$core$Result$Err('Unable to parse \'' + str + '\' as a date. Dates must be in the ISO 8601 format.')
-		: _elm_lang$core$Result$Ok(date);
-}
-
-var dayTable = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-var monthTable =
-	['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-	 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-
-return {
-	fromString: fromString,
-	year: function(d) { return d.getFullYear(); },
-	month: function(d) { return { ctor: monthTable[d.getMonth()] }; },
-	day: function(d) { return d.getDate(); },
-	hour: function(d) { return d.getHours(); },
-	minute: function(d) { return d.getMinutes(); },
-	second: function(d) { return d.getSeconds(); },
-	millisecond: function(d) { return d.getMilliseconds(); },
-	toTime: function(d) { return d.getTime(); },
-	fromTime: function(t) { return new Date(t); },
-	dayOfWeek: function(d) { return { ctor: dayTable[d.getDay()] }; }
-};
-
-}();
-var _elm_lang$core$Date$millisecond = _elm_lang$core$Native_Date.millisecond;
-var _elm_lang$core$Date$second = _elm_lang$core$Native_Date.second;
-var _elm_lang$core$Date$minute = _elm_lang$core$Native_Date.minute;
-var _elm_lang$core$Date$hour = _elm_lang$core$Native_Date.hour;
-var _elm_lang$core$Date$dayOfWeek = _elm_lang$core$Native_Date.dayOfWeek;
-var _elm_lang$core$Date$day = _elm_lang$core$Native_Date.day;
-var _elm_lang$core$Date$month = _elm_lang$core$Native_Date.month;
-var _elm_lang$core$Date$year = _elm_lang$core$Native_Date.year;
-var _elm_lang$core$Date$fromTime = _elm_lang$core$Native_Date.fromTime;
-var _elm_lang$core$Date$toTime = _elm_lang$core$Native_Date.toTime;
-var _elm_lang$core$Date$fromString = _elm_lang$core$Native_Date.fromString;
-var _elm_lang$core$Date$now = A2(_elm_lang$core$Task$map, _elm_lang$core$Date$fromTime, _elm_lang$core$Time$now);
-var _elm_lang$core$Date$Date = {ctor: 'Date'};
-var _elm_lang$core$Date$Sun = {ctor: 'Sun'};
-var _elm_lang$core$Date$Sat = {ctor: 'Sat'};
-var _elm_lang$core$Date$Fri = {ctor: 'Fri'};
-var _elm_lang$core$Date$Thu = {ctor: 'Thu'};
-var _elm_lang$core$Date$Wed = {ctor: 'Wed'};
-var _elm_lang$core$Date$Tue = {ctor: 'Tue'};
-var _elm_lang$core$Date$Mon = {ctor: 'Mon'};
-var _elm_lang$core$Date$Dec = {ctor: 'Dec'};
-var _elm_lang$core$Date$Nov = {ctor: 'Nov'};
-var _elm_lang$core$Date$Oct = {ctor: 'Oct'};
-var _elm_lang$core$Date$Sep = {ctor: 'Sep'};
-var _elm_lang$core$Date$Aug = {ctor: 'Aug'};
-var _elm_lang$core$Date$Jul = {ctor: 'Jul'};
-var _elm_lang$core$Date$Jun = {ctor: 'Jun'};
-var _elm_lang$core$Date$May = {ctor: 'May'};
-var _elm_lang$core$Date$Apr = {ctor: 'Apr'};
-var _elm_lang$core$Date$Mar = {ctor: 'Mar'};
-var _elm_lang$core$Date$Feb = {ctor: 'Feb'};
-var _elm_lang$core$Date$Jan = {ctor: 'Jan'};
-
-var _elm_community$json_extra$Json_Decode_Extra$combine = A2(
-	_elm_lang$core$List$foldr,
-	_elm_lang$core$Json_Decode$map2(
-		F2(
-			function (x, y) {
-				return {ctor: '::', _0: x, _1: y};
-			})),
-	_elm_lang$core$Json_Decode$succeed(
-		{ctor: '[]'}));
-var _elm_community$json_extra$Json_Decode_Extra$collection = function (decoder) {
-	return A2(
-		_elm_lang$core$Json_Decode$andThen,
-		function (length) {
-			return _elm_community$json_extra$Json_Decode_Extra$combine(
-				A2(
-					_elm_lang$core$List$map,
-					function (index) {
-						return A2(
-							_elm_lang$core$Json_Decode$field,
-							_elm_lang$core$Basics$toString(index),
-							decoder);
-					},
-					A2(_elm_lang$core$List$range, 0, length - 1)));
-		},
-		A2(_elm_lang$core$Json_Decode$field, 'length', _elm_lang$core$Json_Decode$int));
-};
-var _elm_community$json_extra$Json_Decode_Extra$fromResult = function (result) {
-	var _p0 = result;
-	if (_p0.ctor === 'Ok') {
-		return _elm_lang$core$Json_Decode$succeed(_p0._0);
-	} else {
-		return _elm_lang$core$Json_Decode$fail(_p0._0);
-	}
-};
-var _elm_community$json_extra$Json_Decode_Extra$parseInt = A2(
-	_elm_lang$core$Json_Decode$andThen,
-	function (_p1) {
-		return _elm_community$json_extra$Json_Decode_Extra$fromResult(
-			_elm_lang$core$String$toInt(_p1));
-	},
-	_elm_lang$core$Json_Decode$string);
-var _elm_community$json_extra$Json_Decode_Extra$parseFloat = A2(
-	_elm_lang$core$Json_Decode$andThen,
-	function (_p2) {
-		return _elm_community$json_extra$Json_Decode_Extra$fromResult(
-			_elm_lang$core$String$toFloat(_p2));
-	},
-	_elm_lang$core$Json_Decode$string);
-var _elm_community$json_extra$Json_Decode_Extra$doubleEncoded = function (decoder) {
-	return A2(
-		_elm_lang$core$Json_Decode$andThen,
-		function (_p3) {
-			return _elm_community$json_extra$Json_Decode_Extra$fromResult(
-				A2(_elm_lang$core$Json_Decode$decodeString, decoder, _p3));
-		},
-		_elm_lang$core$Json_Decode$string);
-};
-var _elm_community$json_extra$Json_Decode_Extra$sequenceHelp = F2(
-	function (decoders, jsonValues) {
-		return (!_elm_lang$core$Native_Utils.eq(
-			_elm_lang$core$List$length(jsonValues),
-			_elm_lang$core$List$length(decoders))) ? _elm_lang$core$Json_Decode$fail('Number of decoders does not match number of values') : _elm_community$json_extra$Json_Decode_Extra$fromResult(
-			A3(
-				_elm_lang$core$List$foldr,
-				_elm_lang$core$Result$map2(
-					F2(
-						function (x, y) {
-							return {ctor: '::', _0: x, _1: y};
-						})),
-				_elm_lang$core$Result$Ok(
-					{ctor: '[]'}),
-				A3(_elm_lang$core$List$map2, _elm_lang$core$Json_Decode$decodeValue, decoders, jsonValues)));
-	});
-var _elm_community$json_extra$Json_Decode_Extra$sequence = function (decoders) {
-	return A2(
-		_elm_lang$core$Json_Decode$andThen,
-		_elm_community$json_extra$Json_Decode_Extra$sequenceHelp(decoders),
-		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$value));
-};
-var _elm_community$json_extra$Json_Decode_Extra$indexedList = function (indexedDecoder) {
-	return A2(
-		_elm_lang$core$Json_Decode$andThen,
-		function (values) {
-			return _elm_community$json_extra$Json_Decode_Extra$sequence(
-				A2(
-					_elm_lang$core$List$map,
-					indexedDecoder,
-					A2(
-						_elm_lang$core$List$range,
+			if (_elm_lang$core$Native_Utils.cmp(s, 0) < 0) {
+				return function (r) {
+					return (!_elm_lang$core$Native_Utils.eq(r, '0')) ? A2(
+						_elm_lang$core$Basics_ops['++'],
+						r,
+						A2(
+							_elm_lang$core$String$repeat,
+							_elm_lang$core$Basics$abs(s),
+							'0')) : r;
+				}(
+					A3(
+						_myrho$elm_round$Round$roundFun,
+						functor,
 						0,
-						_elm_lang$core$List$length(values) - 1)));
-		},
-		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$value));
-};
-var _elm_community$json_extra$Json_Decode_Extra$optionalField = F2(
-	function (fieldName, decoder) {
-		var finishDecoding = function (json) {
-			var _p4 = A2(
-				_elm_lang$core$Json_Decode$decodeValue,
-				A2(_elm_lang$core$Json_Decode$field, fieldName, _elm_lang$core$Json_Decode$value),
-				json);
-			if (_p4.ctor === 'Ok') {
-				return A2(
-					_elm_lang$core$Json_Decode$map,
-					_elm_lang$core$Maybe$Just,
-					A2(_elm_lang$core$Json_Decode$field, fieldName, decoder));
-			} else {
-				return _elm_lang$core$Json_Decode$succeed(_elm_lang$core$Maybe$Nothing);
-			}
-		};
-		return A2(_elm_lang$core$Json_Decode$andThen, finishDecoding, _elm_lang$core$Json_Decode$value);
-	});
-var _elm_community$json_extra$Json_Decode_Extra$withDefault = F2(
-	function (fallback, decoder) {
-		return A2(
-			_elm_lang$core$Json_Decode$map,
-			_elm_lang$core$Maybe$withDefault(fallback),
-			_elm_lang$core$Json_Decode$maybe(decoder));
-	});
-var _elm_community$json_extra$Json_Decode_Extra$decodeDictFromTuples = F2(
-	function (keyDecoder, tuples) {
-		var _p5 = tuples;
-		if (_p5.ctor === '[]') {
-			return _elm_lang$core$Json_Decode$succeed(_elm_lang$core$Dict$empty);
-		} else {
-			var _p6 = A2(_elm_lang$core$Json_Decode$decodeString, keyDecoder, _p5._0._0);
-			if (_p6.ctor === 'Ok') {
-				return A2(
-					_elm_lang$core$Json_Decode$andThen,
-					function (_p7) {
-						return _elm_lang$core$Json_Decode$succeed(
-							A3(_elm_lang$core$Dict$insert, _p6._0, _p5._0._1, _p7));
-					},
-					A2(_elm_community$json_extra$Json_Decode_Extra$decodeDictFromTuples, keyDecoder, _p5._1));
-			} else {
-				return _elm_lang$core$Json_Decode$fail(_p6._0);
-			}
-		}
-	});
-var _elm_community$json_extra$Json_Decode_Extra$dict2 = F2(
-	function (keyDecoder, valueDecoder) {
-		return A2(
-			_elm_lang$core$Json_Decode$andThen,
-			_elm_community$json_extra$Json_Decode_Extra$decodeDictFromTuples(keyDecoder),
-			_elm_lang$core$Json_Decode$keyValuePairs(valueDecoder));
-	});
-var _elm_community$json_extra$Json_Decode_Extra$set = function (decoder) {
-	return A2(
-		_elm_lang$core$Json_Decode$map,
-		_elm_lang$core$Set$fromList,
-		_elm_lang$core$Json_Decode$list(decoder));
-};
-var _elm_community$json_extra$Json_Decode_Extra$date = A2(
-	_elm_lang$core$Json_Decode$andThen,
-	function (_p8) {
-		return _elm_community$json_extra$Json_Decode_Extra$fromResult(
-			_elm_lang$core$Date$fromString(_p8));
-	},
-	_elm_lang$core$Json_Decode$string);
-var _elm_community$json_extra$Json_Decode_Extra$andMap = _elm_lang$core$Json_Decode$map2(
-	F2(
-		function (x, y) {
-			return y(x);
-		}));
-var _elm_community$json_extra$Json_Decode_Extra_ops = _elm_community$json_extra$Json_Decode_Extra_ops || {};
-_elm_community$json_extra$Json_Decode_Extra_ops['|:'] = _elm_lang$core$Basics$flip(_elm_community$json_extra$Json_Decode_Extra$andMap);
-
-var _Gizra$elm_spa_exmple$Utils_Json$resultToDecoder = function (res) {
-	var _p0 = res;
-	if (_p0.ctor === 'Ok') {
-		return _elm_lang$core$Json_Decode$succeed(_p0._0);
-	} else {
-		return _elm_lang$core$Json_Decode$fail(_p0._0);
-	}
-};
-var _Gizra$elm_spa_exmple$Utils_Json$decodeInt = _elm_lang$core$Json_Decode$oneOf(
-	{
-		ctor: '::',
-		_0: _elm_lang$core$Json_Decode$int,
-		_1: {
-			ctor: '::',
-			_0: A2(
-				_elm_lang$core$Json_Decode$map,
-				_elm_lang$core$Basics$floor,
-				A2(
-					_elm_lang$core$Json_Decode$andThen,
-					function (_p1) {
-						return _Gizra$elm_spa_exmple$Utils_Json$resultToDecoder(
-							_elm_lang$core$String$toFloat(_p1));
-					},
-					_elm_lang$core$Json_Decode$string)),
-			_1: {ctor: '[]'}
-		}
-	});
-var _Gizra$elm_spa_exmple$Utils_Json$decodeEmptyArrayAs = function ($default) {
-	return A2(
-		_elm_lang$core$Json_Decode$andThen,
-		function (list) {
-			var length = _elm_lang$core$List$length(list);
-			return _elm_lang$core$Native_Utils.eq(length, 0) ? _elm_lang$core$Json_Decode$succeed($default) : _elm_lang$core$Json_Decode$fail(
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					'Expected an empty array, not an array with length: ',
-					_elm_lang$core$Basics$toString(length)));
-		},
-		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$value));
-};
-var _Gizra$elm_spa_exmple$Utils_Json$decodeDateFromEpoch = A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Date$fromTime, _elm_lang$core$Json_Decode$float);
-var _Gizra$elm_spa_exmple$Utils_Json$decodeDate = _elm_lang$core$Json_Decode$oneOf(
-	{
-		ctor: '::',
-		_0: _elm_community$json_extra$Json_Decode_Extra$date,
-		_1: {
-			ctor: '::',
-			_0: _Gizra$elm_spa_exmple$Utils_Json$decodeDateFromEpoch,
-			_1: {ctor: '[]'}
-		}
-	});
-
-var _Gizra$elm_spa_exmple$Backend_Restful$fromEntityId = function (_p0) {
-	var _p1 = _p0;
-	return _p1._0;
-};
-var _Gizra$elm_spa_exmple$Backend_Restful$encodeEntityId = function (_p2) {
-	return _elm_lang$core$Json_Encode$int(
-		_Gizra$elm_spa_exmple$Backend_Restful$fromEntityId(_p2));
-};
-var _Gizra$elm_spa_exmple$Backend_Restful$decodeData = _elm_lang$core$Json_Decode$field('data');
-var _Gizra$elm_spa_exmple$Backend_Restful$decodeSingleEntity = function (_p3) {
-	return _Gizra$elm_spa_exmple$Backend_Restful$decodeData(
-		A2(_elm_lang$core$Json_Decode$index, 0, _p3));
-};
-var _Gizra$elm_spa_exmple$Backend_Restful$decodeStorageTuple = F2(
-	function (keyDecoder, valueDecoder) {
-		return A3(
-			_elm_lang$core$Json_Decode$map2,
-			F2(
-				function (v0, v1) {
-					return {ctor: '_Tuple2', _0: v0, _1: v1};
-				}),
-			A2(_elm_lang$core$Json_Decode$map, _Gizra$elm_storage_key$StorageKey$Existing, keyDecoder),
-			valueDecoder);
-	});
-var _Gizra$elm_spa_exmple$Backend_Restful$decodeId = function (wrapper) {
-	return A2(
-		_elm_lang$core$Json_Decode$map,
-		wrapper,
-		A2(_elm_lang$core$Json_Decode$field, 'id', _Gizra$elm_spa_exmple$Utils_Json$decodeInt));
-};
-var _Gizra$elm_spa_exmple$Backend_Restful_ops = _Gizra$elm_spa_exmple$Backend_Restful_ops || {};
-_Gizra$elm_spa_exmple$Backend_Restful_ops['</>'] = F2(
-	function (left, right) {
-		return (A2(_elm_lang$core$String$endsWith, '/', left) || A2(_elm_lang$core$String$startsWith, '/', right)) ? A2(_elm_lang$core$Basics_ops['++'], left, right) : A2(
-			_elm_lang$core$Basics_ops['++'],
-			left,
-			A2(_elm_lang$core$Basics_ops['++'], '/', right));
-	});
-var _Gizra$elm_spa_exmple$Backend_Restful$get = F5(
-	function (backendUrl, accessToken, endpoint, params, tagger) {
-		var queryParams = A2(
-			_elm_lang$core$List$append,
-			endpoint.params(params),
-			A2(
-				_elm_lang$core$List$map,
-				function (token) {
-					return {ctor: '_Tuple2', _0: 'access_token', _1: token};
-				},
-				_elm_community$maybe_extra$Maybe_Extra$toList(accessToken)));
-		return A2(
-			_lukewestby$elm_http_builder$HttpBuilder$send,
-			function (_p4) {
-				return tagger(
-					A2(_elm_lang$core$Result$mapError, endpoint.error, _p4));
-			},
-			A2(
-				_lukewestby$elm_http_builder$HttpBuilder$withExpect,
-				_elm_lang$http$Http$expectJson(
-					_Gizra$elm_spa_exmple$Backend_Restful$decodeData(
-						_elm_lang$core$Json_Decode$list(
+						A2(
+							F2(
+								function (x, y) {
+									return x / y;
+								}),
+							fl,
 							A2(
-								_Gizra$elm_spa_exmple$Backend_Restful$decodeStorageTuple,
-								_Gizra$elm_spa_exmple$Backend_Restful$decodeId(endpoint.tag),
-								endpoint.decoder)))),
-				A2(
-					_lukewestby$elm_http_builder$HttpBuilder$withQueryParams,
-					queryParams,
-					_lukewestby$elm_http_builder$HttpBuilder$get(
-						A2(_Gizra$elm_spa_exmple$Backend_Restful_ops['</>'], backendUrl, endpoint.path)))));
-	});
-var _Gizra$elm_spa_exmple$Backend_Restful$EndPoint = F5(
-	function (a, b, c, d, e) {
-		return {path: a, tag: b, decoder: c, error: d, params: e};
-	});
-var _Gizra$elm_spa_exmple$Backend_Restful$EntityId = function (a) {
-	return {ctor: 'EntityId', _0: a};
-};
-var _Gizra$elm_spa_exmple$Backend_Restful$toEntityId = _Gizra$elm_spa_exmple$Backend_Restful$EntityId;
-var _Gizra$elm_spa_exmple$Backend_Restful$decodeEntityId = A2(_elm_lang$core$Json_Decode$map, _Gizra$elm_spa_exmple$Backend_Restful$toEntityId, _Gizra$elm_spa_exmple$Utils_Json$decodeInt);
-
-var _Gizra$elm_spa_exmple$Backend_Entities$UserIdType = {ctor: 'UserIdType'};
-var _Gizra$elm_spa_exmple$Backend_Entities$ItemIdType = {ctor: 'ItemIdType'};
-var _Gizra$elm_spa_exmple$Backend_Entities$ItemCommentIdType = {ctor: 'ItemCommentIdType'};
-
-var _Gizra$elm_spa_exmple$App_Types$NotFound = {ctor: 'NotFound'};
-var _Gizra$elm_spa_exmple$App_Types$HomePage = {ctor: 'HomePage'};
-var _Gizra$elm_spa_exmple$App_Types$Item = function (a) {
-	return {ctor: 'Item', _0: a};
-};
-var _Gizra$elm_spa_exmple$App_Types$BackendUrl = function (a) {
-	return {ctor: 'BackendUrl', _0: a};
-};
-
-var _Gizra$elm_spa_exmple$User_Model$User = function (a) {
-	return {name: a};
-};
-var _Gizra$elm_spa_exmple$User_Model$Authenticated = function (a) {
-	return {ctor: 'Authenticated', _0: a};
-};
-var _Gizra$elm_spa_exmple$User_Model$Anonymous = {ctor: 'Anonymous'};
-
-var _Gizra$elm_spa_exmple$Backend_Item_Model$Item = F2(
-	function (a, b) {
-		return {name: a, comments: b};
-	});
-var _Gizra$elm_spa_exmple$Backend_Item_Model$ItemComment = F3(
-	function (a, b, c) {
-		return {user: a, comment: b, created: c};
-	});
-var _Gizra$elm_spa_exmple$Backend_Item_Model$HandleSaveComment = F2(
-	function (a, b) {
-		return {ctor: 'HandleSaveComment', _0: a, _1: b};
-	});
-var _Gizra$elm_spa_exmple$Backend_Item_Model$SaveComment = function (a) {
-	return {ctor: 'SaveComment', _0: a};
-};
-var _Gizra$elm_spa_exmple$Backend_Item_Model$HandleFetchItemIdAndCommentsTuple = function (a) {
-	return {ctor: 'HandleFetchItemIdAndCommentsTuple', _0: a};
-};
-var _Gizra$elm_spa_exmple$Backend_Item_Model$HandleFetchItems = function (a) {
-	return {ctor: 'HandleFetchItems', _0: a};
-};
-
-var _Gizra$elm_spa_exmple$Backend_Model$emptyModel = {items: _Gizra$elm_dictlist$EveryDictList$empty};
-var _Gizra$elm_spa_exmple$Backend_Model$Model = function (a) {
-	return {items: a};
-};
-var _Gizra$elm_spa_exmple$Backend_Model$MsgItems = function (a) {
-	return {ctor: 'MsgItems', _0: a};
-};
-
-var _Gizra$elm_spa_exmple$ItemComment_Model$Model = function (a) {
-	return {selectedTab: a};
-};
-var _Gizra$elm_spa_exmple$ItemComment_Model$Preview = {ctor: 'Preview'};
-var _Gizra$elm_spa_exmple$ItemComment_Model$Edit = {ctor: 'Edit'};
-var _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel = {selectedTab: _Gizra$elm_spa_exmple$ItemComment_Model$Edit};
-var _Gizra$elm_spa_exmple$ItemComment_Model$SetComment = F2(
-	function (a, b) {
-		return {ctor: 'SetComment', _0: a, _1: b};
-	});
-var _Gizra$elm_spa_exmple$ItemComment_Model$DelegatedSaveComment = function (a) {
-	return {ctor: 'DelegatedSaveComment', _0: a};
-};
-var _Gizra$elm_spa_exmple$ItemComment_Model$SetTab = function (a) {
-	return {ctor: 'SetTab', _0: a};
-};
-var _Gizra$elm_spa_exmple$ItemComment_Model$UpdateBackend = {ctor: 'UpdateBackend'};
-var _Gizra$elm_spa_exmple$ItemComment_Model$MsgBackendItem = function (a) {
-	return {ctor: 'MsgBackendItem', _0: a};
-};
-var _Gizra$elm_spa_exmple$ItemComment_Model$NoOp = {ctor: 'NoOp'};
-
-var _Gizra$elm_spa_exmple$Pages_Item_Model$emptyModel = {itemComment: _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel};
-var _Gizra$elm_spa_exmple$Pages_Item_Model$Model = function (a) {
-	return {itemComment: a};
-};
-var _Gizra$elm_spa_exmple$Pages_Item_Model$SetComment = F2(
-	function (a, b) {
-		return {ctor: 'SetComment', _0: a, _1: b};
-	});
-var _Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment = function (a) {
-	return {ctor: 'MsgItemComment', _0: a};
-};
-var _Gizra$elm_spa_exmple$Pages_Item_Model$UpdateBackend = {ctor: 'UpdateBackend'};
-var _Gizra$elm_spa_exmple$Pages_Item_Model$MsgBackendItem = function (a) {
-	return {ctor: 'MsgBackendItem', _0: a};
-};
-var _Gizra$elm_spa_exmple$Pages_Item_Model$NoOp = {ctor: 'NoOp'};
-
-var _Gizra$elm_spa_exmple$App_Model$emptyModel = {
-	activePage: _Gizra$elm_spa_exmple$App_Types$NotFound,
-	backend: _Gizra$elm_spa_exmple$Backend_Model$emptyModel,
-	user: _Gizra$elm_spa_exmple$User_Model$Anonymous,
-	backendUrl: _Gizra$elm_spa_exmple$App_Types$BackendUrl(''),
-	pagesItem: _Gizra$elm_spa_exmple$Pages_Item_Model$emptyModel
-};
-var _Gizra$elm_spa_exmple$App_Model$Flags = F3(
-	function (a, b, c) {
-		return {page: a, entityId: b, backendUrl: c};
-	});
-var _Gizra$elm_spa_exmple$App_Model$Model = F5(
-	function (a, b, c, d, e) {
-		return {activePage: a, backend: b, user: c, backendUrl: d, pagesItem: e};
-	});
-var _Gizra$elm_spa_exmple$App_Model$MsgPagesItem = function (a) {
-	return {ctor: 'MsgPagesItem', _0: a};
-};
-var _Gizra$elm_spa_exmple$App_Model$MsgBackend = function (a) {
-	return {ctor: 'MsgBackend', _0: a};
-};
-var _Gizra$elm_spa_exmple$App_Model$HandleUser = function (a) {
-	return {ctor: 'HandleUser', _0: a};
-};
-
-var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode = _elm_lang$core$Json_Decode$succeed;
-var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$resolve = _elm_lang$core$Json_Decode$andThen(_elm_lang$core$Basics$identity);
-var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom = _elm_lang$core$Json_Decode$map2(
-	F2(
-		function (x, y) {
-			return y(x);
-		}));
-var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$hardcoded = function (_p0) {
-	return _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom(
-		_elm_lang$core$Json_Decode$succeed(_p0));
-};
-var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optionalDecoder = F3(
-	function (pathDecoder, valDecoder, fallback) {
-		var nullOr = function (decoder) {
-			return _elm_lang$core$Json_Decode$oneOf(
-				{
-					ctor: '::',
-					_0: decoder,
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$core$Json_Decode$null(fallback),
-						_1: {ctor: '[]'}
-					}
-				});
-		};
-		var handleResult = function (input) {
-			var _p1 = A2(_elm_lang$core$Json_Decode$decodeValue, pathDecoder, input);
-			if (_p1.ctor === 'Ok') {
-				var _p2 = A2(
-					_elm_lang$core$Json_Decode$decodeValue,
-					nullOr(valDecoder),
-					_p1._0);
-				if (_p2.ctor === 'Ok') {
-					return _elm_lang$core$Json_Decode$succeed(_p2._0);
-				} else {
-					return _elm_lang$core$Json_Decode$fail(_p2._0);
-				}
+								F2(
+									function (x, y) {
+										return Math.pow(x, y);
+									}),
+								10,
+								_elm_lang$core$Basics$abs(
+									_elm_lang$core$Basics$toFloat(s))))));
 			} else {
-				return _elm_lang$core$Json_Decode$succeed(fallback);
+				var dd = (_elm_lang$core$Native_Utils.cmp(fl, 0) < 0) ? 2 : 1;
+				var n = (_elm_lang$core$Native_Utils.cmp(fl, 0) < 0) ? -1 : 1;
+				var e = Math.pow(10, s);
+				var _p5 = _myrho$elm_round$Round$splitComma(
+					_myrho$elm_round$Round$toDecimal(fl));
+				var before = _p5._0;
+				var after = _p5._1;
+				var a = A3(
+					_elm_lang$core$String$padRight,
+					s + 1,
+					_elm_lang$core$Native_Utils.chr('0'),
+					after);
+				var b = A2(_elm_lang$core$String$left, s, a);
+				var c = A2(_elm_lang$core$String$dropLeft, s, a);
+				var f = functor(
+					A2(
+						_elm_lang$core$Maybe$withDefault,
+						_elm_lang$core$Basics$toFloat(e),
+						_elm_lang$core$Result$toMaybe(
+							_elm_lang$core$String$toFloat(
+								A2(
+									_elm_lang$core$Basics_ops['++'],
+									(_elm_lang$core$Native_Utils.cmp(fl, 0) < 0) ? '-' : '',
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										'1',
+										A2(
+											_elm_lang$core$Basics_ops['++'],
+											b,
+											A2(_elm_lang$core$Basics_ops['++'], '.', c))))))));
+				var g = A2(
+					_elm_lang$core$String$dropLeft,
+					dd,
+					_elm_lang$core$Basics$toString(f));
+				var h = _myrho$elm_round$Round$truncate(fl) + (_elm_lang$core$Native_Utils.eq(f - (e * n), e * n) ? ((_elm_lang$core$Native_Utils.cmp(fl, 0) < 0) ? -1 : 1) : 0);
+				var j = _elm_lang$core$Basics$toString(h);
+				var i = (_elm_lang$core$Native_Utils.eq(j, '0') && ((!_elm_lang$core$Native_Utils.eq(f - (e * n), 0)) && ((_elm_lang$core$Native_Utils.cmp(fl, 0) < 0) && (_elm_lang$core$Native_Utils.cmp(fl, -1) > 0)))) ? A2(_elm_lang$core$Basics_ops['++'], '-', j) : j;
+				return A2(
+					_elm_lang$core$Basics_ops['++'],
+					i,
+					A2(_elm_lang$core$Basics_ops['++'], '.', g));
 			}
-		};
-		return A2(_elm_lang$core$Json_Decode$andThen, handleResult, _elm_lang$core$Json_Decode$value);
-	});
-var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optionalAt = F4(
-	function (path, valDecoder, fallback, decoder) {
-		return A2(
-			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
-			A3(
-				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optionalDecoder,
-				A2(_elm_lang$core$Json_Decode$at, path, _elm_lang$core$Json_Decode$value),
-				valDecoder,
-				fallback),
-			decoder);
-	});
-var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optional = F4(
-	function (key, valDecoder, fallback, decoder) {
-		return A2(
-			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
-			A3(
-				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optionalDecoder,
-				A2(_elm_lang$core$Json_Decode$field, key, _elm_lang$core$Json_Decode$value),
-				valDecoder,
-				fallback),
-			decoder);
-	});
-var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$requiredAt = F3(
-	function (path, valDecoder, decoder) {
-		return A2(
-			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
-			A2(_elm_lang$core$Json_Decode$at, path, valDecoder),
-			decoder);
-	});
-var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required = F3(
-	function (key, valDecoder, decoder) {
-		return A2(
-			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
-			A2(_elm_lang$core$Json_Decode$field, key, valDecoder),
-			decoder);
-	});
-
-var _Gizra$elm_spa_exmple$User_Decoder$decodeUser = A3(
-	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-	'name',
-	_elm_lang$core$Json_Decode$string,
-	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$User_Model$User));
-var _Gizra$elm_spa_exmple$User_Decoder$decodeUserTuple = A2(
-	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
-	_Gizra$elm_spa_exmple$User_Decoder$decodeUser,
-	A2(
-		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
-		_Gizra$elm_spa_exmple$Backend_Restful$decodeId(_Gizra$elm_spa_exmple$Backend_Restful$toEntityId),
-		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(
-			F2(
-				function (v0, v1) {
-					return {ctor: '_Tuple2', _0: v0, _1: v1};
-				}))));
-var _Gizra$elm_spa_exmple$User_Decoder$decodeCurrentUser = _elm_lang$core$Json_Decode$oneOf(
-	{
-		ctor: '::',
-		_0: _elm_lang$core$Json_Decode$null(_Gizra$elm_spa_exmple$User_Model$Anonymous),
-		_1: {
-			ctor: '::',
-			_0: A2(
-				_elm_lang$core$Json_Decode$andThen,
-				function (userTuple) {
-					return _elm_lang$core$Json_Decode$succeed(
-						_Gizra$elm_spa_exmple$User_Model$Authenticated(userTuple));
-				},
-				_Gizra$elm_spa_exmple$User_Decoder$decodeUserTuple),
-			_1: {ctor: '[]'}
 		}
 	});
+var _myrho$elm_round$Round$round = _myrho$elm_round$Round$roundFun(_elm_lang$core$Basics$round);
+var _myrho$elm_round$Round$roundNum = _myrho$elm_round$Round$funNum(_myrho$elm_round$Round$round);
+var _myrho$elm_round$Round$ceiling = _myrho$elm_round$Round$roundFun(_elm_lang$core$Basics$ceiling);
+var _myrho$elm_round$Round$ceilingNum = _myrho$elm_round$Round$funNum(_myrho$elm_round$Round$ceiling);
+var _myrho$elm_round$Round$floor = _myrho$elm_round$Round$roundFun(_elm_lang$core$Basics$floor);
+var _myrho$elm_round$Round$floorCom = F2(
+	function (s, fl) {
+		return (_elm_lang$core$Native_Utils.cmp(fl, 0) < 0) ? A2(_myrho$elm_round$Round$ceiling, s, fl) : A2(_myrho$elm_round$Round$floor, s, fl);
+	});
+var _myrho$elm_round$Round$floorNumCom = _myrho$elm_round$Round$funNum(_myrho$elm_round$Round$floorCom);
+var _myrho$elm_round$Round$ceilingCom = F2(
+	function (s, fl) {
+		return (_elm_lang$core$Native_Utils.cmp(fl, 0) < 0) ? A2(_myrho$elm_round$Round$floor, s, fl) : A2(_myrho$elm_round$Round$ceiling, s, fl);
+	});
+var _myrho$elm_round$Round$ceilingNumCom = _myrho$elm_round$Round$funNum(_myrho$elm_round$Round$ceilingCom);
+var _myrho$elm_round$Round$floorNum = _myrho$elm_round$Round$funNum(_myrho$elm_round$Round$floor);
+var _myrho$elm_round$Round$roundCom = _myrho$elm_round$Round$roundFun(
+	function (fl) {
+		var dec = fl - _elm_lang$core$Basics$toFloat(
+			_myrho$elm_round$Round$truncate(fl));
+		return (_elm_lang$core$Native_Utils.cmp(dec, 0.5) > -1) ? _elm_lang$core$Basics$ceiling(fl) : ((_elm_lang$core$Native_Utils.cmp(dec, -0.5) < 1) ? _elm_lang$core$Basics$floor(fl) : _elm_lang$core$Basics$round(fl));
+	});
+var _myrho$elm_round$Round$roundNumCom = _myrho$elm_round$Round$funNum(_myrho$elm_round$Round$roundCom);
 
-var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItemComment = A2(
-	_elm_lang$core$Json_Decode$andThen,
-	function (val) {
-		return _elm_lang$core$Json_Decode$succeed(
-			_Gizra$elm_editable_webdata$Editable_WebData$create(val));
-	},
-	A3(
-		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-		'created',
-		_Gizra$elm_spa_exmple$Utils_Json$decodeDate,
-		A3(
-			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-			'comment',
-			_elm_lang$core$Json_Decode$string,
-			A2(
-				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
-				_Gizra$elm_spa_exmple$User_Decoder$decodeUserTuple,
-				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$Backend_Item_Model$ItemComment)))));
-var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeStorageKeyAsEntityId = A2(
-	_elm_lang$core$Json_Decode$andThen,
-	function (val) {
-		return _elm_lang$core$Json_Decode$succeed(
-			_Gizra$elm_storage_key$StorageKey$Existing(val));
-	},
-	_Gizra$elm_spa_exmple$Backend_Restful$decodeId(_Gizra$elm_spa_exmple$Backend_Restful$toEntityId));
-var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItemComments = function (currentUser) {
-	return A2(
-		_elm_lang$core$Json_Decode$andThen,
-		function (dictList) {
-			return _elm_lang$core$Json_Decode$succeed(
-				function () {
-					var _p0 = currentUser;
-					if (_p0.ctor === 'Authenticated') {
-						var emptyCommentItem = _Gizra$elm_editable_webdata$Editable_WebData$create(
-							{
-								user: _p0._0,
-								comment: '',
-								created: _elm_lang$core$Date$fromTime(0)
-							});
-						return A3(_Gizra$elm_dictlist$EveryDictList$insert, _Gizra$elm_storage_key$StorageKey$New, emptyCommentItem, dictList);
-					} else {
-						return dictList;
-					}
-				}());
-		},
-		_elm_lang$core$Json_Decode$oneOf(
-			{
-				ctor: '::',
-				_0: A2(_Gizra$elm_dictlist$EveryDictList$decodeArray2, _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeStorageKeyAsEntityId, _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItemComment),
-				_1: {
-					ctor: '::',
-					_0: _Gizra$elm_spa_exmple$Utils_Json$decodeEmptyArrayAs(_Gizra$elm_dictlist$EveryDictList$empty),
-					_1: {ctor: '[]'}
-				}
-			}));
-};
-var _Gizra$elm_spa_exmple$Backend_Item_Decoder$deocdeItemIdAndComments = function (currentUser) {
-	return A3(
-		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-		'comments',
-		_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItemComments(currentUser),
-		A3(
-			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-			'itemId',
-			A2(
-				_elm_lang$core$Json_Decode$andThen,
-				function (val) {
-					return _elm_lang$core$Json_Decode$succeed(
-						_Gizra$elm_storage_key$StorageKey$Existing(
-							_Gizra$elm_spa_exmple$Backend_Restful$toEntityId(val)));
-				},
-				_Gizra$elm_spa_exmple$Utils_Json$decodeInt),
-			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(
-				F2(
-					function (v0, v1) {
-						return {ctor: '_Tuple2', _0: v0, _1: v1};
-					}))));
-};
-var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItem = function (currentUser) {
-	return A4(
-		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optional,
-		'comments',
-		_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItemComments(currentUser),
-		_Gizra$elm_dictlist$EveryDictList$empty,
-		A3(
-			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-			'name',
-			_elm_lang$core$Json_Decode$string,
-			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$Backend_Item_Model$Item)));
-};
-var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItems = function (currentUser) {
-	return _elm_lang$core$Json_Decode$oneOf(
+var _cuducos$elm_format_number$Helpers$stringfy = function (formatted) {
+	var decimals = function () {
+		var _p0 = formatted.decimals;
+		if (_p0.ctor === 'Just') {
+			return A2(_elm_lang$core$Basics_ops['++'], formatted.locale.decimalSeparator, _p0._0);
+		} else {
+			return '';
+		}
+	}();
+	return _elm_lang$core$String$concat(
 		{
 			ctor: '::',
-			_0: A2(
-				_Gizra$elm_dictlist$EveryDictList$decodeArray2,
-				_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeStorageKeyAsEntityId,
-				_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItem(currentUser)),
+			_0: A2(_elm_lang$core$Maybe$withDefault, '', formatted.negativePrefix),
 			_1: {
 				ctor: '::',
-				_0: _Gizra$elm_spa_exmple$Utils_Json$decodeEmptyArrayAs(_Gizra$elm_dictlist$EveryDictList$empty),
-				_1: {ctor: '[]'}
+				_0: A2(_elm_lang$core$String$join, formatted.locale.thousandSeparator, formatted.integers),
+				_1: {
+					ctor: '::',
+					_0: decimals,
+					_1: {
+						ctor: '::',
+						_0: A2(_elm_lang$core$Maybe$withDefault, '', formatted.negativeSuffix),
+						_1: {ctor: '[]'}
+					}
+				}
 			}
 		});
 };
-
-var _Gizra$elm_spa_exmple$Backend_Item_Utils$getComment = F2(
-	function (_p0, items) {
-		var _p1 = _p0;
-		var _p2 = A2(_Gizra$elm_dictlist$EveryDictList$get, _p1._0, items);
-		if (_p2.ctor === 'Nothing') {
-			return _elm_lang$core$Maybe$Nothing;
-		} else {
-			return A2(_Gizra$elm_dictlist$EveryDictList$get, _p1._1, _p2._0.comments);
-		}
+var _cuducos$elm_format_number$Helpers$splitThousands = function (integers) {
+	var reversedSplitThousands = function (value) {
+		return (_elm_lang$core$Native_Utils.cmp(
+			_elm_lang$core$String$length(value),
+			3) > 0) ? A2(
+			F2(
+				function (x, y) {
+					return {ctor: '::', _0: x, _1: y};
+				}),
+			A2(_elm_lang$core$String$right, 3, value),
+			reversedSplitThousands(
+				A2(_elm_lang$core$String$dropRight, 3, value))) : {
+			ctor: '::',
+			_0: value,
+			_1: {ctor: '[]'}
+		};
+	};
+	return _elm_lang$core$List$reverse(
+		reversedSplitThousands(integers));
+};
+var _cuducos$elm_format_number$Helpers$isNegative = function (formatted) {
+	var onlyZeros = A2(
+		_elm_lang$core$String$all,
+		function ($char) {
+			return _elm_lang$core$Native_Utils.eq(
+				$char,
+				_elm_lang$core$Native_Utils.chr('0'));
+		},
+		_elm_lang$core$String$concat(
+			A2(
+				_elm_lang$core$List$append,
+				formatted.integers,
+				_elm_lang$core$List$singleton(
+					A2(_elm_lang$core$Maybe$withDefault, '', formatted.decimals)))));
+	var isPositive = _elm_lang$core$Native_Utils.cmp(formatted.original, 0) > -1;
+	return !(isPositive || onlyZeros);
+};
+var _cuducos$elm_format_number$Helpers$FormattedNumber = F6(
+	function (a, b, c, d, e, f) {
+		return {locale: a, original: b, integers: c, decimals: d, negativePrefix: e, negativeSuffix: f};
 	});
-var _Gizra$elm_spa_exmple$Backend_Item_Utils$insertComments = F3(
-	function (_p3, itemComments, items) {
-		var _p4 = _p3;
-		var _p8 = _p4._0;
-		var _p5 = A2(_Gizra$elm_dictlist$EveryDictList$get, _p8, items);
-		if (_p5.ctor === 'Nothing') {
-			return items;
-		} else {
-			var _p7 = _p5._0;
-			var itemUpdated = _elm_lang$core$Native_Utils.update(
-				_p7,
-				{
-					comments: A2(_Gizra$elm_dictlist$EveryDictList$append, _p7.comments, itemComments)
-				});
-			var itemWithFreshNew = A3(
-				_elm_community$maybe_extra$Maybe_Extra$unwrap,
-				itemUpdated,
-				function (editableWebData) {
-					var value = _stoeffel$editable$Editable$value(
-						_Gizra$elm_editable_webdata$Editable_WebData$toEditable(editableWebData));
-					var valueUpdated = _elm_lang$core$Native_Utils.update(
-						value,
-						{comment: ''});
-					var itemCommentUpdated = A2(
-						_Gizra$elm_editable_webdata$Editable_WebData$state,
-						_krisajenkins$remotedata$RemoteData$NotAsked,
-						A2(
-							_Gizra$elm_editable_webdata$Editable_WebData$map,
-							function (_p6) {
-								return A2(
-									_stoeffel$editable$Editable$update,
-									valueUpdated,
-									_stoeffel$editable$Editable$edit(_p6));
-							},
-							editableWebData));
-					return _elm_lang$core$Native_Utils.update(
-						itemUpdated,
-						{
-							comments: A3(_Gizra$elm_dictlist$EveryDictList$insert, _p4._1, itemCommentUpdated, itemUpdated.comments)
-						});
-				},
+var _cuducos$elm_format_number$Helpers$parse = F2(
+	function (locale, original) {
+		var parts = A2(
+			_elm_lang$core$String$split,
+			'.',
+			A2(_myrho$elm_round$Round$round, locale.decimals, original));
+		var integers = _cuducos$elm_format_number$Helpers$splitThousands(
+			A2(
+				_elm_lang$core$String$filter,
+				_elm_lang$core$Char$isDigit,
 				A2(
-					_Gizra$elm_spa_exmple$Backend_Item_Utils$getComment,
-					{ctor: '_Tuple2', _0: _p8, _1: _Gizra$elm_storage_key$StorageKey$New},
-					items));
-			return A3(_Gizra$elm_dictlist$EveryDictList$insert, _p8, itemWithFreshNew, items);
-		}
+					_elm_lang$core$Maybe$withDefault,
+					'0',
+					_elm_lang$core$List$head(parts))));
+		var decimals = _elm_lang$core$List$head(
+			A2(_elm_lang$core$List$drop, 1, parts));
+		var partial = A6(_cuducos$elm_format_number$Helpers$FormattedNumber, locale, original, integers, decimals, _elm_lang$core$Maybe$Nothing, _elm_lang$core$Maybe$Nothing);
+		return _cuducos$elm_format_number$Helpers$isNegative(partial) ? _elm_lang$core$Native_Utils.update(
+			partial,
+			{
+				negativePrefix: _elm_lang$core$Maybe$Just(locale.negativePrefix),
+				negativeSuffix: _elm_lang$core$Maybe$Just(locale.negativeSuffix)
+			}) : partial;
+	});
+
+var _cuducos$elm_format_number$FormatNumber$format = F2(
+	function (locale, num) {
+		return _cuducos$elm_format_number$Helpers$stringfy(
+			A2(_cuducos$elm_format_number$Helpers$parse, locale, num));
 	});
 
 var _elm_lang$virtual_dom$VirtualDom_Debug$wrap;
@@ -13456,6 +12621,1262 @@ var _elm_lang$html$Html$details = _elm_lang$html$Html$node('details');
 var _elm_lang$html$Html$summary = _elm_lang$html$Html$node('summary');
 var _elm_lang$html$Html$menuitem = _elm_lang$html$Html$node('menuitem');
 var _elm_lang$html$Html$menu = _elm_lang$html$Html$node('menu');
+
+//import Result //
+
+var _elm_lang$core$Native_Date = function() {
+
+function fromString(str)
+{
+	var date = new Date(str);
+	return isNaN(date.getTime())
+		? _elm_lang$core$Result$Err('Unable to parse \'' + str + '\' as a date. Dates must be in the ISO 8601 format.')
+		: _elm_lang$core$Result$Ok(date);
+}
+
+var dayTable = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+var monthTable =
+	['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+	 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+
+return {
+	fromString: fromString,
+	year: function(d) { return d.getFullYear(); },
+	month: function(d) { return { ctor: monthTable[d.getMonth()] }; },
+	day: function(d) { return d.getDate(); },
+	hour: function(d) { return d.getHours(); },
+	minute: function(d) { return d.getMinutes(); },
+	second: function(d) { return d.getSeconds(); },
+	millisecond: function(d) { return d.getMilliseconds(); },
+	toTime: function(d) { return d.getTime(); },
+	fromTime: function(t) { return new Date(t); },
+	dayOfWeek: function(d) { return { ctor: dayTable[d.getDay()] }; }
+};
+
+}();
+var _elm_lang$core$Date$millisecond = _elm_lang$core$Native_Date.millisecond;
+var _elm_lang$core$Date$second = _elm_lang$core$Native_Date.second;
+var _elm_lang$core$Date$minute = _elm_lang$core$Native_Date.minute;
+var _elm_lang$core$Date$hour = _elm_lang$core$Native_Date.hour;
+var _elm_lang$core$Date$dayOfWeek = _elm_lang$core$Native_Date.dayOfWeek;
+var _elm_lang$core$Date$day = _elm_lang$core$Native_Date.day;
+var _elm_lang$core$Date$month = _elm_lang$core$Native_Date.month;
+var _elm_lang$core$Date$year = _elm_lang$core$Native_Date.year;
+var _elm_lang$core$Date$fromTime = _elm_lang$core$Native_Date.fromTime;
+var _elm_lang$core$Date$toTime = _elm_lang$core$Native_Date.toTime;
+var _elm_lang$core$Date$fromString = _elm_lang$core$Native_Date.fromString;
+var _elm_lang$core$Date$now = A2(_elm_lang$core$Task$map, _elm_lang$core$Date$fromTime, _elm_lang$core$Time$now);
+var _elm_lang$core$Date$Date = {ctor: 'Date'};
+var _elm_lang$core$Date$Sun = {ctor: 'Sun'};
+var _elm_lang$core$Date$Sat = {ctor: 'Sat'};
+var _elm_lang$core$Date$Fri = {ctor: 'Fri'};
+var _elm_lang$core$Date$Thu = {ctor: 'Thu'};
+var _elm_lang$core$Date$Wed = {ctor: 'Wed'};
+var _elm_lang$core$Date$Tue = {ctor: 'Tue'};
+var _elm_lang$core$Date$Mon = {ctor: 'Mon'};
+var _elm_lang$core$Date$Dec = {ctor: 'Dec'};
+var _elm_lang$core$Date$Nov = {ctor: 'Nov'};
+var _elm_lang$core$Date$Oct = {ctor: 'Oct'};
+var _elm_lang$core$Date$Sep = {ctor: 'Sep'};
+var _elm_lang$core$Date$Aug = {ctor: 'Aug'};
+var _elm_lang$core$Date$Jul = {ctor: 'Jul'};
+var _elm_lang$core$Date$Jun = {ctor: 'Jun'};
+var _elm_lang$core$Date$May = {ctor: 'May'};
+var _elm_lang$core$Date$Apr = {ctor: 'Apr'};
+var _elm_lang$core$Date$Mar = {ctor: 'Mar'};
+var _elm_lang$core$Date$Feb = {ctor: 'Feb'};
+var _elm_lang$core$Date$Jan = {ctor: 'Jan'};
+
+var _elm_community$json_extra$Json_Decode_Extra$combine = A2(
+	_elm_lang$core$List$foldr,
+	_elm_lang$core$Json_Decode$map2(
+		F2(
+			function (x, y) {
+				return {ctor: '::', _0: x, _1: y};
+			})),
+	_elm_lang$core$Json_Decode$succeed(
+		{ctor: '[]'}));
+var _elm_community$json_extra$Json_Decode_Extra$collection = function (decoder) {
+	return A2(
+		_elm_lang$core$Json_Decode$andThen,
+		function (length) {
+			return _elm_community$json_extra$Json_Decode_Extra$combine(
+				A2(
+					_elm_lang$core$List$map,
+					function (index) {
+						return A2(
+							_elm_lang$core$Json_Decode$field,
+							_elm_lang$core$Basics$toString(index),
+							decoder);
+					},
+					A2(_elm_lang$core$List$range, 0, length - 1)));
+		},
+		A2(_elm_lang$core$Json_Decode$field, 'length', _elm_lang$core$Json_Decode$int));
+};
+var _elm_community$json_extra$Json_Decode_Extra$fromResult = function (result) {
+	var _p0 = result;
+	if (_p0.ctor === 'Ok') {
+		return _elm_lang$core$Json_Decode$succeed(_p0._0);
+	} else {
+		return _elm_lang$core$Json_Decode$fail(_p0._0);
+	}
+};
+var _elm_community$json_extra$Json_Decode_Extra$parseInt = A2(
+	_elm_lang$core$Json_Decode$andThen,
+	function (_p1) {
+		return _elm_community$json_extra$Json_Decode_Extra$fromResult(
+			_elm_lang$core$String$toInt(_p1));
+	},
+	_elm_lang$core$Json_Decode$string);
+var _elm_community$json_extra$Json_Decode_Extra$parseFloat = A2(
+	_elm_lang$core$Json_Decode$andThen,
+	function (_p2) {
+		return _elm_community$json_extra$Json_Decode_Extra$fromResult(
+			_elm_lang$core$String$toFloat(_p2));
+	},
+	_elm_lang$core$Json_Decode$string);
+var _elm_community$json_extra$Json_Decode_Extra$doubleEncoded = function (decoder) {
+	return A2(
+		_elm_lang$core$Json_Decode$andThen,
+		function (_p3) {
+			return _elm_community$json_extra$Json_Decode_Extra$fromResult(
+				A2(_elm_lang$core$Json_Decode$decodeString, decoder, _p3));
+		},
+		_elm_lang$core$Json_Decode$string);
+};
+var _elm_community$json_extra$Json_Decode_Extra$sequenceHelp = F2(
+	function (decoders, jsonValues) {
+		return (!_elm_lang$core$Native_Utils.eq(
+			_elm_lang$core$List$length(jsonValues),
+			_elm_lang$core$List$length(decoders))) ? _elm_lang$core$Json_Decode$fail('Number of decoders does not match number of values') : _elm_community$json_extra$Json_Decode_Extra$fromResult(
+			A3(
+				_elm_lang$core$List$foldr,
+				_elm_lang$core$Result$map2(
+					F2(
+						function (x, y) {
+							return {ctor: '::', _0: x, _1: y};
+						})),
+				_elm_lang$core$Result$Ok(
+					{ctor: '[]'}),
+				A3(_elm_lang$core$List$map2, _elm_lang$core$Json_Decode$decodeValue, decoders, jsonValues)));
+	});
+var _elm_community$json_extra$Json_Decode_Extra$sequence = function (decoders) {
+	return A2(
+		_elm_lang$core$Json_Decode$andThen,
+		_elm_community$json_extra$Json_Decode_Extra$sequenceHelp(decoders),
+		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$value));
+};
+var _elm_community$json_extra$Json_Decode_Extra$indexedList = function (indexedDecoder) {
+	return A2(
+		_elm_lang$core$Json_Decode$andThen,
+		function (values) {
+			return _elm_community$json_extra$Json_Decode_Extra$sequence(
+				A2(
+					_elm_lang$core$List$map,
+					indexedDecoder,
+					A2(
+						_elm_lang$core$List$range,
+						0,
+						_elm_lang$core$List$length(values) - 1)));
+		},
+		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$value));
+};
+var _elm_community$json_extra$Json_Decode_Extra$optionalField = F2(
+	function (fieldName, decoder) {
+		var finishDecoding = function (json) {
+			var _p4 = A2(
+				_elm_lang$core$Json_Decode$decodeValue,
+				A2(_elm_lang$core$Json_Decode$field, fieldName, _elm_lang$core$Json_Decode$value),
+				json);
+			if (_p4.ctor === 'Ok') {
+				return A2(
+					_elm_lang$core$Json_Decode$map,
+					_elm_lang$core$Maybe$Just,
+					A2(_elm_lang$core$Json_Decode$field, fieldName, decoder));
+			} else {
+				return _elm_lang$core$Json_Decode$succeed(_elm_lang$core$Maybe$Nothing);
+			}
+		};
+		return A2(_elm_lang$core$Json_Decode$andThen, finishDecoding, _elm_lang$core$Json_Decode$value);
+	});
+var _elm_community$json_extra$Json_Decode_Extra$withDefault = F2(
+	function (fallback, decoder) {
+		return A2(
+			_elm_lang$core$Json_Decode$map,
+			_elm_lang$core$Maybe$withDefault(fallback),
+			_elm_lang$core$Json_Decode$maybe(decoder));
+	});
+var _elm_community$json_extra$Json_Decode_Extra$decodeDictFromTuples = F2(
+	function (keyDecoder, tuples) {
+		var _p5 = tuples;
+		if (_p5.ctor === '[]') {
+			return _elm_lang$core$Json_Decode$succeed(_elm_lang$core$Dict$empty);
+		} else {
+			var _p6 = A2(_elm_lang$core$Json_Decode$decodeString, keyDecoder, _p5._0._0);
+			if (_p6.ctor === 'Ok') {
+				return A2(
+					_elm_lang$core$Json_Decode$andThen,
+					function (_p7) {
+						return _elm_lang$core$Json_Decode$succeed(
+							A3(_elm_lang$core$Dict$insert, _p6._0, _p5._0._1, _p7));
+					},
+					A2(_elm_community$json_extra$Json_Decode_Extra$decodeDictFromTuples, keyDecoder, _p5._1));
+			} else {
+				return _elm_lang$core$Json_Decode$fail(_p6._0);
+			}
+		}
+	});
+var _elm_community$json_extra$Json_Decode_Extra$dict2 = F2(
+	function (keyDecoder, valueDecoder) {
+		return A2(
+			_elm_lang$core$Json_Decode$andThen,
+			_elm_community$json_extra$Json_Decode_Extra$decodeDictFromTuples(keyDecoder),
+			_elm_lang$core$Json_Decode$keyValuePairs(valueDecoder));
+	});
+var _elm_community$json_extra$Json_Decode_Extra$set = function (decoder) {
+	return A2(
+		_elm_lang$core$Json_Decode$map,
+		_elm_lang$core$Set$fromList,
+		_elm_lang$core$Json_Decode$list(decoder));
+};
+var _elm_community$json_extra$Json_Decode_Extra$date = A2(
+	_elm_lang$core$Json_Decode$andThen,
+	function (_p8) {
+		return _elm_community$json_extra$Json_Decode_Extra$fromResult(
+			_elm_lang$core$Date$fromString(_p8));
+	},
+	_elm_lang$core$Json_Decode$string);
+var _elm_community$json_extra$Json_Decode_Extra$andMap = _elm_lang$core$Json_Decode$map2(
+	F2(
+		function (x, y) {
+			return y(x);
+		}));
+var _elm_community$json_extra$Json_Decode_Extra_ops = _elm_community$json_extra$Json_Decode_Extra_ops || {};
+_elm_community$json_extra$Json_Decode_Extra_ops['|:'] = _elm_lang$core$Basics$flip(_elm_community$json_extra$Json_Decode_Extra$andMap);
+
+var _Gizra$elm_spa_exmple$Utils_Json$resultToDecoder = function (res) {
+	var _p0 = res;
+	if (_p0.ctor === 'Ok') {
+		return _elm_lang$core$Json_Decode$succeed(_p0._0);
+	} else {
+		return _elm_lang$core$Json_Decode$fail(_p0._0);
+	}
+};
+var _Gizra$elm_spa_exmple$Utils_Json$decodeInt = _elm_lang$core$Json_Decode$oneOf(
+	{
+		ctor: '::',
+		_0: _elm_lang$core$Json_Decode$int,
+		_1: {
+			ctor: '::',
+			_0: A2(
+				_elm_lang$core$Json_Decode$map,
+				_elm_lang$core$Basics$floor,
+				A2(
+					_elm_lang$core$Json_Decode$andThen,
+					function (_p1) {
+						return _Gizra$elm_spa_exmple$Utils_Json$resultToDecoder(
+							_elm_lang$core$String$toFloat(_p1));
+					},
+					_elm_lang$core$Json_Decode$string)),
+			_1: {ctor: '[]'}
+		}
+	});
+var _Gizra$elm_spa_exmple$Utils_Json$decodeEmptyArrayAs = function ($default) {
+	return A2(
+		_elm_lang$core$Json_Decode$andThen,
+		function (list) {
+			var length = _elm_lang$core$List$length(list);
+			return _elm_lang$core$Native_Utils.eq(length, 0) ? _elm_lang$core$Json_Decode$succeed($default) : _elm_lang$core$Json_Decode$fail(
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					'Expected an empty array, not an array with length: ',
+					_elm_lang$core$Basics$toString(length)));
+		},
+		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$value));
+};
+var _Gizra$elm_spa_exmple$Utils_Json$decodeDateFromEpoch = A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Date$fromTime, _elm_lang$core$Json_Decode$float);
+var _Gizra$elm_spa_exmple$Utils_Json$decodeDate = _elm_lang$core$Json_Decode$oneOf(
+	{
+		ctor: '::',
+		_0: _elm_community$json_extra$Json_Decode_Extra$date,
+		_1: {
+			ctor: '::',
+			_0: _Gizra$elm_spa_exmple$Utils_Json$decodeDateFromEpoch,
+			_1: {ctor: '[]'}
+		}
+	});
+
+var _Gizra$elm_spa_exmple$Amount$showWithCurrency = F3(
+	function (wrapper, currency, value) {
+		var _p0 = currency;
+		switch (_p0.ctor) {
+			case 'EUR':
+				return {
+					ctor: '::',
+					_0: value,
+					_1: {
+						ctor: '::',
+						_0: wrapper('€'),
+						_1: {ctor: '[]'}
+					}
+				};
+			case 'ILS':
+				return {
+					ctor: '::',
+					_0: wrapper('₪'),
+					_1: {
+						ctor: '::',
+						_0: value,
+						_1: {ctor: '[]'}
+					}
+				};
+			default:
+				return {
+					ctor: '::',
+					_0: wrapper('$'),
+					_1: {
+						ctor: '::',
+						_0: value,
+						_1: {ctor: '[]'}
+					}
+				};
+		}
+	});
+var _Gizra$elm_spa_exmple$Amount$showAmountWithCurrencyText = F2(
+	function (_p1, currency) {
+		var _p2 = _p1;
+		var value = A2(
+			_cuducos$elm_format_number$FormatNumber$format,
+			_elm_lang$core$Native_Utils.update(
+				_cuducos$elm_format_number$FormatNumber_Locales$usLocale,
+				{decimals: 0}),
+			_elm_lang$core$Basics$toFloat(_p2._0));
+		return _elm_lang$core$String$concat(
+			A3(_Gizra$elm_spa_exmple$Amount$showWithCurrency, _elm_lang$core$Basics$identity, currency, value));
+	});
+var _Gizra$elm_spa_exmple$Amount$showAmountWithCurrency = F2(
+	function (amount, currency) {
+		return _elm_lang$html$Html$text(
+			A2(_Gizra$elm_spa_exmple$Amount$showAmountWithCurrencyText, amount, currency));
+	});
+var _Gizra$elm_spa_exmple$Amount$extract = function (_p3) {
+	var _p4 = _p3;
+	return _p4._0;
+};
+var _Gizra$elm_spa_exmple$Amount$compare = F3(
+	function (comparator, _p6, _p5) {
+		var _p7 = _p6;
+		var _p8 = _p5;
+		return A2(comparator, _p7._0, _p8._0);
+	});
+var _Gizra$elm_spa_exmple$Amount$compareInfix = F3(
+	function (x, comparator, y) {
+		return A3(_Gizra$elm_spa_exmple$Amount$compare, comparator, x, y);
+	});
+var _Gizra$elm_spa_exmple$Amount$encodeAmount = function (_p9) {
+	var _p10 = _p9;
+	return _elm_lang$core$Json_Encode$int(_p10._0);
+};
+var _Gizra$elm_spa_exmple$Amount$Amount = function (a) {
+	return {ctor: 'Amount', _0: a};
+};
+var _Gizra$elm_spa_exmple$Amount$decodeAmount = A2(_elm_lang$core$Json_Decode$map, _Gizra$elm_spa_exmple$Amount$Amount, _Gizra$elm_spa_exmple$Utils_Json$decodeInt);
+var _Gizra$elm_spa_exmple$Amount$zero = _Gizra$elm_spa_exmple$Amount$Amount(0);
+var _Gizra$elm_spa_exmple$Amount$map = F2(
+	function (fn, _p11) {
+		var _p12 = _p11;
+		return _Gizra$elm_spa_exmple$Amount$Amount(
+			fn(_p12._0));
+	});
+var _Gizra$elm_spa_exmple$Amount$map2 = F3(
+	function (fn, _p14, _p13) {
+		var _p15 = _p14;
+		var _p16 = _p13;
+		return _Gizra$elm_spa_exmple$Amount$Amount(
+			A2(fn, _p15._0, _p16._0));
+	});
+var _Gizra$elm_spa_exmple$Amount$add = _Gizra$elm_spa_exmple$Amount$map2(
+	F2(
+		function (x, y) {
+			return x + y;
+		}));
+var _Gizra$elm_spa_exmple$Amount$sum = A2(_elm_lang$core$List$foldl, _Gizra$elm_spa_exmple$Amount$add, _Gizra$elm_spa_exmple$Amount$zero);
+
+var _lukewestby$elm_http_builder$HttpBuilder$replace = F2(
+	function (old, $new) {
+		return function (_p0) {
+			return A2(
+				_elm_lang$core$String$join,
+				$new,
+				A2(_elm_lang$core$String$split, old, _p0));
+		};
+	});
+var _lukewestby$elm_http_builder$HttpBuilder$queryEscape = function (_p1) {
+	return A3(
+		_lukewestby$elm_http_builder$HttpBuilder$replace,
+		'%20',
+		'+',
+		_elm_lang$http$Http$encodeUri(_p1));
+};
+var _lukewestby$elm_http_builder$HttpBuilder$queryPair = function (_p2) {
+	var _p3 = _p2;
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		_lukewestby$elm_http_builder$HttpBuilder$queryEscape(_p3._0),
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			'=',
+			_lukewestby$elm_http_builder$HttpBuilder$queryEscape(_p3._1)));
+};
+var _lukewestby$elm_http_builder$HttpBuilder$joinUrlEncoded = function (args) {
+	return A2(
+		_elm_lang$core$String$join,
+		'&',
+		A2(_elm_lang$core$List$map, _lukewestby$elm_http_builder$HttpBuilder$queryPair, args));
+};
+var _lukewestby$elm_http_builder$HttpBuilder$toRequest = function (builder) {
+	var encodedParams = _lukewestby$elm_http_builder$HttpBuilder$joinUrlEncoded(builder.queryParams);
+	var fullUrl = _elm_lang$core$String$isEmpty(encodedParams) ? builder.url : A2(
+		_elm_lang$core$Basics_ops['++'],
+		builder.url,
+		A2(_elm_lang$core$Basics_ops['++'], '?', encodedParams));
+	return _elm_lang$http$Http$request(
+		{method: builder.method, url: fullUrl, headers: builder.headers, body: builder.body, expect: builder.expect, timeout: builder.timeout, withCredentials: builder.withCredentials});
+};
+var _lukewestby$elm_http_builder$HttpBuilder$toTaskPlain = function (builder) {
+	return _elm_lang$http$Http$toTask(
+		_lukewestby$elm_http_builder$HttpBuilder$toRequest(builder));
+};
+var _lukewestby$elm_http_builder$HttpBuilder$withCacheBuster = F2(
+	function (paramName, builder) {
+		return _elm_lang$core$Native_Utils.update(
+			builder,
+			{
+				cacheBuster: _elm_lang$core$Maybe$Just(paramName)
+			});
+	});
+var _lukewestby$elm_http_builder$HttpBuilder$withQueryParams = F2(
+	function (queryParams, builder) {
+		return _elm_lang$core$Native_Utils.update(
+			builder,
+			{
+				queryParams: A2(_elm_lang$core$Basics_ops['++'], builder.queryParams, queryParams)
+			});
+	});
+var _lukewestby$elm_http_builder$HttpBuilder$toTaskWithCacheBuster = F2(
+	function (paramName, builder) {
+		var request = function (timestamp) {
+			return _lukewestby$elm_http_builder$HttpBuilder$toTaskPlain(
+				A2(
+					_lukewestby$elm_http_builder$HttpBuilder$withQueryParams,
+					{
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: paramName,
+							_1: _elm_lang$core$Basics$toString(timestamp)
+						},
+						_1: {ctor: '[]'}
+					},
+					builder));
+		};
+		return A2(_elm_lang$core$Task$andThen, request, _elm_lang$core$Time$now);
+	});
+var _lukewestby$elm_http_builder$HttpBuilder$toTask = function (builder) {
+	var _p4 = builder.cacheBuster;
+	if (_p4.ctor === 'Just') {
+		return A2(_lukewestby$elm_http_builder$HttpBuilder$toTaskWithCacheBuster, _p4._0, builder);
+	} else {
+		return _lukewestby$elm_http_builder$HttpBuilder$toTaskPlain(builder);
+	}
+};
+var _lukewestby$elm_http_builder$HttpBuilder$send = F2(
+	function (tagger, builder) {
+		return A2(
+			_elm_lang$core$Task$attempt,
+			tagger,
+			_lukewestby$elm_http_builder$HttpBuilder$toTask(builder));
+	});
+var _lukewestby$elm_http_builder$HttpBuilder$withExpect = F2(
+	function (expect, builder) {
+		return _elm_lang$core$Native_Utils.update(
+			builder,
+			{expect: expect});
+	});
+var _lukewestby$elm_http_builder$HttpBuilder$withCredentials = function (builder) {
+	return _elm_lang$core$Native_Utils.update(
+		builder,
+		{withCredentials: true});
+};
+var _lukewestby$elm_http_builder$HttpBuilder$withTimeout = F2(
+	function (timeout, builder) {
+		return _elm_lang$core$Native_Utils.update(
+			builder,
+			{
+				timeout: _elm_lang$core$Maybe$Just(timeout)
+			});
+	});
+var _lukewestby$elm_http_builder$HttpBuilder$withBody = F2(
+	function (body, builder) {
+		return _elm_lang$core$Native_Utils.update(
+			builder,
+			{body: body});
+	});
+var _lukewestby$elm_http_builder$HttpBuilder$withStringBody = F2(
+	function (contentType, value) {
+		return _lukewestby$elm_http_builder$HttpBuilder$withBody(
+			A2(_elm_lang$http$Http$stringBody, contentType, value));
+	});
+var _lukewestby$elm_http_builder$HttpBuilder$withUrlEncodedBody = function (_p5) {
+	return A2(
+		_lukewestby$elm_http_builder$HttpBuilder$withStringBody,
+		'application/x-www-form-urlencoded',
+		_lukewestby$elm_http_builder$HttpBuilder$joinUrlEncoded(_p5));
+};
+var _lukewestby$elm_http_builder$HttpBuilder$withJsonBody = function (value) {
+	return _lukewestby$elm_http_builder$HttpBuilder$withBody(
+		_elm_lang$http$Http$jsonBody(value));
+};
+var _lukewestby$elm_http_builder$HttpBuilder$withMultipartStringBody = function (partPairs) {
+	return _lukewestby$elm_http_builder$HttpBuilder$withBody(
+		_elm_lang$http$Http$multipartBody(
+			A2(
+				_elm_lang$core$List$map,
+				_elm_lang$core$Basics$uncurry(_elm_lang$http$Http$stringPart),
+				partPairs)));
+};
+var _lukewestby$elm_http_builder$HttpBuilder$withHeaders = F2(
+	function (headerPairs, builder) {
+		return _elm_lang$core$Native_Utils.update(
+			builder,
+			{
+				headers: A2(
+					_elm_lang$core$Basics_ops['++'],
+					A2(
+						_elm_lang$core$List$map,
+						_elm_lang$core$Basics$uncurry(_elm_lang$http$Http$header),
+						headerPairs),
+					builder.headers)
+			});
+	});
+var _lukewestby$elm_http_builder$HttpBuilder$withHeader = F3(
+	function (key, value, builder) {
+		return _elm_lang$core$Native_Utils.update(
+			builder,
+			{
+				headers: {
+					ctor: '::',
+					_0: A2(_elm_lang$http$Http$header, key, value),
+					_1: builder.headers
+				}
+			});
+	});
+var _lukewestby$elm_http_builder$HttpBuilder$requestWithMethodAndUrl = F2(
+	function (method, url) {
+		return {
+			method: method,
+			url: url,
+			headers: {ctor: '[]'},
+			body: _elm_lang$http$Http$emptyBody,
+			expect: _elm_lang$http$Http$expectStringResponse(
+				function (_p6) {
+					return _elm_lang$core$Result$Ok(
+						{ctor: '_Tuple0'});
+				}),
+			timeout: _elm_lang$core$Maybe$Nothing,
+			withCredentials: false,
+			queryParams: {ctor: '[]'},
+			cacheBuster: _elm_lang$core$Maybe$Nothing
+		};
+	});
+var _lukewestby$elm_http_builder$HttpBuilder$get = _lukewestby$elm_http_builder$HttpBuilder$requestWithMethodAndUrl('GET');
+var _lukewestby$elm_http_builder$HttpBuilder$post = _lukewestby$elm_http_builder$HttpBuilder$requestWithMethodAndUrl('POST');
+var _lukewestby$elm_http_builder$HttpBuilder$put = _lukewestby$elm_http_builder$HttpBuilder$requestWithMethodAndUrl('PUT');
+var _lukewestby$elm_http_builder$HttpBuilder$patch = _lukewestby$elm_http_builder$HttpBuilder$requestWithMethodAndUrl('PATCH');
+var _lukewestby$elm_http_builder$HttpBuilder$delete = _lukewestby$elm_http_builder$HttpBuilder$requestWithMethodAndUrl('DELETE');
+var _lukewestby$elm_http_builder$HttpBuilder$options = _lukewestby$elm_http_builder$HttpBuilder$requestWithMethodAndUrl('OPTIONS');
+var _lukewestby$elm_http_builder$HttpBuilder$trace = _lukewestby$elm_http_builder$HttpBuilder$requestWithMethodAndUrl('TRACE');
+var _lukewestby$elm_http_builder$HttpBuilder$head = _lukewestby$elm_http_builder$HttpBuilder$requestWithMethodAndUrl('HEAD');
+var _lukewestby$elm_http_builder$HttpBuilder$RequestBuilder = F9(
+	function (a, b, c, d, e, f, g, h, i) {
+		return {method: a, headers: b, url: c, body: d, expect: e, timeout: f, withCredentials: g, queryParams: h, cacheBuster: i};
+	});
+
+var _elm_community$maybe_extra$Maybe_Extra$foldrValues = F2(
+	function (item, list) {
+		var _p0 = item;
+		if (_p0.ctor === 'Nothing') {
+			return list;
+		} else {
+			return {ctor: '::', _0: _p0._0, _1: list};
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$values = A2(
+	_elm_lang$core$List$foldr,
+	_elm_community$maybe_extra$Maybe_Extra$foldrValues,
+	{ctor: '[]'});
+var _elm_community$maybe_extra$Maybe_Extra$filter = F2(
+	function (f, m) {
+		var _p1 = A2(_elm_lang$core$Maybe$map, f, m);
+		if ((_p1.ctor === 'Just') && (_p1._0 === true)) {
+			return m;
+		} else {
+			return _elm_lang$core$Maybe$Nothing;
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$traverseArray = function (f) {
+	var step = F2(
+		function (e, acc) {
+			var _p2 = f(e);
+			if (_p2.ctor === 'Nothing') {
+				return _elm_lang$core$Maybe$Nothing;
+			} else {
+				return A2(
+					_elm_lang$core$Maybe$map,
+					_elm_lang$core$Array$push(_p2._0),
+					acc);
+			}
+		});
+	return A2(
+		_elm_lang$core$Array$foldl,
+		step,
+		_elm_lang$core$Maybe$Just(_elm_lang$core$Array$empty));
+};
+var _elm_community$maybe_extra$Maybe_Extra$combineArray = _elm_community$maybe_extra$Maybe_Extra$traverseArray(_elm_lang$core$Basics$identity);
+var _elm_community$maybe_extra$Maybe_Extra$traverse = function (f) {
+	var step = F2(
+		function (e, acc) {
+			var _p3 = f(e);
+			if (_p3.ctor === 'Nothing') {
+				return _elm_lang$core$Maybe$Nothing;
+			} else {
+				return A2(
+					_elm_lang$core$Maybe$map,
+					F2(
+						function (x, y) {
+							return {ctor: '::', _0: x, _1: y};
+						})(_p3._0),
+					acc);
+			}
+		});
+	return A2(
+		_elm_lang$core$List$foldr,
+		step,
+		_elm_lang$core$Maybe$Just(
+			{ctor: '[]'}));
+};
+var _elm_community$maybe_extra$Maybe_Extra$combine = _elm_community$maybe_extra$Maybe_Extra$traverse(_elm_lang$core$Basics$identity);
+var _elm_community$maybe_extra$Maybe_Extra$toArray = function (m) {
+	var _p4 = m;
+	if (_p4.ctor === 'Nothing') {
+		return _elm_lang$core$Array$empty;
+	} else {
+		return A2(_elm_lang$core$Array$repeat, 1, _p4._0);
+	}
+};
+var _elm_community$maybe_extra$Maybe_Extra$toList = function (m) {
+	var _p5 = m;
+	if (_p5.ctor === 'Nothing') {
+		return {ctor: '[]'};
+	} else {
+		return {
+			ctor: '::',
+			_0: _p5._0,
+			_1: {ctor: '[]'}
+		};
+	}
+};
+var _elm_community$maybe_extra$Maybe_Extra$orElse = F2(
+	function (ma, mb) {
+		var _p6 = mb;
+		if (_p6.ctor === 'Nothing') {
+			return ma;
+		} else {
+			return mb;
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$orElseLazy = F2(
+	function (fma, mb) {
+		var _p7 = mb;
+		if (_p7.ctor === 'Nothing') {
+			return fma(
+				{ctor: '_Tuple0'});
+		} else {
+			return mb;
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$orLazy = F2(
+	function (ma, fmb) {
+		var _p8 = ma;
+		if (_p8.ctor === 'Nothing') {
+			return fmb(
+				{ctor: '_Tuple0'});
+		} else {
+			return ma;
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$or = F2(
+	function (ma, mb) {
+		var _p9 = ma;
+		if (_p9.ctor === 'Nothing') {
+			return mb;
+		} else {
+			return ma;
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$prev = _elm_lang$core$Maybe$map2(_elm_lang$core$Basics$always);
+var _elm_community$maybe_extra$Maybe_Extra$next = _elm_lang$core$Maybe$map2(
+	_elm_lang$core$Basics$flip(_elm_lang$core$Basics$always));
+var _elm_community$maybe_extra$Maybe_Extra$andMap = _elm_lang$core$Maybe$map2(
+	F2(
+		function (x, y) {
+			return y(x);
+		}));
+var _elm_community$maybe_extra$Maybe_Extra$unpack = F3(
+	function (d, f, m) {
+		var _p10 = m;
+		if (_p10.ctor === 'Nothing') {
+			return d(
+				{ctor: '_Tuple0'});
+		} else {
+			return f(_p10._0);
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$unwrap = F3(
+	function (d, f, m) {
+		var _p11 = m;
+		if (_p11.ctor === 'Nothing') {
+			return d;
+		} else {
+			return f(_p11._0);
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$isJust = function (m) {
+	var _p12 = m;
+	if (_p12.ctor === 'Nothing') {
+		return false;
+	} else {
+		return true;
+	}
+};
+var _elm_community$maybe_extra$Maybe_Extra$isNothing = function (m) {
+	var _p13 = m;
+	if (_p13.ctor === 'Nothing') {
+		return true;
+	} else {
+		return false;
+	}
+};
+var _elm_community$maybe_extra$Maybe_Extra$join = function (mx) {
+	var _p14 = mx;
+	if (_p14.ctor === 'Just') {
+		return _p14._0;
+	} else {
+		return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _elm_community$maybe_extra$Maybe_Extra_ops = _elm_community$maybe_extra$Maybe_Extra_ops || {};
+_elm_community$maybe_extra$Maybe_Extra_ops['?'] = F2(
+	function (mx, x) {
+		return A2(_elm_lang$core$Maybe$withDefault, x, mx);
+	});
+
+var _Gizra$elm_storage_key$StorageKey$value = function (storageKey) {
+	var _p0 = storageKey;
+	if (_p0.ctor === 'Existing') {
+		return _elm_lang$core$Maybe$Just(_p0._0);
+	} else {
+		return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _Gizra$elm_storage_key$StorageKey$Existing = function (a) {
+	return {ctor: 'Existing', _0: a};
+};
+var _Gizra$elm_storage_key$StorageKey$New = {ctor: 'New'};
+var _Gizra$elm_storage_key$StorageKey$isNew = function (storageKey) {
+	return _elm_lang$core$Native_Utils.eq(storageKey, _Gizra$elm_storage_key$StorageKey$New);
+};
+var _Gizra$elm_storage_key$StorageKey$isExisting = function (storageKey) {
+	return !_Gizra$elm_storage_key$StorageKey$isNew(storageKey);
+};
+
+var _Gizra$elm_spa_exmple$Backend_Restful$fromEntityId = function (_p0) {
+	var _p1 = _p0;
+	return _p1._0;
+};
+var _Gizra$elm_spa_exmple$Backend_Restful$encodeEntityId = function (_p2) {
+	return _elm_lang$core$Json_Encode$int(
+		_Gizra$elm_spa_exmple$Backend_Restful$fromEntityId(_p2));
+};
+var _Gizra$elm_spa_exmple$Backend_Restful$decodeData = _elm_lang$core$Json_Decode$field('data');
+var _Gizra$elm_spa_exmple$Backend_Restful$decodeSingleEntity = function (_p3) {
+	return _Gizra$elm_spa_exmple$Backend_Restful$decodeData(
+		A2(_elm_lang$core$Json_Decode$index, 0, _p3));
+};
+var _Gizra$elm_spa_exmple$Backend_Restful$decodeStorageTuple = F2(
+	function (keyDecoder, valueDecoder) {
+		return A3(
+			_elm_lang$core$Json_Decode$map2,
+			F2(
+				function (v0, v1) {
+					return {ctor: '_Tuple2', _0: v0, _1: v1};
+				}),
+			A2(_elm_lang$core$Json_Decode$map, _Gizra$elm_storage_key$StorageKey$Existing, keyDecoder),
+			valueDecoder);
+	});
+var _Gizra$elm_spa_exmple$Backend_Restful$decodeId = function (wrapper) {
+	return A2(
+		_elm_lang$core$Json_Decode$map,
+		wrapper,
+		A2(_elm_lang$core$Json_Decode$field, 'id', _Gizra$elm_spa_exmple$Utils_Json$decodeInt));
+};
+var _Gizra$elm_spa_exmple$Backend_Restful_ops = _Gizra$elm_spa_exmple$Backend_Restful_ops || {};
+_Gizra$elm_spa_exmple$Backend_Restful_ops['</>'] = F2(
+	function (left, right) {
+		return (A2(_elm_lang$core$String$endsWith, '/', left) || A2(_elm_lang$core$String$startsWith, '/', right)) ? A2(_elm_lang$core$Basics_ops['++'], left, right) : A2(
+			_elm_lang$core$Basics_ops['++'],
+			left,
+			A2(_elm_lang$core$Basics_ops['++'], '/', right));
+	});
+var _Gizra$elm_spa_exmple$Backend_Restful$get = F5(
+	function (backendUrl, accessToken, endpoint, params, tagger) {
+		var queryParams = A2(
+			_elm_lang$core$List$append,
+			endpoint.params(params),
+			A2(
+				_elm_lang$core$List$map,
+				function (token) {
+					return {ctor: '_Tuple2', _0: 'access_token', _1: token};
+				},
+				_elm_community$maybe_extra$Maybe_Extra$toList(accessToken)));
+		return A2(
+			_lukewestby$elm_http_builder$HttpBuilder$send,
+			function (_p4) {
+				return tagger(
+					A2(_elm_lang$core$Result$mapError, endpoint.error, _p4));
+			},
+			A2(
+				_lukewestby$elm_http_builder$HttpBuilder$withExpect,
+				_elm_lang$http$Http$expectJson(
+					_Gizra$elm_spa_exmple$Backend_Restful$decodeData(
+						_elm_lang$core$Json_Decode$list(
+							A2(
+								_Gizra$elm_spa_exmple$Backend_Restful$decodeStorageTuple,
+								_Gizra$elm_spa_exmple$Backend_Restful$decodeId(endpoint.tag),
+								endpoint.decoder)))),
+				A2(
+					_lukewestby$elm_http_builder$HttpBuilder$withQueryParams,
+					queryParams,
+					_lukewestby$elm_http_builder$HttpBuilder$get(
+						A2(_Gizra$elm_spa_exmple$Backend_Restful_ops['</>'], backendUrl, endpoint.path)))));
+	});
+var _Gizra$elm_spa_exmple$Backend_Restful$EndPoint = F5(
+	function (a, b, c, d, e) {
+		return {path: a, tag: b, decoder: c, error: d, params: e};
+	});
+var _Gizra$elm_spa_exmple$Backend_Restful$EntityId = function (a) {
+	return {ctor: 'EntityId', _0: a};
+};
+var _Gizra$elm_spa_exmple$Backend_Restful$toEntityId = _Gizra$elm_spa_exmple$Backend_Restful$EntityId;
+var _Gizra$elm_spa_exmple$Backend_Restful$decodeEntityId = A2(_elm_lang$core$Json_Decode$map, _Gizra$elm_spa_exmple$Backend_Restful$toEntityId, _Gizra$elm_spa_exmple$Utils_Json$decodeInt);
+
+var _Gizra$elm_spa_exmple$Backend_Entities$UserIdType = {ctor: 'UserIdType'};
+var _Gizra$elm_spa_exmple$Backend_Entities$ItemIdType = {ctor: 'ItemIdType'};
+var _Gizra$elm_spa_exmple$Backend_Entities$ItemCommentIdType = {ctor: 'ItemCommentIdType'};
+
+var _Gizra$elm_spa_exmple$App_Types$NotFound = {ctor: 'NotFound'};
+var _Gizra$elm_spa_exmple$App_Types$HomePage = {ctor: 'HomePage'};
+var _Gizra$elm_spa_exmple$App_Types$Item = function (a) {
+	return {ctor: 'Item', _0: a};
+};
+var _Gizra$elm_spa_exmple$App_Types$BackendUrl = function (a) {
+	return {ctor: 'BackendUrl', _0: a};
+};
+
+var _Gizra$elm_spa_exmple$User_Model$User = function (a) {
+	return {name: a};
+};
+var _Gizra$elm_spa_exmple$User_Model$Authenticated = function (a) {
+	return {ctor: 'Authenticated', _0: a};
+};
+var _Gizra$elm_spa_exmple$User_Model$Anonymous = {ctor: 'Anonymous'};
+
+var _Gizra$elm_spa_exmple$Backend_Item_Model$Item = F3(
+	function (a, b, c) {
+		return {name: a, comments: b, price: c};
+	});
+var _Gizra$elm_spa_exmple$Backend_Item_Model$ItemComment = F3(
+	function (a, b, c) {
+		return {user: a, comment: b, created: c};
+	});
+var _Gizra$elm_spa_exmple$Backend_Item_Model$HandleSaveComment = F2(
+	function (a, b) {
+		return {ctor: 'HandleSaveComment', _0: a, _1: b};
+	});
+var _Gizra$elm_spa_exmple$Backend_Item_Model$SaveComment = function (a) {
+	return {ctor: 'SaveComment', _0: a};
+};
+var _Gizra$elm_spa_exmple$Backend_Item_Model$HandleFetchItemIdAndCommentsTuple = function (a) {
+	return {ctor: 'HandleFetchItemIdAndCommentsTuple', _0: a};
+};
+var _Gizra$elm_spa_exmple$Backend_Item_Model$HandleFetchItems = function (a) {
+	return {ctor: 'HandleFetchItems', _0: a};
+};
+
+var _Gizra$elm_spa_exmple$Backend_Model$emptyModel = {items: _Gizra$elm_dictlist$EveryDictList$empty};
+var _Gizra$elm_spa_exmple$Backend_Model$Model = function (a) {
+	return {items: a};
+};
+var _Gizra$elm_spa_exmple$Backend_Model$MsgItems = function (a) {
+	return {ctor: 'MsgItems', _0: a};
+};
+
+var _Gizra$elm_spa_exmple$ItemComment_Model$Model = function (a) {
+	return {selectedTab: a};
+};
+var _Gizra$elm_spa_exmple$ItemComment_Model$Preview = {ctor: 'Preview'};
+var _Gizra$elm_spa_exmple$ItemComment_Model$Edit = {ctor: 'Edit'};
+var _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel = {selectedTab: _Gizra$elm_spa_exmple$ItemComment_Model$Edit};
+var _Gizra$elm_spa_exmple$ItemComment_Model$SetComment = F2(
+	function (a, b) {
+		return {ctor: 'SetComment', _0: a, _1: b};
+	});
+var _Gizra$elm_spa_exmple$ItemComment_Model$DelegatedSaveComment = function (a) {
+	return {ctor: 'DelegatedSaveComment', _0: a};
+};
+var _Gizra$elm_spa_exmple$ItemComment_Model$SetTab = function (a) {
+	return {ctor: 'SetTab', _0: a};
+};
+var _Gizra$elm_spa_exmple$ItemComment_Model$UpdateBackend = {ctor: 'UpdateBackend'};
+var _Gizra$elm_spa_exmple$ItemComment_Model$MsgBackendItem = function (a) {
+	return {ctor: 'MsgBackendItem', _0: a};
+};
+var _Gizra$elm_spa_exmple$ItemComment_Model$NoOp = {ctor: 'NoOp'};
+
+var _Gizra$elm_spa_exmple$Pages_Item_Model$emptyModel = {itemComment: _Gizra$elm_spa_exmple$ItemComment_Model$emptyModel};
+var _Gizra$elm_spa_exmple$Pages_Item_Model$Model = function (a) {
+	return {itemComment: a};
+};
+var _Gizra$elm_spa_exmple$Pages_Item_Model$SetComment = F2(
+	function (a, b) {
+		return {ctor: 'SetComment', _0: a, _1: b};
+	});
+var _Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment = function (a) {
+	return {ctor: 'MsgItemComment', _0: a};
+};
+var _Gizra$elm_spa_exmple$Pages_Item_Model$UpdateBackend = {ctor: 'UpdateBackend'};
+var _Gizra$elm_spa_exmple$Pages_Item_Model$MsgBackendItem = function (a) {
+	return {ctor: 'MsgBackendItem', _0: a};
+};
+var _Gizra$elm_spa_exmple$Pages_Item_Model$NoOp = {ctor: 'NoOp'};
+
+var _Gizra$elm_spa_exmple$App_Model$emptyModel = {
+	activePage: _Gizra$elm_spa_exmple$App_Types$NotFound,
+	backend: _Gizra$elm_spa_exmple$Backend_Model$emptyModel,
+	user: _Gizra$elm_spa_exmple$User_Model$Anonymous,
+	backendUrl: _Gizra$elm_spa_exmple$App_Types$BackendUrl(''),
+	pagesItem: _Gizra$elm_spa_exmple$Pages_Item_Model$emptyModel
+};
+var _Gizra$elm_spa_exmple$App_Model$Flags = F3(
+	function (a, b, c) {
+		return {page: a, entityId: b, backendUrl: c};
+	});
+var _Gizra$elm_spa_exmple$App_Model$Model = F5(
+	function (a, b, c, d, e) {
+		return {activePage: a, backend: b, user: c, backendUrl: d, pagesItem: e};
+	});
+var _Gizra$elm_spa_exmple$App_Model$MsgPagesItem = function (a) {
+	return {ctor: 'MsgPagesItem', _0: a};
+};
+var _Gizra$elm_spa_exmple$App_Model$MsgBackend = function (a) {
+	return {ctor: 'MsgBackend', _0: a};
+};
+var _Gizra$elm_spa_exmple$App_Model$HandleUser = function (a) {
+	return {ctor: 'HandleUser', _0: a};
+};
+
+var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode = _elm_lang$core$Json_Decode$succeed;
+var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$resolve = _elm_lang$core$Json_Decode$andThen(_elm_lang$core$Basics$identity);
+var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom = _elm_lang$core$Json_Decode$map2(
+	F2(
+		function (x, y) {
+			return y(x);
+		}));
+var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$hardcoded = function (_p0) {
+	return _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom(
+		_elm_lang$core$Json_Decode$succeed(_p0));
+};
+var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optionalDecoder = F3(
+	function (pathDecoder, valDecoder, fallback) {
+		var nullOr = function (decoder) {
+			return _elm_lang$core$Json_Decode$oneOf(
+				{
+					ctor: '::',
+					_0: decoder,
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$core$Json_Decode$null(fallback),
+						_1: {ctor: '[]'}
+					}
+				});
+		};
+		var handleResult = function (input) {
+			var _p1 = A2(_elm_lang$core$Json_Decode$decodeValue, pathDecoder, input);
+			if (_p1.ctor === 'Ok') {
+				var _p2 = A2(
+					_elm_lang$core$Json_Decode$decodeValue,
+					nullOr(valDecoder),
+					_p1._0);
+				if (_p2.ctor === 'Ok') {
+					return _elm_lang$core$Json_Decode$succeed(_p2._0);
+				} else {
+					return _elm_lang$core$Json_Decode$fail(_p2._0);
+				}
+			} else {
+				return _elm_lang$core$Json_Decode$succeed(fallback);
+			}
+		};
+		return A2(_elm_lang$core$Json_Decode$andThen, handleResult, _elm_lang$core$Json_Decode$value);
+	});
+var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optionalAt = F4(
+	function (path, valDecoder, fallback, decoder) {
+		return A2(
+			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
+			A3(
+				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optionalDecoder,
+				A2(_elm_lang$core$Json_Decode$at, path, _elm_lang$core$Json_Decode$value),
+				valDecoder,
+				fallback),
+			decoder);
+	});
+var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optional = F4(
+	function (key, valDecoder, fallback, decoder) {
+		return A2(
+			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
+			A3(
+				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optionalDecoder,
+				A2(_elm_lang$core$Json_Decode$field, key, _elm_lang$core$Json_Decode$value),
+				valDecoder,
+				fallback),
+			decoder);
+	});
+var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$requiredAt = F3(
+	function (path, valDecoder, decoder) {
+		return A2(
+			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
+			A2(_elm_lang$core$Json_Decode$at, path, valDecoder),
+			decoder);
+	});
+var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required = F3(
+	function (key, valDecoder, decoder) {
+		return A2(
+			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
+			A2(_elm_lang$core$Json_Decode$field, key, valDecoder),
+			decoder);
+	});
+
+var _Gizra$elm_spa_exmple$User_Decoder$decodeUser = A3(
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+	'name',
+	_elm_lang$core$Json_Decode$string,
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$User_Model$User));
+var _Gizra$elm_spa_exmple$User_Decoder$decodeUserTuple = A2(
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
+	_Gizra$elm_spa_exmple$User_Decoder$decodeUser,
+	A2(
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
+		_Gizra$elm_spa_exmple$Backend_Restful$decodeId(_Gizra$elm_spa_exmple$Backend_Restful$toEntityId),
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(
+			F2(
+				function (v0, v1) {
+					return {ctor: '_Tuple2', _0: v0, _1: v1};
+				}))));
+var _Gizra$elm_spa_exmple$User_Decoder$decodeCurrentUser = _elm_lang$core$Json_Decode$oneOf(
+	{
+		ctor: '::',
+		_0: _elm_lang$core$Json_Decode$null(_Gizra$elm_spa_exmple$User_Model$Anonymous),
+		_1: {
+			ctor: '::',
+			_0: A2(
+				_elm_lang$core$Json_Decode$andThen,
+				function (userTuple) {
+					return _elm_lang$core$Json_Decode$succeed(
+						_Gizra$elm_spa_exmple$User_Model$Authenticated(userTuple));
+				},
+				_Gizra$elm_spa_exmple$User_Decoder$decodeUserTuple),
+			_1: {ctor: '[]'}
+		}
+	});
+
+var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItemComment = A2(
+	_elm_lang$core$Json_Decode$andThen,
+	function (val) {
+		return _elm_lang$core$Json_Decode$succeed(
+			_Gizra$elm_editable_webdata$Editable_WebData$create(val));
+	},
+	A3(
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+		'created',
+		_Gizra$elm_spa_exmple$Utils_Json$decodeDate,
+		A3(
+			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+			'comment',
+			_elm_lang$core$Json_Decode$string,
+			A2(
+				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
+				_Gizra$elm_spa_exmple$User_Decoder$decodeUserTuple,
+				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$Backend_Item_Model$ItemComment)))));
+var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeStorageKeyAsEntityId = A2(
+	_elm_lang$core$Json_Decode$andThen,
+	function (val) {
+		return _elm_lang$core$Json_Decode$succeed(
+			_Gizra$elm_storage_key$StorageKey$Existing(val));
+	},
+	_Gizra$elm_spa_exmple$Backend_Restful$decodeId(_Gizra$elm_spa_exmple$Backend_Restful$toEntityId));
+var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItemComments = function (currentUser) {
+	return A2(
+		_elm_lang$core$Json_Decode$andThen,
+		function (dictList) {
+			return _elm_lang$core$Json_Decode$succeed(
+				function () {
+					var _p0 = currentUser;
+					if (_p0.ctor === 'Authenticated') {
+						var emptyCommentItem = _Gizra$elm_editable_webdata$Editable_WebData$create(
+							{
+								user: _p0._0,
+								comment: '',
+								created: _elm_lang$core$Date$fromTime(0)
+							});
+						return A3(_Gizra$elm_dictlist$EveryDictList$insert, _Gizra$elm_storage_key$StorageKey$New, emptyCommentItem, dictList);
+					} else {
+						return dictList;
+					}
+				}());
+		},
+		_elm_lang$core$Json_Decode$oneOf(
+			{
+				ctor: '::',
+				_0: A2(_Gizra$elm_dictlist$EveryDictList$decodeArray2, _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeStorageKeyAsEntityId, _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItemComment),
+				_1: {
+					ctor: '::',
+					_0: _Gizra$elm_spa_exmple$Utils_Json$decodeEmptyArrayAs(_Gizra$elm_dictlist$EveryDictList$empty),
+					_1: {ctor: '[]'}
+				}
+			}));
+};
+var _Gizra$elm_spa_exmple$Backend_Item_Decoder$deocdeItemIdAndComments = function (currentUser) {
+	return A3(
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+		'comments',
+		_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItemComments(currentUser),
+		A3(
+			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+			'itemId',
+			A2(
+				_elm_lang$core$Json_Decode$andThen,
+				function (val) {
+					return _elm_lang$core$Json_Decode$succeed(
+						_Gizra$elm_storage_key$StorageKey$Existing(
+							_Gizra$elm_spa_exmple$Backend_Restful$toEntityId(val)));
+				},
+				_Gizra$elm_spa_exmple$Utils_Json$decodeInt),
+			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(
+				F2(
+					function (v0, v1) {
+						return {ctor: '_Tuple2', _0: v0, _1: v1};
+					}))));
+};
+var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItem = function (currentUser) {
+	return A3(
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+		'price',
+		_Gizra$elm_spa_exmple$Amount$decodeAmount,
+		A4(
+			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optional,
+			'comments',
+			_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItemComments(currentUser),
+			_Gizra$elm_dictlist$EveryDictList$empty,
+			A3(
+				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+				'name',
+				_elm_lang$core$Json_Decode$string,
+				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$Backend_Item_Model$Item))));
+};
+var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItems = function (currentUser) {
+	return _elm_lang$core$Json_Decode$oneOf(
+		{
+			ctor: '::',
+			_0: A2(
+				_Gizra$elm_dictlist$EveryDictList$decodeArray2,
+				_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeStorageKeyAsEntityId,
+				_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItem(currentUser)),
+			_1: {
+				ctor: '::',
+				_0: _Gizra$elm_spa_exmple$Utils_Json$decodeEmptyArrayAs(_Gizra$elm_dictlist$EveryDictList$empty),
+				_1: {ctor: '[]'}
+			}
+		});
+};
+
+var _Gizra$elm_spa_exmple$Backend_Item_Utils$getComment = F2(
+	function (_p0, items) {
+		var _p1 = _p0;
+		var _p2 = A2(_Gizra$elm_dictlist$EveryDictList$get, _p1._0, items);
+		if (_p2.ctor === 'Nothing') {
+			return _elm_lang$core$Maybe$Nothing;
+		} else {
+			return A2(_Gizra$elm_dictlist$EveryDictList$get, _p1._1, _p2._0.comments);
+		}
+	});
+var _Gizra$elm_spa_exmple$Backend_Item_Utils$insertComments = F3(
+	function (_p3, itemComments, items) {
+		var _p4 = _p3;
+		var _p8 = _p4._0;
+		var _p5 = A2(_Gizra$elm_dictlist$EveryDictList$get, _p8, items);
+		if (_p5.ctor === 'Nothing') {
+			return items;
+		} else {
+			var _p7 = _p5._0;
+			var itemUpdated = _elm_lang$core$Native_Utils.update(
+				_p7,
+				{
+					comments: A2(_Gizra$elm_dictlist$EveryDictList$append, _p7.comments, itemComments)
+				});
+			var itemWithFreshNew = A3(
+				_elm_community$maybe_extra$Maybe_Extra$unwrap,
+				itemUpdated,
+				function (editableWebData) {
+					var value = _stoeffel$editable$Editable$value(
+						_Gizra$elm_editable_webdata$Editable_WebData$toEditable(editableWebData));
+					var valueUpdated = _elm_lang$core$Native_Utils.update(
+						value,
+						{comment: ''});
+					var itemCommentUpdated = A2(
+						_Gizra$elm_editable_webdata$Editable_WebData$state,
+						_krisajenkins$remotedata$RemoteData$NotAsked,
+						A2(
+							_Gizra$elm_editable_webdata$Editable_WebData$map,
+							function (_p6) {
+								return A2(
+									_stoeffel$editable$Editable$update,
+									valueUpdated,
+									_stoeffel$editable$Editable$edit(_p6));
+							},
+							editableWebData));
+					return _elm_lang$core$Native_Utils.update(
+						itemUpdated,
+						{
+							comments: A3(_Gizra$elm_dictlist$EveryDictList$insert, _p4._1, itemCommentUpdated, itemUpdated.comments)
+						});
+				},
+				A2(
+					_Gizra$elm_spa_exmple$Backend_Item_Utils$getComment,
+					{ctor: '_Tuple2', _0: _p8, _1: _Gizra$elm_storage_key$StorageKey$New},
+					items));
+			return A3(_Gizra$elm_dictlist$EveryDictList$insert, _p8, itemWithFreshNew, items);
+		}
+	});
 
 var _Gizra$elm_spa_exmple$Utils_WebData$getError = function (remoteData) {
 	var _p0 = remoteData;
@@ -22702,6 +23123,31 @@ var _Gizra$elm_spa_exmple$ItemComment_View$view = F5(
 		}
 	});
 
+var _Gizra$elm_spa_exmple$Pages_Item_View$viewPrice = function (item) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('ui huge labels'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$div,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('ui label'),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: A2(_Gizra$elm_spa_exmple$Amount$showAmountWithCurrency, item.price, _Gizra$elm_spa_exmple$Currency_Model$USD),
+					_1: {ctor: '[]'}
+				}),
+			_1: {ctor: '[]'}
+		});
+};
 var _Gizra$elm_spa_exmple$Pages_Item_View$view = F5(
 	function (backendUrl, currentUser, items, itemStorageKey, model) {
 		return A3(
@@ -22723,20 +23169,24 @@ var _Gizra$elm_spa_exmple$Pages_Item_View$view = F5(
 							}),
 						_1: {
 							ctor: '::',
-							_0: A2(_Gizra$elm_spa_exmple$ItemComment_View$viewItemComments, currentUser, item.comments),
+							_0: _Gizra$elm_spa_exmple$Pages_Item_View$viewPrice(item),
 							_1: {
 								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$map,
-									_Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment,
-									A5(
-										_Gizra$elm_spa_exmple$ItemComment_View$view,
-										backendUrl,
-										currentUser,
-										{ctor: '_Tuple2', _0: itemStorageKey, _1: item},
-										_Gizra$elm_storage_key$StorageKey$New,
-										model.itemComment)),
-								_1: {ctor: '[]'}
+								_0: A2(_Gizra$elm_spa_exmple$ItemComment_View$viewItemComments, currentUser, item.comments),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$map,
+										_Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment,
+										A5(
+											_Gizra$elm_spa_exmple$ItemComment_View$view,
+											backendUrl,
+											currentUser,
+											{ctor: '_Tuple2', _0: itemStorageKey, _1: item},
+											_Gizra$elm_storage_key$StorageKey$New,
+											model.itemComment)),
+									_1: {ctor: '[]'}
+								}
 							}
 						}
 					});

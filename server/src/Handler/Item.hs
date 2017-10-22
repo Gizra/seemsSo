@@ -18,7 +18,6 @@ import Utils.Elm (ElmWidgetFlags(..))
 import Utils.Form (renderSematnicUiDivs)
 import Utils.ItemComment (getEncodedItemCommentsByItemId)
 
-
 getItemR :: ItemId -> Handler Html
 getItemR itemId = do
     item <- runDB $ get404 itemId
@@ -34,17 +33,19 @@ getItemR itemId = do
                      Authorized -> runDB $ selectFirst [PdfFileId ==. pdfId] []
                      _ -> return Nothing)
             (itemPdfFile item)
-    -- @todo: Add helper function. See Home.hs
     muser <- maybeAuthPair
     let userJson = encodeToLazyText $ maybe Null (toJSON . uncurry Entity) muser
-
-    let elmFlags = encodeToLazyText $ toJSON $ ElmWidgetFlags { elmWidgetFlagsPage = "item" :: Text
-                   , elmWidgetFlagsEntityId = Just $ (fromIntegral $ fromSqlKey itemId)
-                   }
-
+    let elmFlags =
+            encodeToLazyText $
+            toJSON
+                ElmWidgetFlags
+                { elmWidgetFlagsPage = "item" :: Text
+                , elmWidgetFlagsEntityId =
+                      Just $ fromIntegral (fromSqlKey itemId)
+                }
     let elmAppWidget = $(widgetFile "elm") :: Widget
     defaultLayout $ do
-        setTitle . toHtml $ "Item #" ++ (show $ fromSqlKey itemId)
+        setTitle . toHtml $ "Item #" ++ show (fromSqlKey itemId)
         addScript $ StaticR js_Main_js
         $(widgetFile "item")
 
