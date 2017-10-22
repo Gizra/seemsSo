@@ -5,6 +5,7 @@ module Backend.Item.Decoder
         , deocdeItemIdAndComments
         )
 
+import Amount exposing (decodeAmount)
 import Backend.Entities exposing (ItemCommentId, ItemId)
 import Backend.Item.Model exposing (Item, ItemComment)
 import Backend.Restful exposing (EntityDictList, EntityId, decodeId, toEntityId)
@@ -32,6 +33,7 @@ decodeItem currentUser =
     decode Item
         |> required "name" string
         |> optional "comments" (decodeItemComments currentUser) EveryDictList.empty
+        |> required "price" decodeAmount
 
 
 decodeItemComments : CurrentUser -> Decoder (EntityDictList ItemCommentId (EditableWebData ItemComment))
