@@ -1,5 +1,9 @@
 const node = document.getElementById('elm-app');
 
-let elmApp = Elm.Main.embed(node, #{rawJS elmFlags});
+let flags = #{rawJS elmFlags}
+// Add the backendUrl.
+flags.backendUrl = window.location.origin;
+
+let elmApp = Elm.Main.embed(node, flags);
 
 elmApp.ports.user.send(#{rawJS userJson});

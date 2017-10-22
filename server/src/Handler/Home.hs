@@ -19,12 +19,14 @@ getHomeR = do
     defaultLayout $ do
         setTitle "Welcome To SeemsSo!"
         addScript $ StaticR js_Main_js
-
         -- Inject the general page.
-        let elmFlags = encodeToLazyText $ toJSON $ ElmWidgetFlags { elmWidgetFlagsPage = "homepage" :: Text
-                       , elmWidgetFlagsEntityId = Nothing
-                       }
-
+        let elmFlags =
+                encodeToLazyText $
+                toJSON
+                    ElmWidgetFlags
+                    { elmWidgetFlagsPage = "homepage" :: Text
+                    , elmWidgetFlagsEntityId = Nothing
+                    }
         let userJson =
                 encodeToLazyText $ maybe Null (toJSON . uncurry Entity) muser
         $(widgetFile "elm")
