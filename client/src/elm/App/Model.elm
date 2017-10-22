@@ -21,6 +21,7 @@ type Msg
 type alias Flags =
     { page : String
     , entityId : Maybe Int
+    , backendUrl : String
     }
 
 
@@ -38,8 +39,6 @@ emptyModel =
     { activePage = NotFound
     , backend = Backend.Model.emptyModel
     , user = Anonymous
-
-    -- @todo: Get dynamically.
-    , backendUrl = BackendUrl "http://localhost:3000/"
+    , backendUrl = BackendUrl ""
     , pagesItem = Pages.Item.Model.emptyModel
     }

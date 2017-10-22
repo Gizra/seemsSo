@@ -6,7 +6,7 @@ port module App.Update
         )
 
 import App.Model exposing (..)
-import App.Types exposing (Page(..))
+import App.Types exposing (BackendUrl(..), Page(..))
 import Backend.Restful exposing (toEntityId)
 import Backend.Update
 import EveryDictList
@@ -41,7 +41,10 @@ init flags =
                 _ ->
                     NotFound
     in
-    ( { emptyModel | activePage = page }
+    ( { emptyModel
+        | activePage = page
+        , backendUrl = BackendUrl flags.backendUrl
+      }
     , Cmd.none
     )
 

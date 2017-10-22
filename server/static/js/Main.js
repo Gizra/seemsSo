@@ -11120,12 +11120,12 @@ var _Gizra$elm_spa_exmple$App_Model$emptyModel = {
 	activePage: _Gizra$elm_spa_exmple$App_Types$NotFound,
 	backend: _Gizra$elm_spa_exmple$Backend_Model$emptyModel,
 	user: _Gizra$elm_spa_exmple$User_Model$Anonymous,
-	backendUrl: _Gizra$elm_spa_exmple$App_Types$BackendUrl('http://localhost:3000/'),
+	backendUrl: _Gizra$elm_spa_exmple$App_Types$BackendUrl(''),
 	pagesItem: _Gizra$elm_spa_exmple$Pages_Item_Model$emptyModel
 };
-var _Gizra$elm_spa_exmple$App_Model$Flags = F2(
-	function (a, b) {
-		return {page: a, entityId: b};
+var _Gizra$elm_spa_exmple$App_Model$Flags = F3(
+	function (a, b, c) {
+		return {page: a, entityId: b, backendUrl: c};
 	});
 var _Gizra$elm_spa_exmple$App_Model$Model = F5(
 	function (a, b, c, d, e) {
@@ -14034,7 +14034,10 @@ var _Gizra$elm_spa_exmple$App_Update$init = function (flags) {
 		ctor: '_Tuple2',
 		_0: _elm_lang$core$Native_Utils.update(
 			_Gizra$elm_spa_exmple$App_Model$emptyModel,
-			{activePage: page}),
+			{
+				activePage: page,
+				backendUrl: _Gizra$elm_spa_exmple$App_Types$BackendUrl(flags.backendUrl)
+			}),
 		_1: _elm_lang$core$Platform_Cmd$none
 	};
 };
@@ -22789,28 +22792,33 @@ var _Gizra$elm_spa_exmple$Main$main = _elm_lang$html$Html$programWithFlags(
 	{init: _Gizra$elm_spa_exmple$App_Update$init, update: _Gizra$elm_spa_exmple$App_Update$update, view: _Gizra$elm_spa_exmple$App_View$view, subscriptions: _Gizra$elm_spa_exmple$App_Update$subscriptions})(
 	A2(
 		_elm_lang$core$Json_Decode$andThen,
-		function (entityId) {
+		function (backendUrl) {
 			return A2(
 				_elm_lang$core$Json_Decode$andThen,
-				function (page) {
-					return _elm_lang$core$Json_Decode$succeed(
-						{entityId: entityId, page: page});
+				function (entityId) {
+					return A2(
+						_elm_lang$core$Json_Decode$andThen,
+						function (page) {
+							return _elm_lang$core$Json_Decode$succeed(
+								{backendUrl: backendUrl, entityId: entityId, page: page});
+						},
+						A2(_elm_lang$core$Json_Decode$field, 'page', _elm_lang$core$Json_Decode$string));
 				},
-				A2(_elm_lang$core$Json_Decode$field, 'page', _elm_lang$core$Json_Decode$string));
+				A2(
+					_elm_lang$core$Json_Decode$field,
+					'entityId',
+					_elm_lang$core$Json_Decode$oneOf(
+						{
+							ctor: '::',
+							_0: _elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
+							_1: {
+								ctor: '::',
+								_0: A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$int),
+								_1: {ctor: '[]'}
+							}
+						})));
 		},
-		A2(
-			_elm_lang$core$Json_Decode$field,
-			'entityId',
-			_elm_lang$core$Json_Decode$oneOf(
-				{
-					ctor: '::',
-					_0: _elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
-					_1: {
-						ctor: '::',
-						_0: A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$int),
-						_1: {ctor: '[]'}
-					}
-				}))));
+		A2(_elm_lang$core$Json_Decode$field, 'backendUrl', _elm_lang$core$Json_Decode$string)));
 
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
