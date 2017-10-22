@@ -1,19 +1,40 @@
 module Pages.Homepage.View exposing (..)
 
-import Pages.Homepage.Model exposing (Model, Msg(..))
+import App.Types exposing (BackendUrl(..))
+import Backend.Entities exposing (ItemId)
+import Backend.Item.Model exposing (Item)
+import Backend.Restful exposing (EntityDictList, fromEntityId)
+import EveryDictList exposing (EveryDictList)
 import Html exposing (..)
 import Html.Attributes exposing (alt, class, classList, href, placeholder, src, style, target, type_, value)
 import Html.Events exposing (onClick, onInput)
-import Item.View exposing (viewItemsTeaser)
-import Json.Encode exposing (string)
-import User.Model exposing (User)
-import User.View
-import Utils.Html exposing (divider, sectionDivider, showIf, showMaybe)
+import StorageKey exposing (StorageKey(..))
+import User.Model exposing (CurrentUser)
 
 
-view : String -> Maybe User -> Model -> Html Msg
-view baseUrl muser model =
+view : BackendUrl -> CurrentUser -> EntityDictList ItemId Item -> Html msg
+view backendUrl currentUser items =
     div []
-        [ User.View.view muser
-        , viewItemsTeaser baseUrl model.items
+        [ viewItemsTeaser backendUrl items
         ]
+
+
+viewItemsTeaser : BackendUrl -> EntityDictList ItemId Item -> Html msg
+viewItemsTeaser (BackendUrl backendUrl) items =
+    ul []
+        (items
+            |> EveryDictList.map
+                (\storageKey item ->
+                    let
+                        itemId =
+                            storageKey
+                                |> StorageKey.value
+                                |> Maybe.map (fromEntityId >> toString)
+                                |> Maybe.withDefault ""
+                    in
+                    li []
+                        [ a [ href <| backendUrl ++ "item/" ++ itemId ] [ text item.name ]
+                        ]
+                )
+            |> EveryDictList.values
+        )

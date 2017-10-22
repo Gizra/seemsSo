@@ -34,6 +34,16 @@ instance ToJSON (Entity Order) where
     toJSON (Entity orderId order) =
         object ["id" .= fromSqlKey orderId, "status" .= orderStatus order]
 
+instance ToJSON (Entity Item) where
+    toJSON (Entity itemId item) = object
+        [ "id"      .= (fromSqlKey itemId)
+        , "name"    .= itemName item
+        , "created" .= itemCreated item
+        , "user"    .= itemUser item
+        ]
+
+
+
 -- @todo: Use orderStatusLabel
 instance ToJSON OrderStatus where
     toJSON a = String $ pack (map Char.toLower (drop 11 $ show a))

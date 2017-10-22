@@ -306,10 +306,8 @@ instance YesodAuth App where
                                  runDB $
                                  selectFirst [AccessTokenToken ==. token] []
                              return $
-                                 fmap
-                                     (\tokenId ->
-                                          accessTokenUserId $ entityVal tokenId)
-                                     mTokenId)
+                                 fmap (\tokenId -> accessTokenUserId $ entityVal tokenId) mTokenId
+                        )
                         mToken
               -- Determine if Basic auth was used and is valid.
                 basicAuthValues <- lookupBasicAuth
@@ -365,7 +363,7 @@ isAdmin = do
             case mRole of
                 Nothing ->
                     return $
-                    Unauthorized "admin role does not defined in the site"
+                    Unauthorized "admin role is not defined in the site"
                 Just role -> do
                     mUserRole <-
                         runDB $

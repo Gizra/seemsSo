@@ -1,14 +1,22 @@
-module User.Model exposing (..)
+module User.Model
+    exposing
+        ( CurrentUser(..)
+        , User
+        , UserTuple
+        )
 
--- @todo: Will be used with EveryDictList
--- type UserId
---     = UserId Int
+import Backend.Entities exposing (UserId)
 
 
-type alias UserId =
-    Int
+type CurrentUser
+    = Anonymous
+    | Authenticated UserTuple
 
 
 type alias User =
     { name : String
     }
+
+
+type alias UserTuple =
+    ( UserId, User )

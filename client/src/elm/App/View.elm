@@ -1,24 +1,25 @@
 module App.View exposing (..)
 
 import App.Model exposing (..)
-import App.Types exposing (Widget(..))
-import Pages.Homepage.View exposing (view)
-import Pages.Item.View exposing (view)
+import App.Types exposing (Page(..))
 import Html exposing (..)
 import Html.Attributes exposing (class)
+import Pages.Homepage.View
+import Pages.Item.View exposing (view)
 
 
 view : Model -> Html Msg
 view model =
-    case model.widget of
+    case model.activePage of
         HomePage ->
             div [ class "ui container" ]
-                [ Html.map MsgPagesHomepage <| Pages.Homepage.View.view model.baseUrl model.user model.pageHomepage
+                [ Pages.Homepage.View.view model.backendUrl model.user model.backend.items
                 ]
 
-        Item ->
+        Item itemId ->
             div [ class "ui container" ]
-                [ Html.map MsgPagesItem <| Pages.Item.View.view model.baseUrl model.user model.pageItem
+                -- @todo: Send model.backend instead of model.backend.items
+                [ Html.map MsgPagesItem <| Pages.Item.View.view model.backendUrl model.user model.backend.items itemId model.pagesItem
                 ]
 
         NotFound ->

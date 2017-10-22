@@ -4,74 +4,108 @@ module ItemComment.View
         , viewItemComments
         )
 
+import App.Types exposing (BackendUrl)
+import Backend.Entities exposing (ItemCommentId, ItemId)
+import Backend.Item.Model exposing (Item, ItemComment)
+import Backend.Restful exposing (EntityDictList, fromEntityId)
+import Editable
+import Editable.WebData exposing (EditableWebData)
 import EveryDictList exposing (EveryDictList)
 import Html exposing (..)
-import Html.Attributes exposing (alt, class, classList, cols, disabled, href, id, placeholder, required, rows, src, style, target, type_, value)
+import Html.Attributes exposing (action, alt, class, classList, cols, disabled, href, id, placeholder, required, rows, src, style, target, type_, value)
 import Html.Events exposing (onClick, onInput)
-import ItemComment.Model exposing (EveryDictListItemComments, ItemComment, ItemCommentId, Model, Msg(..), Tab(..))
+import ItemComment.Model exposing (Model, Msg(..), Tab(..))
 import Markdown
-import RemoteData exposing (..)
-import User.Model exposing (User)
+import RemoteData exposing (RemoteData)
+import StorageKey exposing (StorageKey)
+import User.Model exposing (CurrentUser(..))
 import Utils.Html exposing (divider, emptyNode, sectionDivider, showIf, showMaybe)
 
 
-view : String -> Maybe User -> Model -> Html Msg
-view baseUrl muser model =
-    case muser of
-        Nothing ->
+view : BackendUrl -> CurrentUser -> ( StorageKey ItemId, Item ) -> StorageKey ItemCommentId -> Model -> Html Msg
+view backendUrl currentUser ( itemStorageKey, item ) commentStorageKey model =
+    case currentUser of
+        Anonymous ->
             emptyNode
 
-        Just user ->
-            let
-                mainArea =
-                    case model.selectedTab of
-                        Edit ->
-                            viewEdit model.comment
+        Authenticated ( userId, user ) ->
+            case EveryDictList.get commentStorageKey item.comments of
+                Nothing ->
+                    emptyNode
 
-                        Preview ->
-                            viewPreview model.comment
-            in
-                div []
-                    [ viewTabs model.selectedTab
-                    , form [ class "ui form comment" ]
-                        [ mainArea
-                        , viewActions model
+                Just editableWebData ->
+                    let
+                        mainArea =
+                            case model.selectedTab of
+                                Edit ->
+                                    viewEdit ( itemStorageKey, commentStorageKey ) editableWebData
+
+                                Preview ->
+                                    viewPreview editableWebData
+                    in
+                    div []
+                        [ viewTabs model.selectedTab
+                        , form
+                            [ class "ui form comment"
+                            , action "javascript:void(0);"
+                            ]
+                            [ mainArea
+                            , viewActions ( itemStorageKey, commentStorageKey ) editableWebData
+                            ]
                         ]
-                    ]
 
 
-viewItemComments : Maybe User -> EveryDictListItemComments -> Html msg
-viewItemComments muser commentsDictList =
-    showIf (not (EveryDictList.isEmpty commentsDictList)) <|
+viewItemComments : CurrentUser -> EntityDictList ItemCommentId (EditableWebData ItemComment) -> Html msg
+viewItemComments currentUser comments =
+    showIf (not (EveryDictList.isEmpty comments)) <|
         div
             [ class "ui comments" ]
-            (EveryDictList.toList commentsDictList
-                |> List.map (viewItemComment muser)
+            (comments
+                |> EveryDictList.toList
+                |> List.map (viewItemComment currentUser)
             )
 
 
-viewItemComment : Maybe User -> ( ItemCommentId, ItemComment ) -> Html msg
-viewItemComment muser ( ItemComment.Model.ItemCommentId itemCommentId, itemComment ) =
-    div
-        [ id <| "comment-" ++ toString itemCommentId
-        , class "comment"
-        ]
-        [ a
-            [ class "avatar" ]
-            [ img
-                [ src "https://dummyimage.com/80x80/000/fff&text=Avatar" ]
-                []
+viewItemComment : CurrentUser -> ( StorageKey ItemCommentId, EditableWebData ItemComment ) -> Html msg
+viewItemComment currentUser ( storageKey, editableWebData ) =
+    if StorageKey.isNew storageKey then
+        emptyNode
+    else
+        let
+            itemCommentId =
+                storageKey
+                    |> StorageKey.value
+                    |> Maybe.map (fromEntityId >> toString)
+                    |> Maybe.withDefault ""
+
+            itemComment =
+                editableWebData
+                    |> Editable.WebData.toEditable
+                    |> Editable.value
+
+            ( authorId, author ) =
+                itemComment.user
+        in
+        div
+            [ id <| "comment-" ++ itemCommentId
+            , class "comment"
             ]
-        , div
-            [ class "content" ]
-            [ div
-                [ class "author" ]
-                [ text itemComment.user.name ]
+            [ a
+                [ class "avatar" ]
+                [ img
+                    [ src "https://dummyimage.com/80x80/000/fff&text=Avatar" ]
+                    []
+                ]
             , div
-                [ class "text" ]
-                (Markdown.toHtml Nothing itemComment.comment)
+                [ class "content" ]
+                [ div
+                    [ class "author" ]
+                    [ text author.name ]
+                , div
+                    [ class "text" ]
+                    (Markdown.toHtml Nothing itemComment.comment)
+                ]
             ]
-        ]
 
 
 viewTabs : Tab -> Html Msg
@@ -91,13 +125,19 @@ viewTabs selectedTab =
         ]
 
 
-viewEdit : String -> Html Msg
-viewEdit comment =
+viewEdit : ( StorageKey ItemId, StorageKey ItemCommentId ) -> EditableWebData ItemComment -> Html Msg
+viewEdit storageKeys editableWebData =
+    let
+        itemComment =
+            editableWebData
+                |> Editable.WebData.toEditable
+                |> Editable.value
+    in
     div [ class "field" ]
         [ textarea
             [ required True
-            , value comment
-            , onInput SetComment
+            , value <| itemComment.comment
+            , onInput <| SetComment storageKeys
             , rows 6
             , cols 60
             ]
@@ -105,35 +145,58 @@ viewEdit comment =
         ]
 
 
-viewPreview : String -> Html Msg
-viewPreview comment =
-    div [] <|
-        Markdown.toHtml Nothing comment
-
-
-viewActions : Model -> Html Msg
-viewActions model =
+viewPreview : EditableWebData ItemComment -> Html Msg
+viewPreview editableWebData =
     let
-        isLoading =
-            model.status == Loading
+        itemComment =
+            editableWebData
+                |> Editable.WebData.toEditable
+                |> Editable.value
+    in
+    if String.isEmpty itemComment.comment then
+        div [] [ text "Nothing to preview" ]
+    else
+        div [] <|
+            Markdown.toHtml Nothing itemComment.comment
 
-        emptyComment =
-            String.isEmpty model.comment
+
+viewActions : ( StorageKey ItemId, StorageKey ItemCommentId ) -> EditableWebData ItemComment -> Html Msg
+viewActions storageKeys editableWebData =
+    let
+        itemComment =
+            editableWebData
+                |> Editable.WebData.toEditable
+                |> Editable.value
+
+        isLoading =
+            editableWebData
+                |> Editable.WebData.toWebData
+                |> RemoteData.isLoading
+
+        isDisabled =
+            String.isEmpty itemComment.comment
+                || (editableWebData
+                        |> Editable.WebData.toWebData
+                        |> RemoteData.isNotAsked
+                        |> not
+                   )
 
         attrs =
-            if isLoading || emptyComment then
+            if isDisabled then
                 [ disabled True ]
             else
-                [ onClick <| SaveComment
+                [ onClick <| DelegatedSaveComment storageKeys
+                , action "javascript:void(0);"
                 ]
     in
-        div
-            (attrs
-                ++ [ classList
-                        [ ( "ui button primary", True )
-                        , ( "loading", isLoading )
-                        , ( "disabled", emptyComment )
-                        ]
-                   ]
-            )
-            [ text "Comment" ]
+    button
+        (attrs
+            ++ [ classList
+                    [ ( "ui button primary", True )
+                    , ( "loading", isLoading )
+                    , ( "disabled", isDisabled )
+                    ]
+               ]
+        )
+        [ text "Comment"
+        ]

@@ -1,68 +1,52 @@
-port module Pages.Item.Update
+module Pages.Item.Update
     exposing
-        ( subscriptions
-        , update
+        ( update
         )
 
-import EveryDictList
-import Item.Decoder exposing (decodeItems)
-import ItemComment.Model exposing (ItemComment)
+import App.Types exposing (BackendUrl)
+import Backend.Entities exposing (ItemId)
+import Backend.Item.Model exposing (Item)
+import Backend.Restful exposing (EntityDictList)
+import ItemComment.Model
 import ItemComment.Update
-import Json.Decode exposing (Value, decodeValue)
-import Pages.Item.Decoder exposing (deocdeItemIdAndComments)
-import Pages.Item.Model exposing (Model, Msg(..))
+import Pages.Item.Model exposing (DelegatedMsg(..), Model, Msg(..))
+import StorageKey exposing (StorageKey)
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update :
+    BackendUrl
+    -> Msg
+    -> Model
+    -> ( StorageKey ItemId, { r | items : EntityDictList ItemId Item } )
+    -> ( Model, Cmd Msg, ( { r | items : EntityDictList ItemId Item }, DelegatedMsg ) )
+update backendUrl msg model ( storageKey, partialBackendModel ) =
     case msg of
-        HandleItemIdAndComments (Ok ( itemId, everyDictListItemComments )) ->
-            let
-                itemComment =
-                    model.itemComment
-
-                itemCommentUpdated =
-                    { itemComment | itemId = itemId }
-            in
-                ( { model
-                    | itemId = itemId
-                    , comments = everyDictListItemComments
-                    , itemComment = itemCommentUpdated
-                  }
-                , Cmd.none
-                )
-
-        HandleItemIdAndComments (Err err) ->
-            let
-                _ =
-                    Debug.log "HandleItemIdAndComments" err
-            in
-                model ! []
-
         MsgItemComment subMsg ->
             let
-                ( val, cmds, maybeEveryDictListItemComments ) =
-                    ItemComment.Update.update subMsg model.itemComment
+                ( subModel, ( partialBackendModelUpdated, delegatedMsg ) ) =
+                    ItemComment.Update.update subMsg model.itemComment ( storageKey, partialBackendModel )
 
-                commentsUpdated =
-                    Maybe.map (\newItemComments -> EveryDictList.union model.comments newItemComments) maybeEveryDictListItemComments
-                        |> Maybe.withDefault model.comments
+                modelUpdated =
+                    { model | itemComment = subModel }
+
+                delegatedMsgs =
+                    case delegatedMsg of
+                        ItemComment.Model.NoOp ->
+                            NoOp
+
+                        ItemComment.Model.MsgBackendItem backendMsg ->
+                            MsgBackendItem backendMsg
+
+                        ItemComment.Model.UpdateBackend ->
+                            UpdateBackend
             in
-                ( { model
-                    | itemComment = val
-                    , comments = commentsUpdated
-                  }
-                , Cmd.map MsgItemComment cmds
-                )
+            ( modelUpdated
+            , Cmd.none
+            , ( partialBackendModelUpdated, delegatedMsgs )
+            )
 
-
-subscriptions : Sub Msg
-subscriptions =
-    itemIdAndComments (decodeValue deocdeItemIdAndComments >> HandleItemIdAndComments)
-
-
-
--- PORTS
-
-
-port itemIdAndComments : (Value -> msg) -> Sub msg
+        SetComment storageKey comment ->
+            ( model
+            , Cmd.none
+            , ( partialBackendModel, NoOp )
+            )

@@ -1,45 +1,45 @@
 module App.Model
     exposing
-        ( emptyModel
-        , Flags
-        , Msg(..)
+        ( Flags
         , Model
+        , Msg(..)
+        , emptyModel
         )
 
-import App.Types exposing (Widget(..))
-import Pages.Homepage.Model exposing (Model, Msg)
-import Pages.Item.Model exposing (Model, Msg)
-import User.Model exposing (User)
+import App.Types exposing (BackendUrl(..), Page(..))
+import Backend.Model
+import Pages.Item.Model
+import User.Model exposing (CurrentUser(Anonymous), User)
 
 
 type Msg
-    = HandleUser (Result String (Maybe User))
-    | MsgPagesHomepage Pages.Homepage.Model.Msg
+    = HandleUser (Result String CurrentUser)
+    | MsgBackend Backend.Model.Msg
     | MsgPagesItem Pages.Item.Model.Msg
 
 
 type alias Flags =
-    { widget : String
+    { page : String
+    , entityId : Maybe Int
     }
 
 
 type alias Model =
-    { widget : Widget
-    , pageHomepage : Pages.Homepage.Model.Model
-    , pageItem : Pages.Item.Model.Model
-    , user : Maybe User
-    , baseUrl : String
+    { activePage : Page
+    , backend : Backend.Model.Model
+    , user : CurrentUser
+    , backendUrl : BackendUrl
+    , pagesItem : Pages.Item.Model.Model
     }
 
 
 emptyModel : Model
 emptyModel =
-    { widget = NotFound
-    , pageHomepage = Pages.Homepage.Model.emptyModel
-    , pageItem = Pages.Item.Model.emptyModel
-    , user = Nothing
+    { activePage = NotFound
+    , backend = Backend.Model.emptyModel
+    , user = Anonymous
 
     -- @todo: Get dynamically.
-    , baseUrl =
-        "http://localhost:3000/"
+    , backendUrl = BackendUrl "http://localhost:3000/"
+    , pagesItem = Pages.Item.Model.emptyModel
     }

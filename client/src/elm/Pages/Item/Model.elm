@@ -1,27 +1,35 @@
-module Pages.Item.Model exposing (..)
+module Pages.Item.Model
+    exposing
+        ( DelegatedMsg(..)
+        , Model
+        , Msg(..)
+        , emptyModel
+        )
 
-import Date
-import EveryDictList
-import Item.Model exposing (ItemId)
-import ItemComment.Model exposing (EveryDictListItemComments, ItemCommentId)
-import User.Model exposing (User)
+import Backend.Entities exposing (ItemCommentId)
+import Backend.Item.Model
+import Backend.Model
+import ItemComment.Model exposing (Model, Msg(..))
+import StorageKey exposing (StorageKey)
 
 
 type alias Model =
-    { itemId : ItemId
-    , comments : EveryDictListItemComments
-    , itemComment : ItemComment.Model.Model
+    { itemComment : ItemComment.Model.Model
     }
 
 
 emptyModel : Model
 emptyModel =
-    { itemId = 0
-    , comments = EveryDictList.empty
-    , itemComment = ItemComment.Model.emptyModel
+    { itemComment = ItemComment.Model.emptyModel
     }
 
 
 type Msg
-    = HandleItemIdAndComments (Result String ( ItemId, EveryDictListItemComments ))
-    | MsgItemComment ItemComment.Model.Msg
+    = MsgItemComment ItemComment.Model.Msg
+    | SetComment (StorageKey ItemCommentId) String
+
+
+type DelegatedMsg
+    = NoOp
+    | MsgBackendItem Backend.Model.Msg
+    | UpdateBackend

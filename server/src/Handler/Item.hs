@@ -14,12 +14,15 @@ import Database.Persist.Sql (fromSqlKey)
 import Handler.PdfFile (pdfFilePath, writeToServer)
 import Import
 import Text.Julius (rawJS)
+import Utils.Elm (ElmWidgetFlags(..))
 import Utils.Form (renderSematnicUiDivs)
 import Utils.ItemComment (getEncodedItemCommentsByItemId)
+
 
 getItemR :: ItemId -> Handler Html
 getItemR itemId = do
     item <- runDB $ get404 itemId
+    let itemJson = encodeToLazyText $ Entity itemId item
     company <- runDB $ get404 $ itemCompany item
     comments <- getEncodedItemCommentsByItemId itemId
     mpdf <-
@@ -34,7 +37,11 @@ getItemR itemId = do
     -- @todo: Add helper function. See Home.hs
     muser <- maybeAuthPair
     let userJson = encodeToLazyText $ maybe Null (toJSON . uncurry Entity) muser
-    let elmWidget = "item" :: Text
+
+    let elmFlags = encodeToLazyText $ toJSON $ ElmWidgetFlags { elmWidgetFlagsPage = "item" :: Text
+                   , elmWidgetFlagsEntityId = Just $ (fromIntegral $ fromSqlKey itemId)
+                   }
+
     let elmAppWidget = $(widgetFile "elm") :: Widget
     defaultLayout $ do
         setTitle . toHtml $ "Item #" ++ (show $ fromSqlKey itemId)

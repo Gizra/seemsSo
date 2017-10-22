@@ -26,7 +26,7 @@ data CommentWithUserInfo = CommentWithUserInfo
 instance ToJSON CommentWithUserInfo where
     toJSON commentWithUserInfo =
         object
-            [ "commentId" .= commentWithUserInfoCommentId commentWithUserInfo
+            [ "id" .= commentWithUserInfoCommentId commentWithUserInfo
             , "comment" .= commentWithUserInfoComment commentWithUserInfo
             , "created" .= commentWithUserInfoCommentCreated commentWithUserInfo
             , "userId" .= commentWithUserInfoUserId commentWithUserInfo

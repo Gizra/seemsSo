@@ -1,7 +1,18 @@
-module App.Types exposing (..)
+module App.Types
+    exposing
+        ( BackendUrl(..)
+        , Page(..)
+        )
+
+import Backend.Entities exposing (ItemId)
+import StorageKey exposing (StorageKey)
 
 
-type Widget
-    = Item
+type Page
+    = Item (StorageKey ItemId)
     | HomePage
     | NotFound
+
+
+type BackendUrl
+    = BackendUrl String
