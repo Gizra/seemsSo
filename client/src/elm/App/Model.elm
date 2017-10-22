@@ -20,6 +20,7 @@ type Msg
 
 type alias Flags =
     { page : String
+    , entityId : Maybe Int
     }
 
 

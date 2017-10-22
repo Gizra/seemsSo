@@ -24,10 +24,15 @@ init flags =
         page =
             case flags.page of
                 "item" ->
-                    -- @todo: Get the item id.
-                    toEntityId 1
-                        |> Existing
-                        |> Item
+                    case flags.entityId of
+                        Nothing ->
+                            -- We were asked for the Item page, but got no entity Id.
+                            NotFound
+
+                        Just entityId ->
+                            toEntityId entityId
+                                |> Existing
+                                |> Item
 
                 "homepage" ->
                     HomePage

@@ -9,6 +9,7 @@ module Handler.Home where
 import Data.Aeson.Text (encodeToLazyText)
 import Import
 import Text.Julius (rawJS)
+import Utils.Elm (ElmWidgetFlags(..))
 
 getHomeR :: Handler Html
 getHomeR = do
@@ -18,9 +19,12 @@ getHomeR = do
     defaultLayout $ do
         setTitle "Welcome To SeemsSo!"
         addScript $ StaticR js_Main_js
-        -- @todo: Make widget type safe
+
         -- Inject the general page.
-        let elmWidget = "homepage" :: Text
+        let elmFlags = encodeToLazyText $ toJSON $ ElmWidgetFlags { elmWidgetFlagsPage = "homepage" :: Text
+                       , elmWidgetFlagsEntityId = Nothing
+                       }
+
         let userJson =
                 encodeToLazyText $ maybe Null (toJSON . uncurry Entity) muser
         $(widgetFile "elm")
