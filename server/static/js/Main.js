@@ -13786,7 +13786,9 @@ var _Gizra$elm_spa_exmple$ItemComment_Update$update = F3(
 				}();
 				return {
 					ctor: '_Tuple2',
-					_0: model,
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{selectedTab: _Gizra$elm_spa_exmple$ItemComment_Model$Edit}),
 					_1: {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(

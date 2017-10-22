@@ -11,7 +11,7 @@ import Backend.Restful exposing (EntityDictList)
 import Editable
 import Editable.WebData
 import EveryDictList exposing (EveryDictList)
-import ItemComment.Model exposing (DelegatedMsg(..), Model, Msg(..))
+import ItemComment.Model exposing (DelegatedMsg(..), Model, Msg(..), Tab(Edit))
 import Maybe.Extra exposing (unwrap)
 import RemoteData
 import StorageKey exposing (StorageKey)
@@ -51,7 +51,8 @@ update msg model ( storageKey, partialBackendModel ) =
                                 )
                                 (getComment ( itemId, commentId ) partialBackendModel.items)
             in
-            ( model
+            -- Set tab back to `Edit`.
+            ( { model | selectedTab = Edit }
               -- Coresponds to`SaveComment` in `Backend.Item.Model`
             , ( { partialBackendModel | items = itemsUpdated }
               , MsgBackendItem <| Backend.Model.MsgItems <| Backend.Item.Model.SaveComment ( itemId, commentId )
