@@ -8,12 +8,5 @@
 
 
     <div class="ui segment">
-
-        $maybe (Entity _ pdf) <- mpdf
-            <div class="download">
-                <a href=/#{pdfFilePath $ pdfFileFilename pdf}>
-                    Download PDF
-
-
         $# Comment form
         ^{elmAppWidget}

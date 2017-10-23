@@ -13503,9 +13503,9 @@ var _Gizra$elm_spa_exmple$User_Model$Authenticated = function (a) {
 };
 var _Gizra$elm_spa_exmple$User_Model$Anonymous = {ctor: 'Anonymous'};
 
-var _Gizra$elm_spa_exmple$Backend_Item_Model$Item = F4(
-	function (a, b, c, d) {
-		return {name: a, comments: b, price: c, company: d};
+var _Gizra$elm_spa_exmple$Backend_Item_Model$Item = F5(
+	function (a, b, c, d, e) {
+		return {name: a, comments: b, price: c, company: d, pdfPath: e};
 	});
 var _Gizra$elm_spa_exmple$Backend_Item_Model$Company = F2(
 	function (a, b) {
@@ -13515,6 +13515,9 @@ var _Gizra$elm_spa_exmple$Backend_Item_Model$ItemComment = F3(
 	function (a, b, c) {
 		return {user: a, comment: b, created: c};
 	});
+var _Gizra$elm_spa_exmple$Backend_Item_Model$PdfPath = function (a) {
+	return {ctor: 'PdfPath', _0: a};
+};
 var _Gizra$elm_spa_exmple$Backend_Item_Model$HandleSaveComment = F2(
 	function (a, b) {
 		return {ctor: 'HandleSaveComment', _0: a, _1: b};
@@ -13792,6 +13795,7 @@ var _Gizra$elm_spa_exmple$Backend_Item_Decoder$deocdeItemIdAndComments = functio
 						return {ctor: '_Tuple2', _0: v0, _1: v1};
 					}))));
 };
+var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodePdfPath = A2(_elm_lang$core$Json_Decode$map, _Gizra$elm_spa_exmple$Backend_Item_Model$PdfPath, _elm_lang$core$Json_Decode$string);
 var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeCompany = A3(
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
 	'name',
@@ -13803,47 +13807,52 @@ var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeCompany = A3(
 var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItem = function (currentUser) {
 	return A4(
 		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optional,
-		'company',
-		A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeCompany),
+		'pdf',
+		A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodePdfPath),
 		_elm_lang$core$Maybe$Nothing,
-		A3(
-			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$requiredAt,
-			{
-				ctor: '::',
-				_0: 'item',
-				_1: {
-					ctor: '::',
-					_0: 'price',
-					_1: {ctor: '[]'}
-				}
-			},
-			_Gizra$elm_spa_exmple$Amount$decodeAmount,
-			A4(
-				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optionalAt,
+		A4(
+			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optional,
+			'company',
+			A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeCompany),
+			_elm_lang$core$Maybe$Nothing,
+			A3(
+				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$requiredAt,
 				{
 					ctor: '::',
 					_0: 'item',
 					_1: {
 						ctor: '::',
-						_0: 'comments',
+						_0: 'price',
 						_1: {ctor: '[]'}
 					}
 				},
-				_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItemComments(currentUser),
-				_Gizra$elm_dictlist$EveryDictList$empty,
-				A3(
-					_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$requiredAt,
+				_Gizra$elm_spa_exmple$Amount$decodeAmount,
+				A4(
+					_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optionalAt,
 					{
 						ctor: '::',
 						_0: 'item',
 						_1: {
 							ctor: '::',
-							_0: 'name',
+							_0: 'comments',
 							_1: {ctor: '[]'}
 						}
 					},
-					_elm_lang$core$Json_Decode$string,
-					_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$Backend_Item_Model$Item)))));
+					_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItemComments(currentUser),
+					_Gizra$elm_dictlist$EveryDictList$empty,
+					A3(
+						_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$requiredAt,
+						{
+							ctor: '::',
+							_0: 'item',
+							_1: {
+								ctor: '::',
+								_0: 'name',
+								_1: {ctor: '[]'}
+							}
+						},
+						_elm_lang$core$Json_Decode$string,
+						_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$Backend_Item_Model$Item))))));
 };
 var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItems = function (currentUser) {
 	return _elm_lang$core$Json_Decode$oneOf(
@@ -23168,9 +23177,43 @@ var _Gizra$elm_spa_exmple$ItemComment_View$view = F5(
 		}
 	});
 
-var _Gizra$elm_spa_exmple$Pages_Item_View$viewCompany = F2(
+var _Gizra$elm_spa_exmple$Pages_Item_View$viewPdfPath = F2(
 	function (_p0, item) {
 		var _p1 = _p0;
+		return A3(
+			_elm_community$maybe_extra$Maybe_Extra$unwrap,
+			_Gizra$elm_spa_exmple$Utils_Html$emptyNode,
+			function (_p2) {
+				var _p3 = _p2;
+				return A2(
+					_elm_lang$html$Html$div,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$a,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$href(
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										_p1._0,
+										A2(_elm_lang$core$Basics_ops['++'], '/', _p3._0))),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('Download PDF'),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					});
+			},
+			item.pdfPath);
+	});
+var _Gizra$elm_spa_exmple$Pages_Item_View$viewCompany = F2(
+	function (_p4, item) {
+		var _p5 = _p4;
 		return A3(
 			_elm_community$maybe_extra$Maybe_Extra$unwrap,
 			_Gizra$elm_spa_exmple$Utils_Html$emptyNode,
@@ -23180,9 +23223,9 @@ var _Gizra$elm_spa_exmple$Pages_Item_View$viewCompany = F2(
 					'',
 					A2(
 						_elm_lang$core$Maybe$map,
-						function (_p2) {
+						function (_p6) {
 							return _elm_lang$core$Basics$toString(
-								_Gizra$elm_spa_exmple$Backend_Restful$fromEntityId(_p2));
+								_Gizra$elm_spa_exmple$Backend_Restful$fromEntityId(_p6));
 						},
 						_Gizra$elm_storage_key$StorageKey$value(company.id)));
 				return A2(
@@ -23197,7 +23240,7 @@ var _Gizra$elm_spa_exmple$Pages_Item_View$viewCompany = F2(
 								_0: _elm_lang$html$Html_Attributes$href(
 									A2(
 										_elm_lang$core$Basics_ops['++'],
-										_p1._0,
+										_p5._0,
 										A2(_elm_lang$core$Basics_ops['++'], '/company/', companyId))),
 								_1: {ctor: '[]'}
 							},
@@ -23263,20 +23306,24 @@ var _Gizra$elm_spa_exmple$Pages_Item_View$view = F5(
 								_0: _Gizra$elm_spa_exmple$Pages_Item_View$viewPrice(item),
 								_1: {
 									ctor: '::',
-									_0: A2(_Gizra$elm_spa_exmple$ItemComment_View$viewItemComments, currentUser, item.comments),
+									_0: A2(_Gizra$elm_spa_exmple$Pages_Item_View$viewPdfPath, backendUrl, item),
 									_1: {
 										ctor: '::',
-										_0: A2(
-											_elm_lang$html$Html$map,
-											_Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment,
-											A5(
-												_Gizra$elm_spa_exmple$ItemComment_View$view,
-												backendUrl,
-												currentUser,
-												{ctor: '_Tuple2', _0: itemStorageKey, _1: item},
-												_Gizra$elm_storage_key$StorageKey$New,
-												model.itemComment)),
-										_1: {ctor: '[]'}
+										_0: A2(_Gizra$elm_spa_exmple$ItemComment_View$viewItemComments, currentUser, item.comments),
+										_1: {
+											ctor: '::',
+											_0: A2(
+												_elm_lang$html$Html$map,
+												_Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment,
+												A5(
+													_Gizra$elm_spa_exmple$ItemComment_View$view,
+													backendUrl,
+													currentUser,
+													{ctor: '_Tuple2', _0: itemStorageKey, _1: item},
+													_Gizra$elm_storage_key$StorageKey$New,
+													model.itemComment)),
+											_1: {ctor: '[]'}
+										}
 									}
 								}
 							}

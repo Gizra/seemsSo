@@ -24,13 +24,6 @@ getItemR itemId = do
     item <- runDB $ get404 itemId
     let itemJson = encodeToLazyText $ Entity itemId item
     company <- runDB $ get404 $ itemCompany item
-    let itemMeta =
-            ItemMeta
-            { itemMetaItem = Entity itemId item
-            , itemMetaCompany = Just $ Entity (itemCompany item) company
-            }
-    let itemMetaJson = encodeToLazyText $ toJSON itemMeta
-    comments <- getEncodedItemCommentsByItemId itemId
     mpdf <-
         maybe
             (return Nothing)
@@ -40,6 +33,18 @@ getItemR itemId = do
                      Authorized -> runDB $ selectFirst [PdfFileId ==. pdfId] []
                      _ -> return Nothing)
             (itemPdfFile item)
+    -- The item along with its related data.
+    let itemMeta =
+            ItemMeta
+            { itemMetaItem = Entity itemId item
+            , itemMetaCompany = Just $ Entity (itemCompany item) company
+            , itemMetaPdfFilePath =
+                  map
+                      (\(Entity _ pdf) -> pdfFilePath $ pdfFileFilename pdf)
+                      mpdf
+            }
+    let itemMetaJson = encodeToLazyText $ toJSON itemMeta
+    comments <- getEncodedItemCommentsByItemId itemId
     muser <- maybeAuthPair
     let userJson = encodeToLazyText $ maybe Null (toJSON . uncurry Entity) muser
     let elmFlags =

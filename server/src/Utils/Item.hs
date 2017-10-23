@@ -15,6 +15,7 @@ import Import
 data ItemMeta = ItemMeta
     { itemMetaItem :: Entity Item
     , itemMetaCompany :: Maybe (Entity Company)
+    , itemMetaPdfFilePath :: Maybe FilePath
     }
 
 instance ToJSON ItemMeta where
@@ -22,4 +23,5 @@ instance ToJSON ItemMeta where
         object
             [ "item" .= itemMetaItem itemMeta
             , "company" .= itemMetaCompany itemMeta
+            , "pdf" .= itemMetaPdfFilePath itemMeta
             ]

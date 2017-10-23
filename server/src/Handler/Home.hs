@@ -22,6 +22,7 @@ getHomeR = do
             { itemMetaItem = Entity itemId item
             -- We don't need the company info for the links.
             , itemMetaCompany = Nothing
+            , itemMetaPdfFilePath = Nothing
             }
             | (Entity itemId item) <- items
             ]

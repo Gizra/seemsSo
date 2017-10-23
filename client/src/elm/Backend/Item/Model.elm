@@ -4,6 +4,7 @@ module Backend.Item.Model
         , Item
         , ItemComment
         , Msg(..)
+        , PdfPath(..)
         )
 
 import Amount exposing (Amount)
@@ -21,6 +22,7 @@ type alias Item =
     , comments : EntityDictList ItemCommentId (EditableWebData ItemComment)
     , price : Amount
     , company : Maybe Company
+    , pdfPath : Maybe PdfPath
     }
 
 
@@ -31,6 +33,10 @@ type alias Company =
       id : StorageKey CompanyId
     , name : String
     }
+
+
+type PdfPath
+    = PdfPath String
 
 
 type alias ItemComment =

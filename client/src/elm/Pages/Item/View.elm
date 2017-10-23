@@ -3,7 +3,7 @@ module Pages.Item.View exposing (..)
 import Amount exposing (showAmountWithCurrency)
 import App.Types exposing (BackendUrl(..))
 import Backend.Entities exposing (ItemId)
-import Backend.Item.Model exposing (Item)
+import Backend.Item.Model exposing (Item, PdfPath(..))
 import Backend.Restful exposing (EntityDictList, fromEntityId)
 import Currency.Model exposing (Currency(USD))
 import EveryDictList exposing (EveryDictList)
@@ -26,6 +26,7 @@ view backendUrl currentUser items itemStorageKey model =
                 [ h1 [] [ text item.name ]
                 , viewCompany backendUrl item
                 , viewPrice item
+                , viewPdfPath backendUrl item
                 , viewItemComments currentUser item.comments
                 , Html.map Pages.Item.Model.MsgItemComment <| ItemComment.View.view backendUrl currentUser ( itemStorageKey, item ) StorageKey.New model.itemComment
                 ]
@@ -60,3 +61,15 @@ viewCompany (BackendUrl backendUrl) item =
                 ]
         )
         item.company
+
+
+viewPdfPath : BackendUrl -> Item -> Html Msg
+viewPdfPath (BackendUrl backendUrl) item =
+    unwrap emptyNode
+        (\(PdfPath pdfPath) ->
+            div []
+                [ -- @todo: Make href type safe.
+                  a [ href <| backendUrl ++ "/" ++ pdfPath ] [ text "Download PDF" ]
+                ]
+        )
+        item.pdfPath

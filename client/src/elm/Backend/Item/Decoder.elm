@@ -7,7 +7,7 @@ module Backend.Item.Decoder
 
 import Amount exposing (decodeAmount)
 import Backend.Entities exposing (ItemCommentId, ItemId)
-import Backend.Item.Model exposing (Company, Item, ItemComment)
+import Backend.Item.Model exposing (Company, Item, ItemComment, PdfPath(..))
 import Backend.Restful exposing (EntityDictList, EntityId, decodeId, toEntityId)
 import Date
 import Editable.WebData as EditableWebData exposing (EditableWebData)
@@ -35,6 +35,7 @@ decodeItem currentUser =
         |> optionalAt [ "item", "comments" ] (decodeItemComments currentUser) EveryDictList.empty
         |> requiredAt [ "item", "price" ] decodeAmount
         |> optional "company" (map Just decodeCompany) Nothing
+        |> optional "pdf" (map Just decodePdfPath) Nothing
 
 
 decodeCompany : Decoder Company
@@ -42,6 +43,11 @@ decodeCompany =
     decode Company
         |> custom decodeStorageKeyAsEntityId
         |> required "name" string
+
+
+decodePdfPath : Decoder PdfPath
+decodePdfPath =
+    map PdfPath string
 
 
 decodeItemComments : CurrentUser -> Decoder (EntityDictList ItemCommentId (EditableWebData ItemComment))
