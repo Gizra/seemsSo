@@ -1,10 +1,10 @@
 module Pages.Item.View exposing (..)
 
 import Amount exposing (showAmountWithCurrency)
-import App.Types exposing (BackendUrl)
+import App.Types exposing (BackendUrl(..))
 import Backend.Entities exposing (ItemId)
 import Backend.Item.Model exposing (Item)
-import Backend.Restful exposing (EntityDictList)
+import Backend.Restful exposing (EntityDictList, fromEntityId)
 import Currency.Model exposing (Currency(USD))
 import EveryDictList exposing (EveryDictList)
 import Html exposing (..)
@@ -22,9 +22,22 @@ view : BackendUrl -> CurrentUser -> EntityDictList ItemId Item -> StorageKey Ite
 view backendUrl currentUser items itemStorageKey model =
     unwrap emptyNode
         (\item ->
+            let
+                companyId =
+                    item.company.id
+                        |> StorageKey.value
+                        |> Maybe.map (fromEntityId >> toString)
+                        |> Maybe.withDefault ""
+
+                (BackendUrl baseUrl) =
+                    backendUrl
+            in
             div []
                 [ h1 [] [ text item.name ]
-                , div [] [ text item.company.name ]
+                , div []
+                    [ -- @todo: Make href type safe.
+                      a [ href <| baseUrl ++ "/company/" ++ companyId ] [ text item.company.name ]
+                    ]
                 , viewPrice item
                 , viewItemComments currentUser item.comments
                 , Html.map Pages.Item.Model.MsgItemComment <| ItemComment.View.view backendUrl currentUser ( itemStorageKey, item ) StorageKey.New model.itemComment

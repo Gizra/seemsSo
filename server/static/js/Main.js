@@ -13481,6 +13481,7 @@ var _Gizra$elm_spa_exmple$Backend_Restful$EntityId = function (a) {
 var _Gizra$elm_spa_exmple$Backend_Restful$toEntityId = _Gizra$elm_spa_exmple$Backend_Restful$EntityId;
 var _Gizra$elm_spa_exmple$Backend_Restful$decodeEntityId = A2(_elm_lang$core$Json_Decode$map, _Gizra$elm_spa_exmple$Backend_Restful$toEntityId, _Gizra$elm_spa_exmple$Utils_Json$decodeInt);
 
+var _Gizra$elm_spa_exmple$Backend_Entities$CompanyIdType = {ctor: 'CompanyIdType'};
 var _Gizra$elm_spa_exmple$Backend_Entities$UserIdType = {ctor: 'UserIdType'};
 var _Gizra$elm_spa_exmple$Backend_Entities$ItemIdType = {ctor: 'ItemIdType'};
 var _Gizra$elm_spa_exmple$Backend_Entities$ItemCommentIdType = {ctor: 'ItemCommentIdType'};
@@ -13506,9 +13507,10 @@ var _Gizra$elm_spa_exmple$Backend_Item_Model$Item = F4(
 	function (a, b, c, d) {
 		return {name: a, comments: b, price: c, company: d};
 	});
-var _Gizra$elm_spa_exmple$Backend_Item_Model$Company = function (a) {
-	return {name: a};
-};
+var _Gizra$elm_spa_exmple$Backend_Item_Model$Company = F2(
+	function (a, b) {
+		return {id: a, name: b};
+	});
 var _Gizra$elm_spa_exmple$Backend_Item_Model$ItemComment = F3(
 	function (a, b, c) {
 		return {user: a, comment: b, created: c};
@@ -13794,7 +13796,10 @@ var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeCompany = A3(
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
 	'name',
 	_elm_lang$core$Json_Decode$string,
-	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$Backend_Item_Model$Company));
+	A2(
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
+		_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeStorageKeyAsEntityId,
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$Backend_Item_Model$Company)));
 var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItem = function (currentUser) {
 	return A3(
 		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
@@ -23193,6 +23198,18 @@ var _Gizra$elm_spa_exmple$Pages_Item_View$view = F5(
 			_elm_community$maybe_extra$Maybe_Extra$unwrap,
 			_Gizra$elm_spa_exmple$Utils_Html$emptyNode,
 			function (item) {
+				var _p0 = backendUrl;
+				var baseUrl = _p0._0;
+				var companyId = A2(
+					_elm_lang$core$Maybe$withDefault,
+					'',
+					A2(
+						_elm_lang$core$Maybe$map,
+						function (_p1) {
+							return _elm_lang$core$Basics$toString(
+								_Gizra$elm_spa_exmple$Backend_Restful$fromEntityId(_p1));
+						},
+						_Gizra$elm_storage_key$StorageKey$value(item.company.id)));
 				return A2(
 					_elm_lang$html$Html$div,
 					{ctor: '[]'},
@@ -23213,7 +23230,22 @@ var _Gizra$elm_spa_exmple$Pages_Item_View$view = F5(
 								{ctor: '[]'},
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html$text(item.company.name),
+									_0: A2(
+										_elm_lang$html$Html$a,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$href(
+												A2(
+													_elm_lang$core$Basics_ops['++'],
+													baseUrl,
+													A2(_elm_lang$core$Basics_ops['++'], '/company/', companyId))),
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text(item.company.name),
+											_1: {ctor: '[]'}
+										}),
 									_1: {ctor: '[]'}
 								}),
 							_1: {

@@ -7,7 +7,7 @@ module Backend.Item.Model
         )
 
 import Amount exposing (Amount)
-import Backend.Entities exposing (ItemCommentId, ItemId)
+import Backend.Entities exposing (CompanyId, ItemCommentId, ItemId)
 import Backend.Restful exposing (EntityDictList)
 import Date exposing (Date)
 import Editable.WebData exposing (EditableWebData)
@@ -25,7 +25,11 @@ type alias Item =
 
 
 type alias Company =
-    { name : String
+    { -- @todo: We usually keep the Id outside of record, but Dict doesn't make
+      -- sense here, since an Item can have only a single company.
+      -- Maybe move company to backend.company -- and keep here only the ID.
+      id : StorageKey CompanyId
+    , name : String
     }
 
 

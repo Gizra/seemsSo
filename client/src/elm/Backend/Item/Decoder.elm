@@ -40,6 +40,7 @@ decodeItem currentUser =
 decodeCompany : Decoder Company
 decodeCompany =
     decode Company
+        |> custom decodeStorageKeyAsEntityId
         |> required "name" string
 
 
