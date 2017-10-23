@@ -4,7 +4,7 @@
 
 setTimeout(function() {
   // Elm is expecting to get a list of items.
-  elmApp.ports.items.send([#{rawJS itemJson}]);
+  elmApp.ports.items.send([#{rawJS itemMetaJson}]);
 
   elmApp.ports.itemIdAndCommentsTuple.send({
     "itemId" : #{rawJS $ show $ fromSqlKey itemId},

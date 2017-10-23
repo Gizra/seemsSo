@@ -13809,11 +13809,17 @@ var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItems = function (currentUs
 			ctor: '::',
 			_0: A2(
 				_Gizra$elm_dictlist$EveryDictList$decodeArray2,
-				_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeStorageKeyAsEntityId,
-				_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItem(currentUser)),
+				A2(_elm_lang$core$Json_Decode$field, 'item', _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeStorageKeyAsEntityId),
+				A2(
+					_elm_lang$core$Json_Decode$field,
+					'item',
+					_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItem(currentUser))),
 			_1: {
 				ctor: '::',
-				_0: _Gizra$elm_spa_exmple$Utils_Json$decodeEmptyArrayAs(_Gizra$elm_dictlist$EveryDictList$empty),
+				_0: A2(
+					_elm_lang$core$Json_Decode$field,
+					'item',
+					_Gizra$elm_spa_exmple$Utils_Json$decodeEmptyArrayAs(_Gizra$elm_dictlist$EveryDictList$empty)),
 				_1: {ctor: '[]'}
 			}
 		});

@@ -23,8 +23,8 @@ import Utils.Json exposing (decodeDate, decodeEmptyArrayAs, decodeInt)
 decodeItems : CurrentUser -> Decoder (EntityDictList ItemId Item)
 decodeItems currentUser =
     oneOf
-        [ decodeArray2 decodeStorageKeyAsEntityId (decodeItem currentUser)
-        , decodeEmptyArrayAs empty
+        [ decodeArray2 (field "item" decodeStorageKeyAsEntityId) (field "item" <| decodeItem currentUser)
+        , field "item" <| decodeEmptyArrayAs empty
         ]
 
 

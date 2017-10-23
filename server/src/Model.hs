@@ -35,13 +35,22 @@ instance ToJSON (Entity Order) where
         object ["id" .= fromSqlKey orderId, "status" .= orderStatus order]
 
 instance ToJSON (Entity Item) where
-    toJSON (Entity itemId item) =
+    toJSON (Entity entityId entity) =
         object
-            [ "id" .= (fromSqlKey itemId)
-            , "name" .= itemName item
-            , "created" .= itemCreated item
-            , "user" .= itemUser item
-            , "price" .= itemPrice item
+            [ "id" .= (fromSqlKey entityId)
+            , "name" .= itemName entity
+            , "created" .= itemCreated entity
+            , "user" .= itemUser entity
+            , "price" .= itemPrice entity
+            ]
+
+instance ToJSON (Entity Company) where
+    toJSON (Entity entityId entity) =
+        object
+            [ "id" .= (fromSqlKey entityId)
+            , "name" .= companyName entity
+            , "created" .= companyCreated entity
+            , "user" .= companyUser entity
             ]
 
 -- @todo: Use orderStatusLabel

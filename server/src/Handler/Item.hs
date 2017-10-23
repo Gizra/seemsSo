@@ -16,6 +16,7 @@ import Import
 import Text.Julius (rawJS)
 import Utils.Elm (ElmWidgetFlags(..))
 import Utils.Form (renderSematnicUiDivs)
+import Utils.Item (ItemMeta(..))
 import Utils.ItemComment (getEncodedItemCommentsByItemId)
 
 getItemR :: ItemId -> Handler Html
@@ -23,6 +24,12 @@ getItemR itemId = do
     item <- runDB $ get404 itemId
     let itemJson = encodeToLazyText $ Entity itemId item
     company <- runDB $ get404 $ itemCompany item
+    let itemMeta =
+            ItemMeta
+            { itemMetaItem = Entity itemId item
+            , itemMetaCompany = Entity (itemCompany item) company
+            }
+    let itemMetaJson = encodeToLazyText $ toJSON itemMeta
     comments <- getEncodedItemCommentsByItemId itemId
     mpdf <-
         maybe
