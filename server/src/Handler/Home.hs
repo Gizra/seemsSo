@@ -15,7 +15,7 @@ getHomeR :: Handler Html
 getHomeR = do
     muser <- maybeAuthPair
     -- Get recent 5 items.
-    items <- runDB $ selectList [] [Desc ItemId]
+    items <- runDB $ selectList [] [Desc ItemId, LimitTo 5]
     defaultLayout $ do
         setTitle "Welcome To SeemsSo!"
         addScript $ StaticR js_Main_js

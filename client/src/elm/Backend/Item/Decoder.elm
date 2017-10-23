@@ -34,7 +34,7 @@ decodeItem currentUser =
         |> requiredAt [ "item", "name" ] string
         |> optionalAt [ "item", "comments" ] (decodeItemComments currentUser) EveryDictList.empty
         |> requiredAt [ "item", "price" ] decodeAmount
-        |> required "company" decodeCompany
+        |> optional "company" (map Just decodeCompany) Nothing
 
 
 decodeCompany : Decoder Company

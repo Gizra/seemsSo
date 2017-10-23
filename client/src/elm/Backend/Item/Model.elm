@@ -20,7 +20,7 @@ type alias Item =
     { name : String
     , comments : EntityDictList ItemCommentId (EditableWebData ItemComment)
     , price : Amount
-    , company : Company
+    , company : Maybe Company
     }
 
 

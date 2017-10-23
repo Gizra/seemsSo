@@ -27,7 +27,7 @@ getItemR itemId = do
     let itemMeta =
             ItemMeta
             { itemMetaItem = Entity itemId item
-            , itemMetaCompany = Entity (itemCompany item) company
+            , itemMetaCompany = Just $ Entity (itemCompany item) company
             }
     let itemMetaJson = encodeToLazyText $ toJSON itemMeta
     comments <- getEncodedItemCommentsByItemId itemId

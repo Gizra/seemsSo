@@ -13801,10 +13801,11 @@ var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeCompany = A3(
 		_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeStorageKeyAsEntityId,
 		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$Backend_Item_Model$Company)));
 var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItem = function (currentUser) {
-	return A3(
-		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+	return A4(
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optional,
 		'company',
-		_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeCompany,
+		A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeCompany),
+		_elm_lang$core$Maybe$Nothing,
 		A3(
 			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$requiredAt,
 			{
@@ -23167,6 +23168,49 @@ var _Gizra$elm_spa_exmple$ItemComment_View$view = F5(
 		}
 	});
 
+var _Gizra$elm_spa_exmple$Pages_Item_View$viewCompany = F2(
+	function (_p0, item) {
+		var _p1 = _p0;
+		return A3(
+			_elm_community$maybe_extra$Maybe_Extra$unwrap,
+			_Gizra$elm_spa_exmple$Utils_Html$emptyNode,
+			function (company) {
+				var companyId = A2(
+					_elm_lang$core$Maybe$withDefault,
+					'',
+					A2(
+						_elm_lang$core$Maybe$map,
+						function (_p2) {
+							return _elm_lang$core$Basics$toString(
+								_Gizra$elm_spa_exmple$Backend_Restful$fromEntityId(_p2));
+						},
+						_Gizra$elm_storage_key$StorageKey$value(company.id)));
+				return A2(
+					_elm_lang$html$Html$div,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$a,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$href(
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										_p1._0,
+										A2(_elm_lang$core$Basics_ops['++'], '/company/', companyId))),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text(company.name),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					});
+			},
+			item.company);
+	});
 var _Gizra$elm_spa_exmple$Pages_Item_View$viewPrice = function (item) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -23198,18 +23242,6 @@ var _Gizra$elm_spa_exmple$Pages_Item_View$view = F5(
 			_elm_community$maybe_extra$Maybe_Extra$unwrap,
 			_Gizra$elm_spa_exmple$Utils_Html$emptyNode,
 			function (item) {
-				var _p0 = backendUrl;
-				var baseUrl = _p0._0;
-				var companyId = A2(
-					_elm_lang$core$Maybe$withDefault,
-					'',
-					A2(
-						_elm_lang$core$Maybe$map,
-						function (_p1) {
-							return _elm_lang$core$Basics$toString(
-								_Gizra$elm_spa_exmple$Backend_Restful$fromEntityId(_p1));
-						},
-						_Gizra$elm_storage_key$StorageKey$value(item.company.id)));
 				return A2(
 					_elm_lang$html$Html$div,
 					{ctor: '[]'},
@@ -23225,29 +23257,7 @@ var _Gizra$elm_spa_exmple$Pages_Item_View$view = F5(
 							}),
 						_1: {
 							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$div,
-								{ctor: '[]'},
-								{
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$a,
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$href(
-												A2(
-													_elm_lang$core$Basics_ops['++'],
-													baseUrl,
-													A2(_elm_lang$core$Basics_ops['++'], '/company/', companyId))),
-											_1: {ctor: '[]'}
-										},
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html$text(item.company.name),
-											_1: {ctor: '[]'}
-										}),
-									_1: {ctor: '[]'}
-								}),
+							_0: A2(_Gizra$elm_spa_exmple$Pages_Item_View$viewCompany, backendUrl, item),
 							_1: {
 								ctor: '::',
 								_0: _Gizra$elm_spa_exmple$Pages_Item_View$viewPrice(item),

@@ -14,7 +14,7 @@ import Import
 -}
 data ItemMeta = ItemMeta
     { itemMetaItem :: Entity Item
-    , itemMetaCompany :: Entity Company
+    , itemMetaCompany :: Maybe (Entity Company)
     }
 
 instance ToJSON ItemMeta where

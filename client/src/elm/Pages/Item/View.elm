@@ -22,22 +22,9 @@ view : BackendUrl -> CurrentUser -> EntityDictList ItemId Item -> StorageKey Ite
 view backendUrl currentUser items itemStorageKey model =
     unwrap emptyNode
         (\item ->
-            let
-                companyId =
-                    item.company.id
-                        |> StorageKey.value
-                        |> Maybe.map (fromEntityId >> toString)
-                        |> Maybe.withDefault ""
-
-                (BackendUrl baseUrl) =
-                    backendUrl
-            in
             div []
                 [ h1 [] [ text item.name ]
-                , div []
-                    [ -- @todo: Make href type safe.
-                      a [ href <| baseUrl ++ "/company/" ++ companyId ] [ text item.company.name ]
-                    ]
+                , viewCompany backendUrl item
                 , viewPrice item
                 , viewItemComments currentUser item.comments
                 , Html.map Pages.Item.Model.MsgItemComment <| ItemComment.View.view backendUrl currentUser ( itemStorageKey, item ) StorageKey.New model.itemComment
@@ -54,3 +41,22 @@ viewPrice item =
             [ class "ui label" ]
             [ showAmountWithCurrency item.price USD ]
         ]
+
+
+viewCompany : BackendUrl -> Item -> Html Msg
+viewCompany (BackendUrl backendUrl) item =
+    unwrap emptyNode
+        (\company ->
+            let
+                companyId =
+                    company.id
+                        |> StorageKey.value
+                        |> Maybe.map (fromEntityId >> toString)
+                        |> Maybe.withDefault ""
+            in
+            div []
+                [ -- @todo: Make href type safe.
+                  a [ href <| backendUrl ++ "/company/" ++ companyId ] [ text company.name ]
+                ]
+        )
+        item.company
