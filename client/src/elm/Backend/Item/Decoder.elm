@@ -7,7 +7,7 @@ module Backend.Item.Decoder
 
 import Amount exposing (decodeAmount)
 import Backend.Entities exposing (ItemCommentId, ItemId)
-import Backend.Item.Model exposing (Item, ItemComment)
+import Backend.Item.Model exposing (Company, Item, ItemComment)
 import Backend.Restful exposing (EntityDictList, EntityId, decodeId, toEntityId)
 import Date
 import Editable.WebData as EditableWebData exposing (EditableWebData)
@@ -23,7 +23,7 @@ import Utils.Json exposing (decodeDate, decodeEmptyArrayAs, decodeInt)
 decodeItems : CurrentUser -> Decoder (EntityDictList ItemId Item)
 decodeItems currentUser =
     oneOf
-        [ decodeArray2 (field "item" decodeStorageKeyAsEntityId) (field "item" <| decodeItem currentUser)
+        [ decodeArray2 (field "item" decodeStorageKeyAsEntityId) (decodeItem currentUser)
         , field "item" <| decodeEmptyArrayAs empty
         ]
 
@@ -31,9 +31,16 @@ decodeItems currentUser =
 decodeItem : CurrentUser -> Decoder Item
 decodeItem currentUser =
     decode Item
+        |> requiredAt [ "item", "name" ] string
+        |> optionalAt [ "item", "comments" ] (decodeItemComments currentUser) EveryDictList.empty
+        |> requiredAt [ "item", "price" ] decodeAmount
+        |> required "company" decodeCompany
+
+
+decodeCompany : Decoder Company
+decodeCompany =
+    decode Company
         |> required "name" string
-        |> optional "comments" (decodeItemComments currentUser) EveryDictList.empty
-        |> required "price" decodeAmount
 
 
 decodeItemComments : CurrentUser -> Decoder (EntityDictList ItemCommentId (EditableWebData ItemComment))

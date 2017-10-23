@@ -24,6 +24,7 @@ view backendUrl currentUser items itemStorageKey model =
         (\item ->
             div []
                 [ h1 [] [ text item.name ]
+                , div [] [ text item.company.name ]
                 , viewPrice item
                 , viewItemComments currentUser item.comments
                 , Html.map Pages.Item.Model.MsgItemComment <| ItemComment.View.view backendUrl currentUser ( itemStorageKey, item ) StorageKey.New model.itemComment

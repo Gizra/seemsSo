@@ -1,6 +1,7 @@
 module Backend.Item.Model
     exposing
-        ( Item
+        ( Company
+        , Item
         , ItemComment
         , Msg(..)
         )
@@ -19,6 +20,12 @@ type alias Item =
     { name : String
     , comments : EntityDictList ItemCommentId (EditableWebData ItemComment)
     , price : Amount
+    , company : Company
+    }
+
+
+type alias Company =
+    { name : String
     }
 
 

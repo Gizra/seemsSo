@@ -13502,10 +13502,13 @@ var _Gizra$elm_spa_exmple$User_Model$Authenticated = function (a) {
 };
 var _Gizra$elm_spa_exmple$User_Model$Anonymous = {ctor: 'Anonymous'};
 
-var _Gizra$elm_spa_exmple$Backend_Item_Model$Item = F3(
-	function (a, b, c) {
-		return {name: a, comments: b, price: c};
+var _Gizra$elm_spa_exmple$Backend_Item_Model$Item = F4(
+	function (a, b, c, d) {
+		return {name: a, comments: b, price: c, company: d};
 	});
+var _Gizra$elm_spa_exmple$Backend_Item_Model$Company = function (a) {
+	return {name: a};
+};
 var _Gizra$elm_spa_exmple$Backend_Item_Model$ItemComment = F3(
 	function (a, b, c) {
 		return {user: a, comment: b, created: c};
@@ -13787,21 +13790,54 @@ var _Gizra$elm_spa_exmple$Backend_Item_Decoder$deocdeItemIdAndComments = functio
 						return {ctor: '_Tuple2', _0: v0, _1: v1};
 					}))));
 };
+var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeCompany = A3(
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+	'name',
+	_elm_lang$core$Json_Decode$string,
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$Backend_Item_Model$Company));
 var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItem = function (currentUser) {
 	return A3(
 		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-		'price',
-		_Gizra$elm_spa_exmple$Amount$decodeAmount,
-		A4(
-			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optional,
-			'comments',
-			_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItemComments(currentUser),
-			_Gizra$elm_dictlist$EveryDictList$empty,
-			A3(
-				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-				'name',
-				_elm_lang$core$Json_Decode$string,
-				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$Backend_Item_Model$Item))));
+		'company',
+		_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeCompany,
+		A3(
+			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$requiredAt,
+			{
+				ctor: '::',
+				_0: 'item',
+				_1: {
+					ctor: '::',
+					_0: 'price',
+					_1: {ctor: '[]'}
+				}
+			},
+			_Gizra$elm_spa_exmple$Amount$decodeAmount,
+			A4(
+				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optionalAt,
+				{
+					ctor: '::',
+					_0: 'item',
+					_1: {
+						ctor: '::',
+						_0: 'comments',
+						_1: {ctor: '[]'}
+					}
+				},
+				_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItemComments(currentUser),
+				_Gizra$elm_dictlist$EveryDictList$empty,
+				A3(
+					_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$requiredAt,
+					{
+						ctor: '::',
+						_0: 'item',
+						_1: {
+							ctor: '::',
+							_0: 'name',
+							_1: {ctor: '[]'}
+						}
+					},
+					_elm_lang$core$Json_Decode$string,
+					_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_Gizra$elm_spa_exmple$Backend_Item_Model$Item)))));
 };
 var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItems = function (currentUser) {
 	return _elm_lang$core$Json_Decode$oneOf(
@@ -13810,10 +13846,7 @@ var _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItems = function (currentUs
 			_0: A2(
 				_Gizra$elm_dictlist$EveryDictList$decodeArray2,
 				A2(_elm_lang$core$Json_Decode$field, 'item', _Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeStorageKeyAsEntityId),
-				A2(
-					_elm_lang$core$Json_Decode$field,
-					'item',
-					_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItem(currentUser))),
+				_Gizra$elm_spa_exmple$Backend_Item_Decoder$decodeItem(currentUser)),
 			_1: {
 				ctor: '::',
 				_0: A2(
@@ -23175,23 +23208,34 @@ var _Gizra$elm_spa_exmple$Pages_Item_View$view = F5(
 							}),
 						_1: {
 							ctor: '::',
-							_0: _Gizra$elm_spa_exmple$Pages_Item_View$viewPrice(item),
+							_0: A2(
+								_elm_lang$html$Html$div,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text(item.company.name),
+									_1: {ctor: '[]'}
+								}),
 							_1: {
 								ctor: '::',
-								_0: A2(_Gizra$elm_spa_exmple$ItemComment_View$viewItemComments, currentUser, item.comments),
+								_0: _Gizra$elm_spa_exmple$Pages_Item_View$viewPrice(item),
 								_1: {
 									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$map,
-										_Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment,
-										A5(
-											_Gizra$elm_spa_exmple$ItemComment_View$view,
-											backendUrl,
-											currentUser,
-											{ctor: '_Tuple2', _0: itemStorageKey, _1: item},
-											_Gizra$elm_storage_key$StorageKey$New,
-											model.itemComment)),
-									_1: {ctor: '[]'}
+									_0: A2(_Gizra$elm_spa_exmple$ItemComment_View$viewItemComments, currentUser, item.comments),
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$map,
+											_Gizra$elm_spa_exmple$Pages_Item_Model$MsgItemComment,
+											A5(
+												_Gizra$elm_spa_exmple$ItemComment_View$view,
+												backendUrl,
+												currentUser,
+												{ctor: '_Tuple2', _0: itemStorageKey, _1: item},
+												_Gizra$elm_storage_key$StorageKey$New,
+												model.itemComment)),
+										_1: {ctor: '[]'}
+									}
 								}
 							}
 						}
