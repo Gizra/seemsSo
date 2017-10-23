@@ -15041,7 +15041,7 @@ var _Gizra$elm_spa_exmple$Pages_Homepage_View$viewItemsTeaser = F2(
 												A2(
 													_elm_lang$core$Basics_ops['++'],
 													_p1._0,
-													A2(_elm_lang$core$Basics_ops['++'], 'item/', itemId))),
+													A2(_elm_lang$core$Basics_ops['++'], '/item/', itemId))),
 											_1: {ctor: '[]'}
 										},
 										{
