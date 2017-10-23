@@ -26,17 +26,6 @@ spec = do
                 authenticateAs userId
                 get $ ItemR itemId
                 statusIs 200
-            it "shows the item's name" $ do
-                (_, _, _, itemId) <- prepareScenario
-                get $ ItemR itemId
-            it "should show the item's name" $ do
-                (_, _, _, itemId) <- prepareScenario
-                get $ ItemR itemId
-                htmlAnyContain "h2" "Item1"
-            it "should show the item's company" $ do
-                (_, _, _, itemId) <- prepareScenario
-                get $ ItemR itemId
-                htmlAnyContain ".ui.segment > .company" "company1"
             -- @todo: Currenly for any auth user.
             it "should not show the download link for privileged users" $ do
                 (_, _, _, itemId) <- prepareScenario
