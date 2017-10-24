@@ -168,13 +168,8 @@ instance Yesod App
         mauth <- maybeAuthPair
         case mauth of
             Nothing -> return AuthenticationRequired
-            Just (userId, _) -> do
-                hasAccess <- hasAccessToPdfFileDownload userId filename
-                admin <- isAdmin
-                return $
-                    if hasAccess == Authorized || admin == Authorized
-                        then Authorized
-                        else hasAccess
+            -- Let any auth user download the PDF.
+            Just (userId, _) -> return Authorized
     isAuthorized (StaticR _) _ = return Authorized
     isAuthorized HomeR _ = return Authorized
     isAuthorized ProfileR _ = isAuthenticated
@@ -306,8 +301,10 @@ instance YesodAuth App where
                                  runDB $
                                  selectFirst [AccessTokenToken ==. token] []
                              return $
-                                 fmap (\tokenId -> accessTokenUserId $ entityVal tokenId) mTokenId
-                        )
+                                 fmap
+                                     (\tokenId ->
+                                          accessTokenUserId $ entityVal tokenId)
+                                     mTokenId)
                         mToken
               -- Determine if Basic auth was used and is valid.
                 basicAuthValues <- lookupBasicAuth
