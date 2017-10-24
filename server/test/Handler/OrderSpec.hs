@@ -23,36 +23,12 @@ spec = do
                 _ <- prepareScenario
                 get pdfFileStaticRoute
                 statusIs 303
-            it
-                "should not allow access to authenticated user that didn't buy the item" $ do
+            it "should allow access to authenticated user" $ do
                 _ <- prepareScenario
                 alice <- createUser "alice"
                 authenticateAs alice
                 get pdfFileStaticRoute
-                statusIs 403
-            it "should allow access to admin user that didn't buy the item" $ do
-                _ <- prepareScenario
-                adminUser <- createUser "adminUser"
-                let (Entity adminUid _) = adminUser
-                -- Create "admin" role, and assign it to the user.
-                roleId <- runDB . insert $ Role "admin"
-                _ <- runDB . insert $ UserRole roleId adminUid
-                authenticateAs adminUser
-                get pdfFileStaticRoute
                 statusIs 200
-            it "should allow access to the owner, that didn't buy the item" $ do
-                (ownerUser, _, _, _) <- prepareScenario
-                authenticateAs ownerUser
-                get pdfFileStaticRoute
-                statusIs 200
-            it "should not allow access to user with 'active' order" $
-                testWithOrderStatus OrderStatusActive 403
-            it "should not allow access to user with 'cancelled' order" $
-                testWithOrderStatus OrderStatusCancelled 403
-            it "should not allow access to user with 'payment error' order" $
-                testWithOrderStatus OrderStatusPaymentError 403
-            it "should allow access to authenticated user that bought the item" $
-                testWithOrderStatus OrderStatusPaid 200
         describe "Order RESTful" $ do
             it "should allow access to anonymous user" $ do
                 get RestfulOrderR
