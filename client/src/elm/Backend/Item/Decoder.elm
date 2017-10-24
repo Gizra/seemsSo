@@ -7,7 +7,7 @@ module Backend.Item.Decoder
 
 import Amount exposing (decodeAmount)
 import Backend.Entities exposing (ItemCommentId, ItemId)
-import Backend.Item.Model exposing (Item, ItemComment)
+import Backend.Item.Model exposing (Company, Item, ItemComment, PdfPath(..))
 import Backend.Restful exposing (EntityDictList, EntityId, decodeId, toEntityId)
 import Date
 import Editable.WebData as EditableWebData exposing (EditableWebData)
@@ -23,17 +23,31 @@ import Utils.Json exposing (decodeDate, decodeEmptyArrayAs, decodeInt)
 decodeItems : CurrentUser -> Decoder (EntityDictList ItemId Item)
 decodeItems currentUser =
     oneOf
-        [ decodeArray2 decodeStorageKeyAsEntityId (decodeItem currentUser)
-        , decodeEmptyArrayAs empty
+        [ decodeArray2 (field "item" decodeStorageKeyAsEntityId) (decodeItem currentUser)
+        , field "item" <| decodeEmptyArrayAs empty
         ]
 
 
 decodeItem : CurrentUser -> Decoder Item
 decodeItem currentUser =
     decode Item
+        |> requiredAt [ "item", "name" ] string
+        |> optionalAt [ "item", "comments" ] (decodeItemComments currentUser) EveryDictList.empty
+        |> requiredAt [ "item", "price" ] decodeAmount
+        |> optional "company" (map Just decodeCompany) Nothing
+        |> optional "pdf" (map Just decodePdfPath) Nothing
+
+
+decodeCompany : Decoder Company
+decodeCompany =
+    decode Company
+        |> custom decodeStorageKeyAsEntityId
         |> required "name" string
-        |> optional "comments" (decodeItemComments currentUser) EveryDictList.empty
-        |> required "price" decodeAmount
+
+
+decodePdfPath : Decoder PdfPath
+decodePdfPath =
+    map PdfPath string
 
 
 decodeItemComments : CurrentUser -> Decoder (EntityDictList ItemCommentId (EditableWebData ItemComment))

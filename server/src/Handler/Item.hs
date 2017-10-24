@@ -16,6 +16,7 @@ import Import
 import Text.Julius (rawJS)
 import Utils.Elm (ElmWidgetFlags(..))
 import Utils.Form (renderSematnicUiDivs)
+import Utils.Item (ItemMeta(..))
 import Utils.ItemComment (getEncodedItemCommentsByItemId)
 
 getItemR :: ItemId -> Handler Html
@@ -23,7 +24,6 @@ getItemR itemId = do
     item <- runDB $ get404 itemId
     let itemJson = encodeToLazyText $ Entity itemId item
     company <- runDB $ get404 $ itemCompany item
-    comments <- getEncodedItemCommentsByItemId itemId
     mpdf <-
         maybe
             (return Nothing)
@@ -33,6 +33,18 @@ getItemR itemId = do
                      Authorized -> runDB $ selectFirst [PdfFileId ==. pdfId] []
                      _ -> return Nothing)
             (itemPdfFile item)
+    -- The item along with its related data.
+    let itemMeta =
+            ItemMeta
+            { itemMetaItem = Entity itemId item
+            , itemMetaCompany = Just $ Entity (itemCompany item) company
+            , itemMetaPdfFilePath =
+                  map
+                      (\(Entity _ pdf) -> pdfFilePath $ pdfFileFilename pdf)
+                      mpdf
+            }
+    let itemMetaJson = encodeToLazyText $ toJSON itemMeta
+    comments <- getEncodedItemCommentsByItemId itemId
     muser <- maybeAuthPair
     let userJson = encodeToLazyText $ maybe Null (toJSON . uncurry Entity) muser
     let elmFlags =

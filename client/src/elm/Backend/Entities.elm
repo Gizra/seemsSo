@@ -19,6 +19,7 @@ import Backend.Restful exposing (EntityId)
    In fact, here's a simple code-generation process which you can adapt
    to your preferred code-editor. Here's the list of base types:
 
+       Company
        Item
        ItemComment
        UserId
@@ -39,6 +40,14 @@ import Backend.Restful exposing (EntityId)
    Eventually, you could imagine just having a file with a list
    of our entity types, and a little script to generate the code below.
 -}
+
+
+type alias CompanyId =
+    EntityId CompanyIdType
+
+
+type CompanyIdType
+    = CompanyIdType
 
 
 type alias UserId =

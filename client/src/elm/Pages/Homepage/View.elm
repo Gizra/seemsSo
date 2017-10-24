@@ -33,7 +33,7 @@ viewItemsTeaser (BackendUrl backendUrl) items =
                                 |> Maybe.withDefault ""
                     in
                     li []
-                        [ a [ href <| backendUrl ++ "item/" ++ itemId ] [ text item.name ]
+                        [ a [ href <| backendUrl ++ "/item/" ++ itemId ] [ text item.name ]
                         ]
                 )
             |> EveryDictList.values

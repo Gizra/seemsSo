@@ -1,7 +1,5 @@
 <div class="ui container">
 
-    <h2>#{itemName item}
-
     <div class="ui tabular menu">
         <a class="item active" href="@{ItemR itemId}">
             View
@@ -10,18 +8,5 @@
 
 
     <div class="ui segment">
-        <div class="company">
-            <strong>Company:</strong> <span class="company">#{companyName company}</span>
-
-        $maybe (Entity _ pdf) <- mpdf
-            <div class="download">
-                <a href=/#{pdfFilePath $ pdfFileFilename pdf}>
-                    Download PDF
-
-
-        <section class="comments">
-          <h2>Comments
-
-
-          $# Comment form
-          ^{elmAppWidget}
+        $# Comment form
+        ^{elmAppWidget}

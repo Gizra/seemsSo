@@ -1,2 +1,2 @@
 // Send the values via Elm's ports.
-elmApp.ports.items.send(#{rawJS itemsJson});
+elmApp.ports.items.send(#{rawJS itemsMetaJson});

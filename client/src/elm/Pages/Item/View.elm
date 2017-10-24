@@ -1,10 +1,10 @@
 module Pages.Item.View exposing (..)
 
 import Amount exposing (showAmountWithCurrency)
-import App.Types exposing (BackendUrl)
+import App.Types exposing (BackendUrl(..))
 import Backend.Entities exposing (ItemId)
-import Backend.Item.Model exposing (Item)
-import Backend.Restful exposing (EntityDictList)
+import Backend.Item.Model exposing (Item, PdfPath(..))
+import Backend.Restful exposing (EntityDictList, fromEntityId)
 import Currency.Model exposing (Currency(USD))
 import EveryDictList exposing (EveryDictList)
 import Html exposing (..)
@@ -24,7 +24,9 @@ view backendUrl currentUser items itemStorageKey model =
         (\item ->
             div []
                 [ h1 [] [ text item.name ]
+                , viewCompany backendUrl item
                 , viewPrice item
+                , viewPdfPath backendUrl item
                 , viewItemComments currentUser item.comments
                 , Html.map Pages.Item.Model.MsgItemComment <| ItemComment.View.view backendUrl currentUser ( itemStorageKey, item ) StorageKey.New model.itemComment
                 ]
@@ -40,3 +42,34 @@ viewPrice item =
             [ class "ui label" ]
             [ showAmountWithCurrency item.price USD ]
         ]
+
+
+viewCompany : BackendUrl -> Item -> Html Msg
+viewCompany (BackendUrl backendUrl) item =
+    unwrap emptyNode
+        (\company ->
+            let
+                companyId =
+                    company.id
+                        |> StorageKey.value
+                        |> Maybe.map (fromEntityId >> toString)
+                        |> Maybe.withDefault ""
+            in
+            div []
+                [ -- @todo: Make href type safe.
+                  a [ href <| backendUrl ++ "/company/" ++ companyId ] [ text company.name ]
+                ]
+        )
+        item.company
+
+
+viewPdfPath : BackendUrl -> Item -> Html Msg
+viewPdfPath (BackendUrl backendUrl) item =
+    unwrap emptyNode
+        (\(PdfPath pdfPath) ->
+            div []
+                [ -- @todo: Make href type safe.
+                  a [ href <| backendUrl ++ "/" ++ pdfPath ] [ text "Download PDF" ]
+                ]
+        )
+        item.pdfPath
