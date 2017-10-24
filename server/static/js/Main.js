@@ -23180,36 +23180,52 @@ var _Gizra$elm_spa_exmple$ItemComment_View$view = F5(
 var _Gizra$elm_spa_exmple$Pages_Item_View$viewPdfPath = F2(
 	function (_p0, item) {
 		var _p1 = _p0;
-		return A3(
-			_elm_community$maybe_extra$Maybe_Extra$unwrap,
-			_Gizra$elm_spa_exmple$Utils_Html$emptyNode,
-			function (_p2) {
-				var _p3 = _p2;
-				return A2(
-					_elm_lang$html$Html$div,
-					{ctor: '[]'},
-					{
-						ctor: '::',
-						_0: A2(
+		var _p3 = _p1._0;
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: function () {
+					var _p2 = item.pdfPath;
+					if (_p2.ctor === 'Nothing') {
+						return A2(
 							_elm_lang$html$Html$a,
 							{
 								ctor: '::',
 								_0: _elm_lang$html$Html_Attributes$href(
 									A2(
 										_elm_lang$core$Basics_ops['++'],
-										_p1._0,
-										A2(_elm_lang$core$Basics_ops['++'], '/', _p3._0))),
+										_p3,
+										A2(_elm_lang$core$Basics_ops['++'], '/', 'auth/login'))),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('Login to Download PDF'),
+								_1: {ctor: '[]'}
+							});
+					} else {
+						return A2(
+							_elm_lang$html$Html$a,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$href(
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										_p3,
+										A2(_elm_lang$core$Basics_ops['++'], '/', _p2._0._0))),
 								_1: {ctor: '[]'}
 							},
 							{
 								ctor: '::',
 								_0: _elm_lang$html$Html$text('Download PDF'),
 								_1: {ctor: '[]'}
-							}),
-						_1: {ctor: '[]'}
-					});
-			},
-			item.pdfPath);
+							});
+					}
+				}(),
+				_1: {ctor: '[]'}
+			});
 	});
 var _Gizra$elm_spa_exmple$Pages_Item_View$viewCompany = F2(
 	function (_p4, item) {

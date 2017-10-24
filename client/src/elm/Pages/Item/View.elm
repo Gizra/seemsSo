@@ -65,11 +65,12 @@ viewCompany (BackendUrl backendUrl) item =
 
 viewPdfPath : BackendUrl -> Item -> Html Msg
 viewPdfPath (BackendUrl backendUrl) item =
-    unwrap emptyNode
-        (\(PdfPath pdfPath) ->
-            div []
-                [ -- @todo: Make href type safe.
-                  a [ href <| backendUrl ++ "/" ++ pdfPath ] [ text "Download PDF" ]
-                ]
-        )
-        item.pdfPath
+    div []
+        [ case item.pdfPath of
+            Nothing ->
+                -- @todo: Make href type safe.
+                a [ href <| backendUrl ++ "/" ++ "auth/login" ] [ text "Login to Download PDF" ]
+
+            Just (PdfPath pdfPath) ->
+                a [ href <| backendUrl ++ "/" ++ pdfPath ] [ text "Download PDF" ]
+        ]
